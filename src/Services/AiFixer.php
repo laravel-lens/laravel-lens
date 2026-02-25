@@ -44,7 +44,7 @@ Context Snippet:
 ```
 PROMPT;
 
-        $response = Ai::chat()->system('You are a strict Laravel & WCAG expert. Fix the accessibility issue in the provided Blade snippet. DO NOT modify Laravel directives, variables, or unrelated HTML. Return structured JSON.')
+        $response = Ai::driver('gemini')->chat()->model('gemini-3-flash-preview')->system('You are a strict Laravel & WCAG expert. Fix the accessibility issue in the provided Blade snippet. DO NOT modify Laravel directives, variables, or unrelated HTML. Return structured JSON.')
             ->prompt($prompt)
             ->schema([
                 'type' => 'object',
