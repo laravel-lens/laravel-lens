@@ -28,7 +28,7 @@ class AxeScanner
             // We need to inject the axe-core library and run it.
             // Spatie Browsershot allows evaluating JavaScript on the page.
             $script = <<<'JS'
-                return (async () => {
+                (async () => {
                     // Fetch and inject axe-core if it's not already present
                     if (typeof window.axe === 'undefined') {
                         await new Promise((resolve, reject) => {
