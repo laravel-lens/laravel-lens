@@ -28,19 +28,22 @@ class AxeScanner
             // We need to inject the axe-core library and run it.
             // Spatie Browsershot allows evaluating JavaScript on the page.
             $script = <<<'JS'
-                // Fetch and inject axe-core if it's not already present
-                if (typeof axe === 'undefined') {
-                    const script = document.createElement('script');
-                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.8.2/axe.min.js';
-                    document.head.appendChild(script);
+                return (async () => {
+                    // Fetch and inject axe-core if it's not already present
+                    if (typeof window.axe === 'undefined') {
+                        await new Promise((resolve, reject) => {
+                            const script = document.createElement('script');
+                            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.8.2/axe.min.js';
+                            script.onload = resolve;
+                            script.onerror = reject;
+                            document.head.appendChild(script);
+                        });
+                    }
                     
-                    // Wait for the script to load
-                    await new Promise(resolve => script.onload = resolve);
-                }
-                
-                // Run axe and return the violations array
-                const results = await axe.run();
-                return results.violations;
+                    // Run axe and return the violations array
+                    const results = await window.axe.run();
+                    return results.violations;
+                })();
 JS;
 
             $violations = $browsershot->evaluate($script);
