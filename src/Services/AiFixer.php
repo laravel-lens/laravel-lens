@@ -12,13 +12,20 @@ class AiFixer
      */
     public function suggestFix(string $filePath, int $lineNumber, string $issueId, string $description): array
     {
-        $absolutePath = base_path($filePath);
+        $absolutePath = resource_path('views/'.$filePath);
 
         if (! File::exists($absolutePath)) {
-            throw new \Exception("File not found at: {$absolutePath}");
+            $absolutePath = base_path($filePath);
+            if (! File::exists($absolutePath)) {
+                throw new \Exception("Unable to locate the Blade file for AI remediation. Path attempted: {$filePath}");
+            }
         }
 
-        $lines = file($absolutePath);
+        try {
+            $lines = file($absolutePath);
+        } catch (\Throwable $e) {
+            throw new \Exception("Failed to read file contents for AI remediation: {$e->getMessage()}");
+        }
 
         // Extract +/- 3 lines of context around the error line
         $startLine = max(0, $lineNumber - 4); // 0-indexed, and we want 3 lines before
@@ -44,7 +51,7 @@ Context Snippet:
 ```
 PROMPT;
 
-        $response = Ai::driver('gemini')->chat()->model('gemini-3-flash-preview')->system('You are a strict Laravel & WCAG expert. Fix the accessibility issue in the provided Blade snippet. DO NOT modify Laravel directives, variables, or unrelated HTML. Return structured JSON.')
+        $response = Ai::driver('gemini')->chat()->model('gemini-3-flash')->system('You are a strict Laravel & WCAG expert. Fix the accessibility issue in the provided Blade snippet. DO NOT modify Laravel directives, variables, or unrelated HTML. Return structured JSON.')
             ->prompt($prompt)
             ->schema([
                 'type' => 'object',

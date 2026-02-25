@@ -100,13 +100,20 @@ Route::post('/fix/apply', function (Request $request) {
     ]);
 
     try {
-        $absolutePath = base_path($request->file_path);
+        $absolutePath = resource_path('views/'.$request->file_path);
 
         if (! File::exists($absolutePath)) {
-            throw new \Exception("File not found at: {$absolutePath}");
+            $absolutePath = base_path($request->file_path);
+            if (! File::exists($absolutePath)) {
+                throw new \Exception("Unable to locate the Blade file for writing: {$request->file_path}");
+            }
         }
 
-        $content = File::get($absolutePath);
+        try {
+            $content = File::get($absolutePath);
+        } catch (\Throwable $e) {
+            throw new \Exception("Failed to read file contents for writing: {$e->getMessage()}");
+        }
 
         if (strpos($content, $request->original_snippet) === false) {
             throw new \Exception('The original snippet could not be perfectly matched in the file. It may have changed.');
