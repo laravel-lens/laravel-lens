@@ -3,7 +3,7 @@
 namespace LaravelLens\LaravelLens\Services;
 
 use Illuminate\Support\Facades\File;
-use Laravel\Ai\Facades\Ai;
+use Laravel\Ai\Ai;
 
 class AiFixer
 {

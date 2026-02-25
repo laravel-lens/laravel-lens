@@ -24,6 +24,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require-dev": {
-    "laravel/pint": "^1.27"
+    "laravel/pint": "^1.27",
+    "laravel/boost": "^2.2"
   }
 }
