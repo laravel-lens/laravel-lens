@@ -55,21 +55,21 @@
                 
                 <!-- Hero Section & Controls -->
                 <div class="relative mt-4">
-                    <!-- Crosshairs -->
-                    <span class="crosshair absolute -top-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                    <span class="crosshair absolute -top-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                    <span class="crosshair absolute -bottom-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                    <span class="crosshair absolute -bottom-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                    
                     <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 p-8 sm:p-10 relative z-10">
-                        <div class="max-w-2xl">
+                        <!-- Crosshairs -->
+                        <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                        <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                        <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                        <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                    
+                        <div class="max-w-2xl relative z-10">
                             <h2 class="text-2xl font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-4 mb-4">Target Designation</h2>
                             <p class="mt-2 text-base font-sans text-neutral-600 dark:text-neutral-400">
                                 Enter target URL for WCAG compliance heuristics scan. System will output raw violation data.
                             </p>
                         </div>
                         
-                        <form @submit.prevent="performScan" class="mt-8 flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900">
+                        <form @submit.prevent="performScan" class="mt-8 flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900 relative z-10">
                             <div class="relative flex-grow">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <span class="font-mono text-[#FF2D20] font-bold">></span>
@@ -95,7 +95,7 @@
                         </form>
 
                         <!-- Error Alert -->
-                        <div x-show="error" x-cloak class="bg-white dark:bg-black p-4 border-2 border-[#FF2D20] text-[#FF2D20] mt-6 border-dashed">
+                        <div x-show="error" x-cloak class="bg-white dark:bg-black p-4 border-2 border-[#FF2D20] text-[#FF2D20] mt-6 border-dashed relative z-10">
                             <div class="flex">
                                 <div class="flex-shrink-0 font-mono font-bold mr-3">
                                     [ERR]
@@ -118,71 +118,71 @@
                     <dl class="grid grid-cols-1 gap-8 sm:gap-6 sm:grid-cols-3 mt-8">
                         <!-- Total -->
                         <div class="relative">
-                            <span class="crosshair absolute -top-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -top-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -bottom-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -bottom-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            
                             <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full relative z-10">
-                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-2 mb-2 text-neutral-600 dark:text-neutral-400">
+                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-2 mb-2 text-neutral-600 dark:text-neutral-400 relative z-10">
                                     Total Output
                                 </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight" x-text="totalIssues"></dd>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="totalIssues"></dd>
                             </div>
                         </div>
 
                         <!-- Critical -->
                         <div class="relative">
-                            <span class="crosshair absolute -top-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -top-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -bottom-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -bottom-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            
                             <div class="bg-[#FF2D20] text-white border border-[#FF2D20] px-6 py-5 flex flex-col justify-between h-full relative z-10">
-                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-white pb-2 mb-2">
+                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
+                                
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-white pb-2 mb-2 relative z-10">
                                     Critical Failures
                                 </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight" x-text="criticalIssues"></dd>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="criticalIssues"></dd>
                             </div>
                         </div>
 
                         <!-- Minor -->
                         <div class="relative">
-                            <span class="crosshair absolute -top-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -top-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -bottom-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            <span class="crosshair absolute -bottom-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                            
                             <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full border-dashed relative z-10">
-                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 border-dashed pb-2 mb-2 text-neutral-500 dark:text-neutral-400">
+                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 border-dashed pb-2 mb-2 text-neutral-500 dark:text-neutral-400 relative z-10">
                                     Mod/Min Warnings
                                 </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight text-neutral-500 dark:text-neutral-400" x-text="otherIssues"></dd>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight text-neutral-500 dark:text-neutral-400 relative z-10" x-text="otherIssues"></dd>
                             </div>
                         </div>
                     </dl>
 
                     <!-- Issue List -->
                     <div class="relative mt-8">
-                        <span class="crosshair absolute -top-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                        <span class="crosshair absolute -top-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                        <span class="crosshair absolute -bottom-3 -left-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                        <span class="crosshair absolute -bottom-3 -right-1.5 text-[#FF2D20] font-mono text-lg leading-none">+</span>
-                        
                         <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 overflow-hidden relative z-10">
-                            <div class="border-b border-black dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 px-6 py-4 flex items-center justify-between">
+                            <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-neutral-100 dark:bg-neutral-900 leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                            <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-neutral-100 dark:bg-neutral-900 leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                            <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                            <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                            
+                            <div class="border-b border-black dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 px-6 py-4 flex items-center justify-between relative z-10">
                                 <h3 class="text-sm font-mono font-bold uppercase tracking-widest">Diagnostic Logs</h3>
                                 <span class="text-xs font-mono">COUNT: <span class="text-[#FF2D20] font-bold" x-text="issues.length"></span></span>
                             </div>
                             
                             <template x-if="issues.length === 0">
-                                <div class="text-center py-16 px-6 font-mono">
+                                <div class="text-center py-16 px-6 font-mono relative z-10">
                                     <div class="text-2xl mb-2 font-bold">[ OK ]</div>
                                     <p class="text-sm text-neutral-500 uppercase tracking-widest">Zero violations detected. Status nominal.</p>
                                 </div>
                             </template>
 
-                            <ul role="list" class="divide-y divide-black dark:divide-neutral-700">
+                            <ul role="list" class="divide-y divide-black dark:divide-neutral-700 relative z-10">
                                 <template x-for="(issue, index) in issues" :key="index">
                                     <li class="p-6 sm:p-8">
                                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
