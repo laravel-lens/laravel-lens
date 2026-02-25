@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use LaravelLens\LaravelLens\Exceptions\ScannerException;
+use LaravelLens\LaravelLens\Services\AiFixer;
 use LaravelLens\LaravelLens\Services\AxeScanner;
 use LaravelLens\LaravelLens\Services\FileLocator;
 
@@ -52,3 +54,76 @@ Route::post('/scan', function (Request $request) {
         ], 500);
     }
 })->name('laravel-lens.scan');
+
+Route::post('/fix/suggest', function (Request $request) {
+    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
+        abort(403, 'Laravel Lens is not allowed in this environment.');
+    }
+
+    $request->validate([
+        'file_path' => ['required', 'string'],
+        'line_number' => ['required', 'integer'],
+        'issue_id' => ['required', 'string'],
+        'description' => ['required', 'string'],
+    ]);
+
+    try {
+        $fixer = new AiFixer;
+        $suggestion = $fixer->suggestFix(
+            $request->file_path,
+            $request->line_number,
+            $request->issue_id,
+            $request->description
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'suggestion' => $suggestion,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+})->name('laravel-lens.fix.suggest');
+
+Route::post('/fix/apply', function (Request $request) {
+    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
+        abort(403, 'Laravel Lens is not allowed in this environment.');
+    }
+
+    $request->validate([
+        'file_path' => ['required', 'string'],
+        'original_snippet' => ['required', 'string'],
+        'fixed_snippet' => ['required', 'string'],
+    ]);
+
+    try {
+        $absolutePath = base_path($request->file_path);
+
+        if (! File::exists($absolutePath)) {
+            throw new \Exception("File not found at: {$absolutePath}");
+        }
+
+        $content = File::get($absolutePath);
+
+        if (strpos($content, $request->original_snippet) === false) {
+            throw new \Exception('The original snippet could not be perfectly matched in the file. It may have changed.');
+        }
+
+        $newContent = str_replace($request->original_snippet, $request->fixed_snippet, $content);
+
+        File::put($absolutePath, $newContent);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Fix applied successfully.',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+})->name('laravel-lens.fix.apply');
