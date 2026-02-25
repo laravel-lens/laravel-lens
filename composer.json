@@ -1,25 +1,28 @@
 {
-    "name": "laravel-lens/laravel-lens",
-    "description": "A plug-and-play accessibility auditor for Laravel.",
-    "type": "library",
-    "require": {
-        "php": "^8.2",
-        "illuminate/support": "^10.0|^11.0",
-        "illuminate/routing": "^10.0|^11.0",
-        "spatie/browsershot": "^4.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "LaravelLens\\LaravelLens\\": "src/"
-        }
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "LaravelLens\\LaravelLens\\LaravelLensServiceProvider"
-            ]
-        }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+  "name": "laravel-lens/laravel-lens",
+  "description": "A plug-and-play accessibility auditor for Laravel.",
+  "type": "library",
+  "require": {
+    "php": "^8.2",
+    "illuminate/support": "^10.0|^11.0|^12.0",
+    "illuminate/routing": "^10.0|^11.0|^12.0",
+    "spatie/browsershot": "^4.0|^5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "LaravelLens\\LaravelLens\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "LaravelLens\\LaravelLens\\LaravelLensServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require-dev": {
+    "laravel/pint": "^1.27"
+  }
 }

@@ -2,10 +2,10 @@
 
 namespace LaravelLens\LaravelLens\Services;
 
-use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Collection;
 use LaravelLens\LaravelLens\DTOs\Issue;
 use LaravelLens\LaravelLens\Exceptions\ScannerException;
+use Spatie\Browsershot\Browsershot;
 use Throwable;
 
 class AxeScanner
@@ -13,8 +13,8 @@ class AxeScanner
     /**
      * Scan a given URL for accessibility violations using Axe-core via Browsershot.
      *
-     * @param string $url
      * @return Collection<Issue>
+     *
      * @throws ScannerException
      */
     public function scan(string $url): Collection
@@ -27,7 +27,7 @@ class AxeScanner
 
             // We need to inject the axe-core library and run it.
             // Spatie Browsershot allows evaluating JavaScript on the page.
-            $script = <<<JS
+            $script = <<<'JS'
                 // Fetch and inject axe-core if it's not already present
                 if (typeof axe === 'undefined') {
                     const script = document.createElement('script');
@@ -44,17 +44,16 @@ class AxeScanner
 JS;
 
             $violations = $browsershot->evaluate($script);
-            
+
             return $this->mapViolationsToIssues($violations);
         } catch (Throwable $e) {
-            throw new ScannerException("Failed to run Axe-core scan: " . $e->getMessage(), 0, $e);
+            throw new ScannerException('Failed to run Axe-core scan: '.$e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Map the raw JSON array of violations from Axe to our DTO Collection.
      *
-     * @param array $violations
      * @return Collection<Issue>
      */
     protected function mapViolationsToIssues(array $violations): Collection
