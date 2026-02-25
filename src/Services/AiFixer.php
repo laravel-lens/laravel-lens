@@ -12,7 +12,7 @@ class AiFixer
      */
     public function suggestFix(string $filePath, int $lineNumber, string $issueId, string $description): array
     {
-        $absolutePath = resource_path('views/'.$filePath);
+        $absolutePath = resource_path('views/'.ltrim($filePath, '/'));
 
         if (! File::exists($absolutePath)) {
             $absolutePath = base_path($filePath);
@@ -36,10 +36,9 @@ class AiFixer
             $contextSnippet .= $lines[$i];
         }
 
-        $prompt = <<<PROMPT
-You are a strict Laravel & WCAG expert. Fix the accessibility issue in the provided Blade snippet.
-DO NOT modify Laravel directives, variables, or unrelated HTML. Return structured JSON.
+        $systemPrompt = "You are a Senior Laravel Architect. Analyze the provided Blade snippet and the specific WCAG violation. Your task is to return a JSON object with 'original_snippet' and 'fixed_snippet'. IMPORTANT: Maintain all existing Blade logic (@directives) and Laravel components (<x-). Only inject the necessary accessibility attributes to fix the reported issue.";
 
+        $prompt = <<<PROMPT
 Issue ID: {$issueId}
 Issue Description: {$description}
 File: {$filePath}
@@ -51,7 +50,7 @@ Context Snippet:
 ```
 PROMPT;
 
-        $response = Ai::driver('gemini')->chat()->model('gemini-3-flash')->system('You are a strict Laravel & WCAG expert. Fix the accessibility issue in the provided Blade snippet. DO NOT modify Laravel directives, variables, or unrelated HTML. Return structured JSON.')
+        $response = Ai::driver('gemini')->chat()->model('gemini-3-flash')->system($systemPrompt)
             ->prompt($prompt)
             ->schema([
                 'type' => 'object',
