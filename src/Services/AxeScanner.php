@@ -42,11 +42,11 @@ class AxeScanner
                     
                     // Run axe and return the violations array
                     const results = await window.axe.run();
-                    return results.violations;
+                    return JSON.stringify(results.violations);
                 })();
 JS;
 
-            $violations = $browsershot->evaluate($script);
+            $violations = json_decode($browsershot->evaluate($script), true);
 
             return $this->mapViolationsToIssues($violations);
         } catch (Throwable $e) {
