@@ -59,7 +59,7 @@ PROMPT;
                 'original_snippet' => $schema->string()->description('The exact string of code from the original snippet that needs replacing. It must be an exact substring of the provided context.')->required(),
                 'fixed_snippet' => $schema->string()->description('The corrected string of code.')->required(),
             ]
-        )->prompt($prompt, provider: Lab::Gemini, model: 'gemini-3-flash');
+        )->prompt($prompt, provider: Lab::Gemini, model: 'gemini-3.0-flash');
 
         return [
             'original_snippet' => $response['original_snippet'] ?? '',
