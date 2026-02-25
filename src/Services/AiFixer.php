@@ -2,8 +2,11 @@
 
 namespace LaravelLens\LaravelLens\Services;
 
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\File;
-use Laravel\Ai\Ai;
+use Laravel\Ai\Enums\Lab;
+
+use function Laravel\Ai\agent;
 
 class AiFixer
 {
@@ -50,29 +53,17 @@ Context Snippet:
 ```
 PROMPT;
 
-        $response = Ai::driver('gemini')->chat()->model('gemini-3-flash')->system($systemPrompt)
-            ->prompt($prompt)
-            ->schema([
-                'type' => 'object',
-                'properties' => [
-                    'original_snippet' => [
-                        'type' => 'string',
-                        'description' => 'The exact string of code from the original snippet that needs replacing. It must be an exact substring of the provided context.',
-                    ],
-                    'fixed_snippet' => [
-                        'type' => 'string',
-                        'description' => 'The corrected string of code.',
-                    ],
-                ],
-                'required' => ['original_snippet', 'fixed_snippet'],
-            ])
-            ->send();
-
-        $result = $response->json();
+        $response = agent(
+            instructions: $systemPrompt,
+            schema: fn (JsonSchema $schema) => [
+                'original_snippet' => $schema->string()->description('The exact string of code from the original snippet that needs replacing. It must be an exact substring of the provided context.')->required(),
+                'fixed_snippet' => $schema->string()->description('The corrected string of code.')->required(),
+            ]
+        )->prompt($prompt, provider: Lab::Gemini, model: 'gemini-3-flash');
 
         return [
-            'original_snippet' => $result['original_snippet'] ?? '',
-            'fixed_snippet' => $result['fixed_snippet'] ?? '',
+            'original_snippet' => $response['original_snippet'] ?? '',
+            'fixed_snippet' => $response['fixed_snippet'] ?? '',
             'file_path' => $filePath,
         ];
     }
