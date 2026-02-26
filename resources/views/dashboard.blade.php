@@ -28,22 +28,22 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="flex items-center justify-center">
-                        <svg class="w-8 h-8 text-[#FF2D20]" viewBox="0 0 100 100" fill="currentColor">
-                            <path d="M72.036 50.134c-2.316-2.61-4.707-4.996-6.845-7.14a408.831 408.831 0 0 0-8.98-8.838l-4.57 5.152s2.615 3.018 7.643 8.358c2.44 2.593 5.093 5.432 7.72 8.337L51 74.073l-13.882-15.65c3.08-3.328 6.22-6.666 9.088-9.566 4.908-4.966 8.016-8.03 8.016-8.03l-4.572-5.15a519.866 519.866 0 0 0-8.91 9.083c-2.298 2.38-4.836 5.05-7.316 7.828L18 35.253 49.333 0 100 57.17l-27.964 31.54V50.133Z"/>
-                            <path d="M72.036 99.646 21.054 42.158 0 65.91l49.333 55.674 22.703-25.626v3.687Z"/>
+                        <svg class="w-8 h-8 text-[#FF2D20]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M23.642 5.43a.364.364 0 01.014.1v5.149c0 .135-.073.26-.189.326l-4.323 2.49v4.934a.378.378 0 01-.188.326L9.93 23.949a.316.316 0 01-.066.027c-.008.002-.016.008-.024.01a.348.348 0 01-.192 0c-.011-.002-.02-.008-.03-.012-.02-.008-.042-.014-.062-.025L.533 18.755a.376.376 0 01-.189-.326V2.974c0-.033.005-.066.014-.098.003-.012.01-.02.014-.032a.369.369 0 01.023-.058c.004-.013.015-.022.023-.033l.033-.045c.012-.01.025-.018.037-.027.014-.012.027-.024.041-.034H.53L5.043.05a.375.375 0 01.375 0L9.93 2.647h.002c.015.01.027.021.04.033l.038.027c.013.014.02.03.033.045.008.011.02.021.025.033.01.02.017.038.024.058.003.011.01.021.013.032.01.031.014.064.014.098v9.652l3.76-2.164V5.527c0-.033.004-.066.013-.098.003-.01.01-.02.013-.032a.487.487 0 01.024-.059c.007-.012.018-.02.025-.033.012-.015.021-.03.033-.043.012-.012.025-.02.037-.028.014-.01.026-.023.041-.032h.001l4.513-2.598a.375.375 0 01.375 0l4.513 2.598c.016.01.027.021.042.031.012.01.025.018.036.028.013.014.022.03.034.044.008.012.019.021.024.033.011.02.018.04.024.06.006.01.012.021.015.032zm-.74 5.032V6.179l-1.578.908-2.182 1.256v4.283zm-4.51 7.75v-4.287l-2.147 1.225-6.126 3.498v4.325zM1.093 3.624v14.588l8.273 4.761v-4.325l-4.322-2.445-.002-.003H5.04c-.014-.01-.025-.021-.04-.031-.011-.01-.024-.018-.035-.027l-.001-.002c-.013-.012-.021-.025-.031-.04-.01-.011-.021-.022-.028-.036h-.002c-.008-.014-.013-.031-.02-.047-.006-.016-.014-.027-.018-.043a.49.49 0 01-.008-.057c-.002-.014-.006-.027-.006-.041V5.789l-2.18-1.257zM5.23.81L1.47 2.974l3.76 2.164 3.758-2.164zm1.956 13.505l2.182-1.256V3.624l-1.58.91-2.182 1.255v9.435zm11.581-10.95l-3.76 2.163 3.76 2.163 3.759-2.164zm-.376 4.978L16.21 7.087 14.63 6.18v4.283l2.182 1.256 1.58.908zm-8.65 9.654l5.514-3.148 2.756-1.572-3.757-2.163-4.323 2.489-3.941 2.27z" fill="currentColor"/>
                         </svg>
                     </div>
-                    <h1 class="text-lg font-mono font-bold tracking-widest uppercase">SYS.LENS</h1>
+                    <h1 class="text-lg font-mono font-bold tracking-widest uppercase">LARAVEL.LENS</h1>
                 </div>
                 <div class="flex items-center gap-6 font-mono text-sm">
                     <a href="https://github.com/laravel-lens/laravel-lens" target="_blank" class="hover:underline hidden sm:block uppercase tracking-wider">REPOSITORY</a>
-                    <span class="px-2 py-1 border border-black dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 uppercase">
-                        LOCAL_ENV
-                    </span>
                     <!-- Theme Toggle -->
-                    <button @click="toggleTheme" class="px-2 py-1 border border-black dark:border-neutral-700 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none uppercase">
-                        <span x-show="theme === 'dark'" x-cloak>[ SUN ]</span>
-                        <span x-show="theme === 'light'" x-cloak>[ MOON ]</span>
+                    <button @click="toggleTheme" class="p-1.5 border border-black dark:border-neutral-700 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none flex items-center justify-center">
+                        <svg x-show="theme === 'dark'" x-cloak xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                        </svg>
+                        <svg x-show="theme === 'light'" x-cloak xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                        </svg>
                     </button>
                 </div>
             </div>
