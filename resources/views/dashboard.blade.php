@@ -5,19 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Laravel Lens - Technical Auditor</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Instrument Sans', 'sans-serif'],
+                    },
+                },
+            },
         }
     </script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
-        /* Prevent crosshairs from interfering with clicks */
-        .crosshair { pointer-events: none; user-select: none; }
         
         /* Custom Scrollbar for Brutalist look */
         ::-webkit-scrollbar { width: 10px; height: 10px; }
@@ -25,18 +34,18 @@
         .dark ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #333; border: 2px solid #f1f1f1; }
         .dark ::-webkit-scrollbar-thumb { background: #eee; border: 2px solid #111; }
-        ::-webkit-scrollbar-thumb:hover { background: #FF2D20; }
+        ::-webkit-scrollbar-thumb:hover { background: #E11D48; }
     </style>
 </head>
-<body class="bg-white text-black dark:bg-black dark:text-neutral-200 font-sans antialiased min-h-screen flex flex-col border-t-[4px] border-t-[#FF2D20]" x-data="scanner()">
+<body class="bg-white text-black dark:bg-black dark:text-neutral-200 font-sans antialiased min-h-screen flex flex-col border-t-[4px] border-t-[#E11D48]" x-data="scanner()">
 
-    <div class="flex-1 flex flex-col selection:bg-[#FF2D20] selection:text-white dark:selection:bg-[#FF2D20] dark:selection:text-white relative">
+    <div class="flex-1 flex flex-col selection:bg-[#E11D48] selection:text-white dark:selection:bg-[#E11D48] dark:selection:text-white relative">
         <!-- Header -->
         <header class="border-b border-black dark:border-neutral-700 bg-white dark:bg-black sticky top-0 z-30">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
                 <div class="flex items-center gap-4">
                     <div class="flex items-center justify-center">
-                        <svg class="w-8 h-8 text-[#FF2D20]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-8 h-8 text-[#E11D48]" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M23.642 5.43a.364.364 0 01.014.1v5.149c0 .135-.073.26-.189.326l-4.323 2.49v4.934a.378.378 0 01-.188.326L9.93 23.949a.316.316 0 01-.066.027c-.008.002-.016.008-.024.01a.348.348 0 01-.192 0c-.011-.002-.02-.008-.03-.012-.02-.008-.042-.014-.062-.025L.533 18.755a.376.376 0 01-.189-.326V2.974c0-.033.005-.066.014-.098.003-.012.01-.02.014-.032a.369.369 0 01.023-.058c.004-.013.015-.022.023-.033l.033-.045c.012-.01.025-.018.037-.027.014-.012.027-.024.041-.034H.53L5.043.05a.375.375 0 01.375 0L9.93 2.647h.002c.015.01.027.021.04.033l.038.027c.013.014.02.03.033.045.008.011.02.021.025.033.01.02.017.038.024.058.003.011.01.021.013.032.01.031.014.064.014.098v9.652l3.76-2.164V5.527c0-.033.004-.066.013-.098.003-.01.01-.02.013-.032a.487.487 0 01.024-.059c.007-.012.018-.02.025-.033.012-.015.021-.03.033-.043.012-.012.025-.02.037-.028.014-.01.026-.023.041-.032h.001l4.513-2.598a.375.375 0 01.375 0l4.513 2.598c.016.01.027.021.042.031.012.01.025.018.036.028.013.014.022.03.034.044.008.012.019.021.024.033.011.02.018.04.024.06.006.01.012.021.015.032zm-.74 5.032V6.179l-1.578.908-2.182 1.256v4.283zm-4.51 7.75v-4.287l-2.147 1.225-6.126 3.498v4.325zM1.093 3.624v14.588l8.273 4.761v-4.325l-4.322-2.445-.002-.003H5.04c-.014-.01-.025-.021-.04-.031-.011-.01-.024-.018-.035-.027l-.001-.002c-.013-.012-.021-.025-.031-.04-.01-.011-.021-.022-.028-.036h-.002c-.008-.014-.013-.031-.02-.047-.006-.016-.014-.027-.018-.043a.49.49 0 01-.008-.057c-.002-.014-.006-.027-.006-.041V5.789l-2.18-1.257zM5.23.81L1.47 2.974l3.76 2.164 3.758-2.164zm1.956 13.505l2.182-1.256V3.624l-1.58.91-2.182 1.255v9.435zm11.581-10.95l-3.76 2.163 3.76 2.163 3.759-2.164zm-.376 4.978L16.21 7.087 14.63 6.18v4.283l2.182 1.256 1.58.908zm-8.65 9.654l5.514-3.148 2.756-1.572-3.757-2.163-4.323 2.489-3.941 2.27z" fill="currentColor"/>
                         </svg>
                     </div>
@@ -68,12 +77,6 @@
                 <!-- Hero Section & Controls -->
                 <div class="relative mt-4">
                     <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 p-8 sm:p-10 relative z-10">
-                        <!-- Crosshairs -->
-                        <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                        <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                        <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                        <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                    
                         <div class="max-w-2xl relative z-10">
                             <h2 class="text-2xl font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-4 mb-4">Target Designation</h2>
                             <p class="mt-2 text-base font-sans text-neutral-700 dark:text-neutral-300">
@@ -85,21 +88,21 @@
                             <label for="target-url" class="sr-only">Target URL to scan</label>
                             <div class="relative flex-grow">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <span class="font-mono text-[#FF2D20] font-bold" aria-hidden="true">></span>
+                                    <span class="font-mono text-[#E11D48] font-bold" aria-hidden="true">></span>
                                 </div>
                                 <input 
                                     type="url" 
                                     id="target-url"
                                     x-model="url" 
                                     required
-                                    class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#FF2D20] dark:focus:ring-[#FF2D20] sm:text-sm sm:leading-6 font-mono bg-white outline-none" 
+                                    class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] dark:focus:ring-[#E11D48] sm:text-sm sm:leading-6 font-mono bg-white outline-none" 
                                     placeholder="http://localhost"
                                 >
                             </div>
                             <button 
                                 type="submit" 
                                 :disabled="isLoading"
-                                class="inline-flex items-center justify-center rounded-none bg-[#FF2D20] text-white px-8 py-3 text-sm font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-none disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap border-l sm:border-t-0 border-t border-[#FF2D20] hover:border-black sm:ml-1 mt-1 sm:mt-0"
+                                class="inline-flex items-center justify-center rounded-none bg-[#E11D48] text-white px-8 py-3 text-sm font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-none disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap border-l sm:border-t-0 border-t border-[#E11D48] hover:border-black sm:ml-1 mt-1 sm:mt-0"
                             >
                                 <span x-show="!isLoading">EXECUTE</span>
                                 <span x-show="isLoading" class="flex items-center gap-2" x-cloak>
@@ -109,13 +112,13 @@
                         </form>
 
                         <!-- Error Alert -->
-                        <div x-show="error" x-cloak class="bg-white dark:bg-black p-4 border-2 border-[#FF2D20] text-[#FF2D20] mt-6 border-dashed relative z-10">
+                        <div x-show="error" x-cloak class="bg-white dark:bg-black p-4 border-2 border-[#E11D48] text-[#E11D48] mt-6 border-dashed relative z-10">
                             <div class="flex">
                                 <div class="flex-shrink-0 font-mono font-bold mr-3">
                                     [ERR]
                                 </div>
                                 <div>
-                                    <h3 class="text-sm font-mono font-bold uppercase tracking-wider">Exception Caught</h3>
+                                    <h3 class="text-sm font-mono font-bold uppercase tracking-wider text-[#E11D48]">Exception Caught</h3>
                                     <div class="mt-1 text-sm font-mono">
                                         <p x-text="error"></p>
                                     </div>
@@ -132,7 +135,7 @@
                         <h3 class="text-xl font-mono font-bold uppercase tracking-widest">Diagnostic Report</h3>
                         <div class="text-sm font-mono">
                             <span class="text-neutral-600 dark:text-neutral-300 uppercase">TOTAL_VIOLATIONS:</span>
-                            <span class="text-[#FF2D20] font-bold" x-text="totalIssues"></span>
+                            <span class="text-[#E11D48] font-bold" x-text="totalIssues"></span>
                         </div>
                     </div>
 
@@ -144,14 +147,9 @@
                             class="relative group text-left transition-none"
                         >
                             <div 
-                                class="bg-[#FF2D20] text-white border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all"
-                                :class="activeFilter === 'wcag2a' ? 'border-black dark:border-white' : 'border-[#FF2D20]'"
+                                class="bg-[#E11D48] text-white border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all"
+                                :class="activeFilter === 'wcag2a' ? 'border-black dark:border-white ring-2 ring-inset ring-white/20' : 'border-[#E11D48] opacity-90 hover:opacity-100'"
                             >
-                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
-                                
                                 <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-white/30 pb-2 mb-2 relative z-10">
                                     A Level
                                 </dt>
@@ -166,13 +164,8 @@
                         >
                             <div 
                                 class="bg-white dark:bg-black border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all text-black dark:text-white"
-                                :class="activeFilter === 'wcag2aa' ? 'border-black dark:border-white bg-neutral-50 dark:bg-neutral-900' : 'border-black/60 dark:border-white/60 border-solid'"
+                                :class="activeFilter === 'wcag2aa' ? 'border-black dark:border-white bg-neutral-100 dark:bg-neutral-800' : 'border-neutral-300 dark:border-neutral-700 border-solid'"
                             >
-                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
-                                
                                 <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black/10 dark:border-white/10 pb-2 mb-2 relative z-10">
                                     AA Level
                                 </dt>
@@ -187,13 +180,8 @@
                         >
                             <div 
                                 class="bg-white dark:bg-black border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all text-black dark:text-white"
-                                :class="activeFilter === 'wcag2aaa' ? 'border-black dark:border-white border-solid bg-neutral-50 dark:bg-neutral-900' : 'border-black/40 dark:border-white/40 border-dashed'"
+                                :class="activeFilter === 'wcag2aaa' ? 'border-black dark:border-white border-solid bg-neutral-100 dark:bg-neutral-800' : 'border-neutral-300 dark:border-neutral-700 border-dashed'"
                             >
-                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                
                                 <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black/10 dark:border-white/10 pb-2 mb-2 relative z-10">
                                     AAA Level
                                 </dt>
@@ -208,18 +196,15 @@
                         >
                             <div 
                                 class="bg-white dark:bg-black border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all text-black dark:text-white"
-                                :class="activeFilter === 'other' ? 'border-black dark:border-white border-solid bg-neutral-50 dark:bg-neutral-900' : 'border-black/30 dark:border-white/30 border-dotted'"
+                                :class="activeFilter === 'other' ? 'border-black dark:border-white border-solid bg-neutral-100 dark:bg-neutral-800' : 'border-neutral-300 dark:border-neutral-700 border-dotted'"
                             >
-                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                
                                 <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black/10 dark:border-white/10 pb-2 mb-2 relative z-10">
                                     Other
                                 </dt>
                                 <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="otherIssuesCount"></dd>
                             </div>
+                        </button>
+                    </div>
                         </button>
                     </div>
 
@@ -233,11 +218,6 @@
                     <!-- Issue List -->
                     <div class="relative mt-8">
                         <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 overflow-hidden relative z-10">
-                            <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-neutral-100 dark:bg-neutral-900 leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                            <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-neutral-100 dark:bg-neutral-900 leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                            <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                            <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                            
                             <div class="border-b border-black dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 px-6 py-4 flex items-center justify-between relative z-10">
                                 <h3 class="text-sm font-mono font-bold uppercase tracking-widest" x-text="activeFilter ? `Filtered Logs: ${activeFilter}` : 'Diagnostic Logs'"></h3>
                                 <div class="flex items-center gap-4">
@@ -266,7 +246,7 @@
                                                         :class="getBadgeColor(issue.impact, issue.tags)"
                                                         x-text="issue.tags && issue.tags.includes('wcag2a') ? '[WCAG A]' : (issue.tags && issue.tags.includes('wcag2aa') ? '[WCAG AA]' : (issue.tags && issue.tags.includes('wcag2aaa') ? '[WCAG AAA]' : '[OTHER]'))"
                                                     ></span>
-                                                    <span class="text-sm font-mono font-bold tracking-widest text-neutral-600 dark:text-neutral-400" x-text="issue.id"></span>
+                                                    <span class="text-sm font-mono font-bold tracking-widest text-neutral-700 dark:text-neutral-300" x-text="issue.id"></span>
                                                     <!-- AI Fix Button -->
                                                     <template x-if="issue.fileName">
                                                         <button 
@@ -274,14 +254,14 @@
                                                             :disabled="isFixing === index"
                                                             class="ml-auto sm:ml-0 px-3 py-1 border border-black dark:border-white text-xs font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none disabled:opacity-50"
                                                         >
-                                                            <span x-show="isFixing !== index">[ ⚡️ AI FIX (EXPERIMENTAL) ]</span>
-                                                            <span x-show="isFixing === index">[ ⚙️ INITIALIZING NEURAL NET... ]</span>
+                                                            <span x-show="isFixing !== index">[ ⚡️ AI FIX ]</span>
+                                                            <span x-show="isFixing === index">[ ⚙️ INITIALIZING... ]</span>
                                                         </button>
                                                     </template>
                                                 </div>
-                                                <h4 class="text-base font-sans font-medium" x-text="issue.description"></h4>
+                                                <h4 class="text-base font-sans font-medium text-black dark:text-white" x-text="issue.description"></h4>
                                             </div>
-                                            <a :href="issue.helpUrl" target="_blank" class="flex-shrink-0 inline-flex items-center gap-1.5 text-sm font-mono font-bold border-b border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none uppercase py-0.5 px-1">
+                                            <a :href="issue.helpUrl" target="_blank" class="flex-shrink-0 inline-flex items-center gap-1.5 text-sm font-mono font-bold border-b border-black dark:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none uppercase py-0.5 px-1 text-black dark:text-white">
                                                 VIEW_DOCS ->
                                             </a>
                                         </div>
@@ -327,12 +307,6 @@
         <!-- Fix Modal -->
         <div x-show="showFixModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" x-cloak>
             <div class="bg-white dark:bg-black border-2 border-black dark:border-white w-full max-w-3xl relative shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.2)]">
-                <!-- Modal Crosshairs -->
-                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
-                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
-                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
-                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
-
                 <div class="border-b border-black dark:border-white px-6 py-4 flex items-center justify-between bg-neutral-100 dark:bg-neutral-900">
                     <h3 class="text-lg font-mono font-bold uppercase tracking-widest">[ AI_REMEDIATION_PROPOSAL ]</h3>
                     <button @click="showFixModal = false" class="text-black dark:text-white hover:text-[#FF2D20] font-mono font-bold text-xl leading-none">&times;</button>
@@ -549,12 +523,12 @@
                 },
                 
                 getBadgeColor(impact, tags) {
-                    if (tags && tags.includes('wcag2a')) return 'bg-[#FF2D20] text-white border border-[#FF2D20]';
+                    if (tags && tags.includes('wcag2a')) return 'bg-[#E11D48] text-white border border-[#E11D48]';
                     if (tags && tags.includes('wcag2aa')) return 'bg-white text-black dark:bg-black dark:text-white border border-black dark:border-white';
-                    if (tags && tags.includes('wcag2aaa')) return 'bg-white text-neutral-500 dark:bg-black dark:text-neutral-400 border border-dashed border-neutral-500 dark:border-neutral-600';
+                    if (tags && tags.includes('wcag2aaa')) return 'bg-white text-neutral-600 dark:bg-black dark:text-neutral-400 border border-dashed border-neutral-600 dark:border-neutral-400';
                     
-                    // Fallback to OTHER style (subtle) if no WCAG tag is present
-                    return 'bg-white text-neutral-400 dark:bg-black dark:text-neutral-600 border border-dotted border-neutral-300 dark:border-neutral-800';
+                    // Fallback to OTHER style (subtle but readable)
+                    return 'bg-white text-neutral-700 dark:bg-black dark:text-neutral-300 border border-dotted border-neutral-700 dark:border-neutral-300';
                 }
             }));
         });
