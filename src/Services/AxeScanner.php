@@ -48,7 +48,7 @@ JS;
 
             $violations = json_decode($browsershot->evaluate($script), true);
 
-            return $this->mapViolationsToIssues($violations);
+            return $this->mapViolationsToIssues(is_array($violations) ? $violations : []);
         } catch (Throwable $e) {
             throw new ScannerException('Failed to run Axe-core scan: '.$e->getMessage(), 0, $e);
         }

@@ -2,7 +2,6 @@
 
 namespace LaravelLens\LaravelLens\Services;
 
-use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\File;
 use Laravel\Ai\Enums\Lab;
 
@@ -15,13 +14,15 @@ class AiFixer
      */
     public function suggestFix(string $filePath, int $lineNumber, string $issueId, string $description): array
     {
-        $absolutePath = resource_path('views/'.ltrim($filePath, '/'));
+        $viewsBase = realpath(resource_path('views'));
+        $absolutePath = realpath(resource_path('views/'.ltrim($filePath, '/')));
+
+        if ($absolutePath === false || $viewsBase === false || ! str_starts_with($absolutePath, $viewsBase.DIRECTORY_SEPARATOR)) {
+            throw new \Exception('Invalid or disallowed file path.');
+        }
 
         if (! File::exists($absolutePath)) {
-            $absolutePath = base_path($filePath);
-            if (! File::exists($absolutePath)) {
-                throw new \Exception("Unable to locate the Blade file for AI remediation. Path attempted: {$filePath}");
-            }
+            throw new \Exception("Unable to locate the Blade file for AI remediation. Path attempted: {$filePath}");
         }
 
         try {
@@ -55,7 +56,7 @@ PROMPT;
 
         $response = agent(
             instructions: $systemPrompt,
-            schema: fn (JsonSchema $schema) => [
+            schema: fn ($schema) => [
                 'original_snippet' => $schema->string()->description('The exact string of code from the original snippet that needs replacing. It must be an exact substring of the provided context.')->required(),
                 'fixed_snippet' => $schema->string()->description('The corrected string of code.')->required(),
             ]

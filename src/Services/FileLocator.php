@@ -34,8 +34,7 @@ class FileLocator
 
         foreach ($finder as $file) {
             $contents = file_get_contents($file->getRealPath());
-            $lines = explode('
-', $contents);
+            $lines = preg_split('/\r?\n/', $contents);
 
             foreach ($lines as $index => $line) {
                 if ($this->isMatch($line, $tagName, $id, $name, $selector)) {

@@ -100,13 +100,15 @@ Route::post('/fix/apply', function (Request $request) {
     ]);
 
     try {
-        $absolutePath = resource_path('views/'.$request->file_path);
+        $viewsBase = realpath(resource_path('views'));
+        $absolutePath = realpath(resource_path('views/'.$request->file_path));
+
+        if ($absolutePath === false || $viewsBase === false || ! str_starts_with($absolutePath, $viewsBase.DIRECTORY_SEPARATOR)) {
+            throw new \Exception('Invalid or disallowed file path.');
+        }
 
         if (! File::exists($absolutePath)) {
-            $absolutePath = base_path($request->file_path);
-            if (! File::exists($absolutePath)) {
-                throw new \Exception("Unable to locate the Blade file for writing: {$request->file_path}");
-            }
+            throw new \Exception("Unable to locate the Blade file for writing: {$request->file_path}");
         }
 
         try {
