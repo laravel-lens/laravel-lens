@@ -308,6 +308,13 @@
                                                     <template x-if="scanMode === 'website' && issue.url">
                                                         <span class="text-[10px] font-mono border border-black/10 dark:border-white/10 px-1.5 py-0.5 bg-neutral-50 dark:bg-neutral-900 text-neutral-500" x-text="new URL(issue.url).pathname"></span>
                                                     </template>
+                                                    <!-- Preview Button -->
+                                                    <button
+                                                        @click="loadPreview(issue)"
+                                                        class="px-2 py-1 border border-black/20 dark:border-white/20 text-xs font-mono uppercase tracking-widest hover:border-black dark:hover:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                                                        title="Preview element on page"
+                                                    ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+
                                                     <!-- AI Fix Button -->
                                                     @if(config('laravel-lens.ai_fix_enabled'))
                                                         <template x-if="issue.fileName">
@@ -384,6 +391,37 @@
             </div>
         </main>
         
+        <!-- Preview Modal -->
+        <div x-show="showPreviewModal" @keydown.escape.window="closePreview()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" x-cloak>
+            <div class="bg-white dark:bg-black border-2 border-black dark:border-white w-full max-w-5xl relative shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.2)]">
+                <div class="border-b border-black dark:border-white px-6 py-4 flex items-center justify-between bg-neutral-100 dark:bg-neutral-900">
+                    <h3 class="text-lg font-mono font-bold uppercase tracking-widest">[ ELEMENT_PREVIEW ]</h3>
+                    <button @click="closePreview()" class="text-black dark:text-white hover:text-[#E11D48] font-mono font-bold text-xl leading-none">&times;</button>
+                </div>
+                <div class="p-6">
+                    <!-- Loading -->
+                    <div x-show="isLoadingPreview" class="flex flex-col items-center justify-center py-20 gap-3">
+                        <div class="w-5 h-5 rounded-full border-2 border-black dark:border-white border-t-transparent animate-spin"></div>
+                        <span class="font-mono text-xs uppercase tracking-widest text-neutral-500">Rendering screenshot...</span>
+                    </div>
+                    <!-- Screenshot -->
+                    <div x-show="!isLoadingPreview && previewScreenshot" x-cloak>
+                        <img :src="previewScreenshot" class="w-full border border-black dark:border-neutral-700" alt="Element preview screenshot" />
+                        <div class="mt-3 flex items-center justify-between gap-4">
+                            <p class="text-xs font-mono text-neutral-400 dark:text-neutral-500 uppercase tracking-widest truncate">
+                                Selector: <span class="text-black dark:text-white" x-text="previewIssue?.selector"></span>
+                            </p>
+                            <a
+                                :href="previewScreenshot"
+                                :download="'preview-' + (previewIssue?.id ?? 'element') + '.png'"
+                                class="shrink-0 flex items-center gap-1.5 px-3 py-1 border border-black dark:border-white text-xs font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                            >⬇ Save</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Fix Modal -->
         <div x-show="showFixModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" x-cloak>
             <div class="bg-white dark:bg-black border-2 border-black dark:border-white w-full max-w-3xl relative shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.2)]">
@@ -442,6 +480,12 @@
 
                 // PDF Export State
                 isGeneratingPdf: false,
+
+                // Preview State
+                showPreviewModal: false,
+                isLoadingPreview: false,
+                previewScreenshot: null,
+                previewIssue: null,
 
                 // AI Fix State
                 isFixing: null,
@@ -534,6 +578,38 @@
                         };
                         return getWeight(a) - getWeight(b);
                     });
+                },
+
+                closePreview() {
+                    this.showPreviewModal = false;
+                    if (this.previewScreenshot) {
+                        URL.revokeObjectURL(this.previewScreenshot);
+                        this.previewScreenshot = null;
+                    }
+                    this.previewIssue = null;
+                },
+
+                async loadPreview(issue) {
+                    this.previewIssue = issue;
+                    this.previewScreenshot = null;
+                    this.showPreviewModal = true;
+                    this.isLoadingPreview = true;
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const response = await fetch('{{ route('laravel-lens.preview') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                            body: JSON.stringify({ url: issue.url || this.url, selector: issue.selector })
+                        });
+                        if (!response.ok) throw new Error('Screenshot failed.');
+                        const blob = await response.blob();
+                        this.previewScreenshot = URL.createObjectURL(blob);
+                    } catch (err) {
+                        this.closePreview();
+                        this.error = err.message;
+                    } finally {
+                        this.isLoadingPreview = false;
+                    }
                 },
 
                 async generatePdf() {
