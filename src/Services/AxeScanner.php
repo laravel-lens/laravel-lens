@@ -40,8 +40,13 @@ class AxeScanner
                         });
                     }
                     
-                    // Run axe and return the violations array
-                    const results = await window.axe.run();
+                    // Run axe with best-practice rules enabled
+                    const results = await window.axe.run({
+                        runOnly: {
+                            type: 'tag',
+                            values: ['wcag2a', 'wcag2aa', 'wcag2aaa', 'best-practice']
+                        }
+                    });
                     return JSON.stringify(results.violations);
                 })();
 JS;
@@ -73,7 +78,8 @@ JS;
                     description: $violation['description'],
                     helpUrl: $violation['helpUrl'] ?? '',
                     htmlSnippet: $node['html'] ?? '',
-                    selector: implode(', ', $node['target'] ?? [])
+                    selector: implode(', ', $node['target'] ?? []),
+                    tags: $violation['tags'] ?? []
                 ));
             }
         }

@@ -11,6 +11,7 @@ class Issue
         public string $helpUrl,
         public string $htmlSnippet,
         public string $selector,
+        public array $tags = [],
         public ?string $fileName = null,
         public ?int $lineNumber = null
     ) {}

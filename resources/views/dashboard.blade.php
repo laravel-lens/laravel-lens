@@ -18,6 +18,14 @@
         [x-cloak] { display: none !important; }
         /* Prevent crosshairs from interfering with clicks */
         .crosshair { pointer-events: none; user-select: none; }
+        
+        /* Custom Scrollbar for Brutalist look */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        .dark ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border: 2px solid #f1f1f1; }
+        .dark ::-webkit-scrollbar-thumb { background: #eee; border: 2px solid #111; }
+        ::-webkit-scrollbar-thumb:hover { background: #FF2D20; }
     </style>
 </head>
 <body class="bg-white text-black dark:bg-black dark:text-neutral-200 font-sans antialiased min-h-screen flex flex-col border-t-[4px] border-t-[#FF2D20]" x-data="scanner()">
@@ -124,86 +132,97 @@
 
                     <!-- Summary Cards (Filters) -->
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-                        <!-- Critical -->
+                        <!-- Level A: Solid Background -->
                         <button 
-                            @click="activeFilter = (activeFilter === 'critical' ? null : 'critical')"
+                            @click="activeFilter = (activeFilter === 'wcag2a' ? null : 'wcag2a')"
                             class="relative group text-left transition-none"
-                            :class="activeFilter === 'critical' ? 'ring-2 ring-offset-2 ring-black dark:ring-white dark:ring-offset-black' : ''"
                         >
-                            <div class="bg-[#FF2D20] text-white border border-[#FF2D20] px-6 py-5 flex flex-col justify-between h-full relative z-10">
+                            <div 
+                                class="bg-[#FF2D20] text-white border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all"
+                                :class="activeFilter === 'wcag2a' ? 'border-black dark:border-white' : 'border-[#FF2D20]'"
+                            >
                                 <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
                                 
                                 <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-white/30 pb-2 mb-2 relative z-10">
-                                    Critical
+                                    A Level
                                 </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="criticalIssues"></dd>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="levelAIssues"></dd>
                             </div>
-                            <div x-show="activeFilter === 'critical'" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#FF2D20] rotate-45 z-20"></div>
                         </button>
 
-                        <!-- Serious -->
+                        <!-- Level AA: Solid Border -->
                         <button 
-                            @click="activeFilter = (activeFilter === 'serious' ? null : 'serious')"
+                            @click="activeFilter = (activeFilter === 'wcag2aa' ? null : 'wcag2aa')"
                             class="relative group text-left transition-none"
-                            :class="activeFilter === 'serious' ? 'ring-2 ring-offset-2 ring-black dark:ring-white dark:ring-offset-black' : ''"
                         >
-                            <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full relative z-10 group-hover:bg-neutral-50 dark:group-hover:bg-neutral-900">
+                            <div 
+                                class="bg-white dark:bg-black border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all text-black dark:text-white"
+                                :class="activeFilter === 'wcag2aa' ? 'border-black dark:border-white bg-neutral-50 dark:bg-neutral-900' : 'border-black/60 dark:border-white/60 border-solid'"
+                            >
+                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-black dark:text-white font-mono text-lg z-20">+</span>
+                                
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black/10 dark:border-white/10 pb-2 mb-2 relative z-10">
+                                    AA Level
+                                </dt>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="levelAAIssues"></dd>
+                            </div>
+                        </button>
+
+                        <!-- Level AAA: Dashed Border -->
+                        <button 
+                            @click="activeFilter = (activeFilter === 'wcag2aaa' ? null : 'wcag2aaa')"
+                            class="relative group text-left transition-none"
+                        >
+                            <div 
+                                class="bg-white dark:bg-black border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all text-black dark:text-white"
+                                :class="activeFilter === 'wcag2aaa' ? 'border-black dark:border-white border-solid bg-neutral-50 dark:bg-neutral-900' : 'border-black/40 dark:border-white/40 border-dashed'"
+                            >
                                 <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 
-                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-2 mb-2 text-neutral-600 dark:text-neutral-400 relative z-10">
-                                    Serious
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black/10 dark:border-white/10 pb-2 mb-2 relative z-10">
+                                    AAA Level
                                 </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="seriousIssues"></dd>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="levelAAAIssues"></dd>
                             </div>
-                            <div x-show="activeFilter === 'serious'" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45 z-20"></div>
                         </button>
 
-                        <!-- Moderate -->
+                        <!-- Other: Dotted Border -->
                         <button 
-                            @click="activeFilter = (activeFilter === 'moderate' ? null : 'moderate')"
+                            @click="activeFilter = (activeFilter === 'other' ? null : 'other')"
                             class="relative group text-left transition-none"
-                            :class="activeFilter === 'moderate' ? 'ring-2 ring-offset-2 ring-black dark:ring-white dark:ring-offset-black' : ''"
                         >
-                            <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full border-dashed relative z-10 group-hover:bg-neutral-50 dark:group-hover:bg-neutral-900">
+                            <div 
+                                class="bg-white dark:bg-black border-2 px-6 py-5 flex flex-col justify-between h-full relative z-10 transition-all text-black dark:text-white"
+                                :class="activeFilter === 'other' ? 'border-black dark:border-white border-solid bg-neutral-50 dark:bg-neutral-900' : 'border-black/30 dark:border-white/30 border-dotted'"
+                            >
                                 <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 
-                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 border-dashed pb-2 mb-2 text-neutral-500 dark:text-neutral-400 relative z-10">
-                                    Moderate
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black/10 dark:border-white/10 pb-2 mb-2 relative z-10">
+                                    Other
                                 </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight text-neutral-500 dark:text-neutral-400 relative z-10" x-text="moderateIssues"></dd>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="otherIssuesCount"></dd>
                             </div>
-                            <div x-show="activeFilter === 'moderate'" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45 z-20"></div>
-                        </button>
-
-                        <!-- Minor -->
-                        <button 
-                            @click="activeFilter = (activeFilter === 'minor' ? null : 'minor')"
-                            class="relative group text-left transition-none"
-                            :class="activeFilter === 'minor' ? 'ring-2 ring-offset-2 ring-black dark:ring-white dark:ring-offset-black' : ''"
-                        >
-                            <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full border-dotted relative z-10 group-hover:bg-neutral-50 dark:group-hover:bg-neutral-900">
-                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                
-                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 border-dotted pb-2 mb-2 text-neutral-400 dark:text-neutral-500 relative z-10">
-                                    Minor
-                                </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight text-neutral-400 dark:text-neutral-500 relative z-10" x-text="minorIssues"></dd>
-                            </div>
-                            <div x-show="activeFilter === 'minor'" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45 z-20"></div>
                         </button>
                     </div>
+
+                    <!-- Level Description Area -->
+                    <div x-show="activeFilter" x-cloak x-transition class="bg-neutral-100 dark:bg-neutral-900 border-l-4 border-black dark:border-white p-4 font-mono text-sm uppercase tracking-wider relative">
+                         <span class="text-[#FF2D20] font-bold">INFO:</span> <span x-text="levelDescription"></span>
+                    </div>
+
+                    <!-- Issue List -->
 
                     <!-- Issue List -->
                     <div class="relative mt-8">
@@ -238,8 +257,8 @@
                                                 <div class="flex flex-wrap items-center gap-3">
                                                     <span 
                                                         class="inline-flex items-center px-2 py-0.5 text-xs font-mono font-bold uppercase tracking-wider"
-                                                        :class="getBadgeColor(issue.impact)"
-                                                        x-text="`[` + issue.impact + `]`"
+                                                        :class="getBadgeColor(issue.impact, issue.tags)"
+                                                        x-text="issue.tags && issue.tags.includes('wcag2a') ? '[WCAG A]' : (issue.tags && issue.tags.includes('wcag2aa') ? '[WCAG AA]' : (issue.tags && issue.tags.includes('wcag2aaa') ? '[WCAG AAA]' : `[` + issue.impact + `]`))"
                                                     ></span>
                                                     <span class="text-sm font-mono font-bold tracking-widest text-neutral-600 dark:text-neutral-400" x-text="issue.id"></span>
                                                     <!-- AI Fix Button -->
@@ -376,10 +395,44 @@
                 get seriousIssues() { return this.issues.filter(i => i.impact === 'serious').length; },
                 get moderateIssues() { return this.issues.filter(i => i.impact === 'moderate').length; },
                 get minorIssues() { return this.issues.filter(i => i.impact === 'minor').length; },
+                get unknownIssues() { return this.issues.filter(i => !['critical', 'serious', 'moderate', 'minor'].includes(i.impact)).length; },
+
+                // WCAG Level Counts
+                get levelAIssues() { return this.issues.filter(i => i.tags && i.tags.includes('wcag2a')).length; },
+                get levelAAIssues() { return this.issues.filter(i => i.tags && i.tags.includes('wcag2aa')).length; },
+                get levelAAAIssues() { return this.issues.filter(i => i.tags && i.tags.includes('wcag2aaa')).length; },
+                get otherIssuesCount() { 
+                    return this.issues.filter(i => !i.tags || (!i.tags.includes('wcag2a') && !i.tags.includes('wcag2aa') && !i.tags.includes('wcag2aaa'))).length; 
+                },
+
+                get levelDescription() {
+                    switch(this.activeFilter) {
+                        case 'wcag2a': return 'Level A is the minimum level of accessibility. These issues are critical blockers for users with disabilities.';
+                        case 'wcag2aa': return 'Level AA is the standard for accessibility. It removes most common barriers for people with a wide range of disabilities.';
+                        case 'wcag2aaa': return 'Level AAA is the highest level of accessibility. It provides an enhanced experience, though it can be difficult to achieve for all content.';
+                        case 'other': return 'These are best practice recommendations and general improvements that don\'t strictly fall into a WCAG level but improve UX.';
+                        default: return null;
+                    }
+                },
 
                 get filteredIssues() {
-                    if (!this.activeFilter) return this.issues;
-                    return this.issues.filter(i => i.impact === this.activeFilter);
+                    if (this.activeFilter) {
+                        if (this.activeFilter === 'other') {
+                            return this.issues.filter(i => !i.tags || (!i.tags.includes('wcag2a') && !i.tags.includes('wcag2aa') && !i.tags.includes('wcag2aaa')));
+                        }
+                        return this.issues.filter(i => i.tags && i.tags.includes(this.activeFilter));
+                    }
+
+                    // Sort issues by WCAG level when no filter is active
+                    return [...this.issues].sort((a, b) => {
+                        const getWeight = (issue) => {
+                            if (issue.tags && issue.tags.includes('wcag2a')) return 1;
+                            if (issue.tags && issue.tags.includes('wcag2aa')) return 2;
+                            if (issue.tags && issue.tags.includes('wcag2aaa')) return 3;
+                            return 4;
+                        };
+                        return getWeight(a) - getWeight(b);
+                    });
                 },
 
                 async performScan() {
@@ -489,7 +542,11 @@
                     }
                 },
                 
-                getBadgeColor(impact) {
+                getBadgeColor(impact, tags) {
+                    if (tags && tags.includes('wcag2a')) return 'bg-[#FF2D20] text-white border border-[#FF2D20]';
+                    if (tags && tags.includes('wcag2aa')) return 'bg-white text-black dark:bg-black dark:text-white border border-black dark:border-white';
+                    if (tags && tags.includes('wcag2aaa')) return 'bg-white text-neutral-500 dark:bg-black dark:text-neutral-400 border border-dashed border-neutral-500 dark:border-neutral-600';
+                    
                     switch(impact) {
                         case 'critical': return 'bg-[#FF2D20] text-white border border-[#FF2D20]';
                         case 'serious': 
