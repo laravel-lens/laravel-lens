@@ -349,10 +349,18 @@
                                                     </div>
                                                 </template>
                                             </div>
-                                            <div class="sm:text-right">
-                                                <p class="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300 uppercase tracking-widest mb-2 block sm:inline-block"><span class="text-black dark:text-white sm:hidden">>>></span> CSS_SELECTOR</p>
-                                                <div class="text-sm font-mono bg-white dark:bg-black border border-black dark:border-neutral-700 px-3 py-2 overflow-x-auto break-all sm:ml-auto w-fit max-w-full text-black dark:text-white">
+                                            <div class="sm:text-right" x-data="{ copied: false }">
+                                                <p class="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300 uppercase tracking-widest mb-2 block sm:inline-block">
+                                                    <span class="text-black dark:text-white sm:hidden">>>></span> CSS_SELECTOR
+                                                    <span class="normal-case tracking-normal font-normal text-neutral-400 dark:text-neutral-500 ml-1">— click to copy</span>
+                                                </p>
+                                                <div
+                                                    class="group cursor-pointer flex items-center gap-2 text-sm font-mono bg-white dark:bg-black border border-black dark:border-neutral-700 px-3 py-2 overflow-x-auto break-all sm:ml-auto w-fit max-w-full text-black dark:text-white transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black"
+                                                    @click="navigator.clipboard.writeText(issue.selector).then(() => { copied = true; setTimeout(() => copied = false, 2000) })"
+                                                    title="Copy selector"
+                                                >
                                                     <span x-text="issue.selector"></span>
+                                                    <span class="shrink-0 text-base leading-none opacity-60 group-hover:opacity-100 transition-opacity" aria-hidden="true" x-text="copied ? '✓' : '⎘'"></span>
                                                 </div>
                                             </div>
                                         </div>
