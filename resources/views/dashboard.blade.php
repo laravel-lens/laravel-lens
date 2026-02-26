@@ -225,20 +225,31 @@
                                 <h3 class="text-sm font-mono font-bold uppercase tracking-widest" x-text="activeFilter ? `Filtered Logs: ${activeFilter}` : 'Diagnostic Logs'"></h3>
                                 <div class="flex items-center gap-4">
                                     <template x-if="activeFilter">
-                                        <button @click="activeFilter = null" class="text-xs font-mono underline hover:text-[#FF2D20] uppercase dark:text-white">[ CLEAR_FILTER ]</button>
+                                        <button @click="activeFilter = null" class="text-xs font-mono underline hover:text-[#E11D48] uppercase dark:text-white">[ CLEAR_FILTER ]</button>
                                     </template>
-                                    <span class="text-xs font-mono dark:text-white">SHOWING: <span class="text-[#FF2D20] font-bold" x-text="filteredIssues.length"></span></span>
+                                    <template x-if="hasResults">
+                                        <span class="text-xs font-mono dark:text-white">SHOWING: <span class="text-[#E11D48] font-bold" x-text="filteredIssues.length"></span></span>
+                                    </template>
                                 </div>
                             </div>
                             
-                            <template x-if="filteredIssues.length === 0">
+                            <!-- Initial State -->
+                            <template x-if="!hasResults && !isLoading">
+                                <div class="text-center py-16 px-6 font-mono relative z-10">
+                                    <div class="text-2xl mb-2 font-bold dark:text-white">[ READY ]</div>
+                                    <p class="text-sm text-neutral-600 dark:text-neutral-300 uppercase tracking-widest">System idle. Execute target scan to begin analysis.</p>
+                                </div>
+                            </template>
+
+                            <!-- Results Empty -->
+                            <template x-if="hasResults && filteredIssues.length === 0">
                                 <div class="text-center py-16 px-6 font-mono relative z-10">
                                     <div class="text-2xl mb-2 font-bold dark:text-white">[ OK ]</div>
                                     <p class="text-sm text-neutral-600 dark:text-neutral-300 uppercase tracking-widest">No violations found for this criteria.</p>
                                 </div>
                             </template>
 
-                            <ul role="list" class="divide-y divide-black dark:divide-neutral-700 relative z-10">
+                            <ul x-show="hasResults && filteredIssues.length > 0" role="list" class="divide-y divide-black dark:divide-neutral-700 relative z-10">
                                 <template x-for="(issue, index) in filteredIssues" :key="index">
                                     <li class="p-6 sm:p-8">
                                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
