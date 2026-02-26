@@ -328,10 +328,19 @@
 
                                         <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-black dark:border-neutral-700 pt-6">
                                             <div>
-                                                <p class="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300 uppercase tracking-widest mb-2"><span class="text-black dark:text-white">>>></span> SRC_LOC</p>
+                                                <p class="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300 uppercase tracking-widest mb-2">
+                                                    <span class="text-black dark:text-white">>>></span> SRC_LOC
+                                                    <span x-show="editorEnabled" class="normal-case tracking-normal font-normal text-neutral-400 dark:text-neutral-500 ml-1" x-cloak>— click to open</span>
+                                                </p>
                                                 <template x-if="issue.fileName">
-                                                    <div class="flex items-center gap-2 text-sm font-mono bg-white dark:bg-black border border-black dark:border-neutral-700 px-3 py-2 w-max text-black dark:text-white">
+                                                    <div
+                                                        class="flex items-center gap-2 text-sm font-mono bg-white dark:bg-black border border-black dark:border-neutral-700 px-3 py-2 w-max text-black dark:text-white transition-colors"
+                                                        :class="editorEnabled ? 'cursor-pointer hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black group' : ''"
+                                                        :title="editorEnabled ? ('Open in ' + editorLabel) : ''"
+                                                        @click="openInEditor(issue.fileName, issue.lineNumber)"
+                                                    >
                                                         <span x-text="issue.fileName + ':' + issue.lineNumber"></span>
+                                                        <span x-show="editorEnabled" class="text-base leading-none opacity-60 group-hover:opacity-100 transition-opacity" aria-hidden="true">↗</span>
                                                     </div>
                                                 </template>
                                                 <template x-if="!issue.fileName">
@@ -395,6 +404,9 @@
     </div>
 
     <script>
+        const LENS_VIEWS_PATH = @json(resource_path('views'));
+        const LENS_EDITOR = @json(config('laravel-lens.editor', 'vscode'));
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('scanner', () => ({
                 url: '{{ url('/') }}',
@@ -451,6 +463,36 @@
                         case 'other': return 'These are best practice recommendations and general improvements that don\'t strictly fall into a WCAG level but improve UX.';
                         default: return null;
                     }
+                },
+
+                get editorEnabled() {
+                    return LENS_EDITOR && LENS_EDITOR !== 'none';
+                },
+
+                get editorLabel() {
+                    const labels = { vscode: 'VS Code', cursor: 'Cursor', phpstorm: 'PhpStorm', sublime: 'Sublime Text' };
+                    return labels[LENS_EDITOR] || LENS_EDITOR;
+                },
+
+                openInEditor(fileName, lineNumber) {
+                    if (!fileName || !this.editorEnabled) return;
+                    const path = LENS_VIEWS_PATH + '/' + fileName;
+                    const line = lineNumber || 1;
+                    let url;
+                    switch (LENS_EDITOR) {
+                        case 'phpstorm':
+                            url = `phpstorm://open?file=${encodeURIComponent(path)}&line=${line}`;
+                            break;
+                        case 'sublime':
+                            url = `subl://open?url=${encodeURIComponent('file://' + path)}&line=${line}`;
+                            break;
+                        case 'cursor':
+                            url = `cursor://file/${path}:${line}`;
+                            break;
+                        default: // vscode
+                            url = `vscode://file/${path}:${line}`;
+                    }
+                    window.location.href = url;
                 },
 
                 get filteredIssues() {

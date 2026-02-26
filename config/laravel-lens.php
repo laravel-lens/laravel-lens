@@ -38,6 +38,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Editor / IDE Integration
+    |--------------------------------------------------------------------------
+    |
+    | When a source location is found, clicking it in the dashboard will open
+    | your editor at the exact file and line. Set to 'none' to disable.
+    |
+    | Supported values: 'vscode', 'cursor', 'phpstorm', 'sublime', 'none'
+    |
+    */
+    'editor' => env('LARAVEL_LENS_EDITOR', 'vscode'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Crawl Max Pages
     |--------------------------------------------------------------------------
     |
