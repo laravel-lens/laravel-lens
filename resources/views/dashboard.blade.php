@@ -45,7 +45,11 @@
                 <div class="flex items-center gap-6 font-mono text-sm">
                     <a href="https://github.com/laravel-lens/laravel-lens" target="_blank" class="hover:underline hidden sm:block uppercase tracking-wider">REPOSITORY</a>
                     <!-- Theme Toggle -->
-                    <button @click="toggleTheme" class="p-1.5 border border-black dark:border-neutral-700 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none flex items-center justify-center">
+                    <button 
+                        @click="toggleTheme" 
+                        aria-label="Toggle Color Theme"
+                        class="p-1.5 border border-black dark:border-neutral-500 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none flex items-center justify-center"
+                    >
                         <svg x-show="theme === 'dark'" x-cloak xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
                         </svg>
@@ -72,21 +76,23 @@
                     
                         <div class="max-w-2xl relative z-10">
                             <h2 class="text-2xl font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-4 mb-4">Target Designation</h2>
-                            <p class="mt-2 text-base font-sans text-neutral-600 dark:text-neutral-400">
+                            <p class="mt-2 text-base font-sans text-neutral-700 dark:text-neutral-300">
                                 Enter target URL for WCAG compliance heuristics scan. System will output raw violation data.
                             </p>
                         </div>
                         
                         <form @submit.prevent="performScan" class="mt-8 flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900 relative z-10">
+                            <label for="target-url" class="sr-only">Target URL to scan</label>
                             <div class="relative flex-grow">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <span class="font-mono text-[#FF2D20] font-bold">></span>
+                                    <span class="font-mono text-[#FF2D20] font-bold" aria-hidden="true">></span>
                                 </div>
                                 <input 
                                     type="url" 
+                                    id="target-url"
                                     x-model="url" 
                                     required
-                                    class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-500 focus:ring-2 focus:ring-inset focus:ring-[#FF2D20] dark:focus:ring-[#FF2D20] sm:text-sm sm:leading-6 font-mono bg-white outline-none" 
+                                    class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#FF2D20] dark:focus:ring-[#FF2D20] sm:text-sm sm:leading-6 font-mono bg-white outline-none" 
                                     placeholder="http://localhost"
                                 >
                             </div>
@@ -125,7 +131,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black dark:border-neutral-700 pb-4">
                         <h3 class="text-xl font-mono font-bold uppercase tracking-widest">Diagnostic Report</h3>
                         <div class="text-sm font-mono">
-                            <span class="text-neutral-500 uppercase">TOTAL_VIOLATIONS:</span>
+                            <span class="text-neutral-600 dark:text-neutral-300 uppercase">TOTAL_VIOLATIONS:</span>
                             <span class="text-[#FF2D20] font-bold" x-text="totalIssues"></span>
                         </div>
                     </div>
@@ -236,16 +242,16 @@
                                 <h3 class="text-sm font-mono font-bold uppercase tracking-widest" x-text="activeFilter ? `Filtered Logs: ${activeFilter}` : 'Diagnostic Logs'"></h3>
                                 <div class="flex items-center gap-4">
                                     <template x-if="activeFilter">
-                                        <button @click="activeFilter = null" class="text-xs font-mono underline hover:text-[#FF2D20] uppercase">[ CLEAR_FILTER ]</button>
+                                        <button @click="activeFilter = null" class="text-xs font-mono underline hover:text-[#FF2D20] uppercase dark:text-white">[ CLEAR_FILTER ]</button>
                                     </template>
-                                    <span class="text-xs font-mono">SHOWING: <span class="text-[#FF2D20] font-bold" x-text="filteredIssues.length"></span></span>
+                                    <span class="text-xs font-mono dark:text-white">SHOWING: <span class="text-[#FF2D20] font-bold" x-text="filteredIssues.length"></span></span>
                                 </div>
                             </div>
                             
                             <template x-if="filteredIssues.length === 0">
                                 <div class="text-center py-16 px-6 font-mono relative z-10">
-                                    <div class="text-2xl mb-2 font-bold">[ OK ]</div>
-                                    <p class="text-sm text-neutral-500 uppercase tracking-widest">No violations found for this criteria.</p>
+                                    <div class="text-2xl mb-2 font-bold dark:text-white">[ OK ]</div>
+                                    <p class="text-sm text-neutral-600 dark:text-neutral-300 uppercase tracking-widest">No violations found for this criteria.</p>
                                 </div>
                             </template>
 
@@ -258,7 +264,7 @@
                                                     <span 
                                                         class="inline-flex items-center px-2 py-0.5 text-xs font-mono font-bold uppercase tracking-wider"
                                                         :class="getBadgeColor(issue.impact, issue.tags)"
-                                                        x-text="issue.tags && issue.tags.includes('wcag2a') ? '[WCAG A]' : (issue.tags && issue.tags.includes('wcag2aa') ? '[WCAG AA]' : (issue.tags && issue.tags.includes('wcag2aaa') ? '[WCAG AAA]' : `[` + issue.impact + `]`))"
+                                                        x-text="issue.tags && issue.tags.includes('wcag2a') ? '[WCAG A]' : (issue.tags && issue.tags.includes('wcag2aa') ? '[WCAG AA]' : (issue.tags && issue.tags.includes('wcag2aaa') ? '[WCAG AAA]' : '[OTHER]'))"
                                                     ></span>
                                                     <span class="text-sm font-mono font-bold tracking-widest text-neutral-600 dark:text-neutral-400" x-text="issue.id"></span>
                                                     <!-- AI Fix Button -->
@@ -281,29 +287,29 @@
                                         </div>
 
                                         <div class="mt-6">
-                                            <p class="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 mb-2 uppercase tracking-widest"><span class="text-[#FF2D20]">>>></span> FAILING_NODE</p>
+                                            <p class="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300 mb-2 uppercase tracking-widest"><span class="text-black dark:text-white">>>></span> FAILING_NODE</p>
                                             <div class="bg-neutral-100 dark:bg-neutral-900 border-l-4 border-black dark:border-neutral-500 p-4 overflow-x-auto">
-                                                <pre><code class="text-sm font-mono whitespace-pre-wrap" x-text="issue.htmlSnippet"></code></pre>
+                                                <pre><code class="text-sm font-mono whitespace-pre-wrap text-neutral-800 dark:text-neutral-200" x-text="issue.htmlSnippet"></code></pre>
                                             </div>
                                         </div>
 
                                         <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-black dark:border-neutral-700 pt-6">
                                             <div>
-                                                <p class="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest mb-2"><span class="text-[#FF2D20]">>>></span> SRC_LOC</p>
+                                                <p class="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300 uppercase tracking-widest mb-2"><span class="text-black dark:text-white">>>></span> SRC_LOC</p>
                                                 <template x-if="issue.fileName">
-                                                    <div class="flex items-center gap-2 text-sm font-mono bg-white dark:bg-black border border-black dark:border-neutral-700 px-3 py-2 w-max">
+                                                    <div class="flex items-center gap-2 text-sm font-mono bg-white dark:bg-black border border-black dark:border-neutral-700 px-3 py-2 w-max text-black dark:text-white">
                                                         <span x-text="issue.fileName + ':' + issue.lineNumber"></span>
                                                     </div>
                                                 </template>
                                                 <template x-if="!issue.fileName">
-                                                    <div class="flex items-center gap-2 text-sm font-mono text-[#FF2D20] border border-[#FF2D20] border-dashed px-3 py-2 w-max uppercase bg-[#FF2D20]/10">
+                                                    <div class="flex items-center gap-2 text-sm font-mono text-[#D01D10] dark:text-[#FF4D40] border border-[#FF2D20] border-dashed px-3 py-2 w-max uppercase bg-[#FF2D20]/10">
                                                         [ PENDING_LOCATOR ]
                                                     </div>
                                                 </template>
                                             </div>
                                             <div class="sm:text-right">
-                                                <p class="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest mb-2 block sm:inline-block"><span class="text-[#FF2D20] sm:hidden">>>></span> CSS_SELECTOR</p>
-                                                <div class="text-sm font-mono bg-white dark:bg-black border border-black dark:border-neutral-700 px-3 py-2 overflow-x-auto break-all sm:ml-auto w-fit max-w-full">
+                                                <p class="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300 uppercase tracking-widest mb-2 block sm:inline-block"><span class="text-black dark:text-white sm:hidden">>>></span> CSS_SELECTOR</p>
+                                                <div class="text-sm font-mono bg-white dark:bg-black border border-black dark:border-neutral-700 px-3 py-2 overflow-x-auto break-all sm:ml-auto w-fit max-w-full text-black dark:text-white">
                                                     <span x-text="issue.selector"></span>
                                                 </div>
                                             </div>
@@ -547,13 +553,8 @@
                     if (tags && tags.includes('wcag2aa')) return 'bg-white text-black dark:bg-black dark:text-white border border-black dark:border-white';
                     if (tags && tags.includes('wcag2aaa')) return 'bg-white text-neutral-500 dark:bg-black dark:text-neutral-400 border border-dashed border-neutral-500 dark:border-neutral-600';
                     
-                    switch(impact) {
-                        case 'critical': return 'bg-[#FF2D20] text-white border border-[#FF2D20]';
-                        case 'serious': 
-                        case 'moderate': return 'bg-white text-black dark:bg-black dark:text-white border border-black dark:border-white';
-                        case 'minor': return 'bg-white text-neutral-500 dark:bg-black dark:text-neutral-400 border border-dashed border-neutral-500 dark:border-neutral-600';
-                        default: return 'bg-white text-black dark:bg-black dark:text-white border border-black dark:border-white';
-                    }
+                    // Fallback to OTHER style (subtle) if no WCAG tag is present
+                    return 'bg-white text-neutral-400 dark:bg-black dark:text-neutral-600 border border-dotted border-neutral-300 dark:border-neutral-800';
                 }
             }));
         });
