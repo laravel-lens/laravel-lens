@@ -47,7 +47,7 @@ Route::post('/scan', function (Request $request) {
             'status' => 'success',
             'issues' => $issues,
         ]);
-    } catch (ScannerException $e) {
+    } catch (\Throwable $e) {
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage(),
@@ -80,7 +80,7 @@ Route::post('/fix/suggest', function (Request $request) {
             'status' => 'success',
             'suggestion' => $suggestion,
         ]);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage(),
@@ -129,7 +129,7 @@ Route::post('/fix/apply', function (Request $request) {
             'status' => 'success',
             'message' => 'Fix applied successfully.',
         ]);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         return response()->json([
             'status' => 'error',
             'message' => $e->getMessage(),
