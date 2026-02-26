@@ -114,53 +114,96 @@
                 <!-- Results Area -->
                 <div x-show="hasResults" x-cloak class="space-y-12">
                     
-                    <!-- Summary Cards -->
-                    <dl class="grid grid-cols-1 gap-8 sm:gap-6 sm:grid-cols-3 mt-8">
-                        <!-- Total -->
-                        <div class="relative">
-                            <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full relative z-10">
-                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
-                                
-                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-2 mb-2 text-neutral-600 dark:text-neutral-400 relative z-10">
-                                    Total Output
-                                </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="totalIssues"></dd>
-                            </div>
+                    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black dark:border-neutral-700 pb-4">
+                        <h3 class="text-xl font-mono font-bold uppercase tracking-widest">Diagnostic Report</h3>
+                        <div class="text-sm font-mono">
+                            <span class="text-neutral-500 uppercase">TOTAL_VIOLATIONS:</span>
+                            <span class="text-[#FF2D20] font-bold" x-text="totalIssues"></span>
                         </div>
+                    </div>
 
+                    <!-- Summary Cards (Filters) -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
                         <!-- Critical -->
-                        <div class="relative">
+                        <button 
+                            @click="activeFilter = (activeFilter === 'critical' ? null : 'critical')"
+                            class="relative group text-left transition-none"
+                            :class="activeFilter === 'critical' ? 'ring-2 ring-offset-2 ring-black dark:ring-white dark:ring-offset-black' : ''"
+                        >
                             <div class="bg-[#FF2D20] text-white border border-[#FF2D20] px-6 py-5 flex flex-col justify-between h-full relative z-10">
                                 <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-[#FF2D20] leading-none text-white font-mono text-lg z-20">+</span>
                                 
-                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-white pb-2 mb-2 relative z-10">
-                                    Critical Failures
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-white/30 pb-2 mb-2 relative z-10">
+                                    Critical
                                 </dt>
                                 <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="criticalIssues"></dd>
                             </div>
-                        </div>
+                            <div x-show="activeFilter === 'critical'" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#FF2D20] rotate-45 z-20"></div>
+                        </button>
 
-                        <!-- Minor -->
-                        <div class="relative">
-                            <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full border-dashed relative z-10">
+                        <!-- Serious -->
+                        <button 
+                            @click="activeFilter = (activeFilter === 'serious' ? null : 'serious')"
+                            class="relative group text-left transition-none"
+                            :class="activeFilter === 'serious' ? 'ring-2 ring-offset-2 ring-black dark:ring-white dark:ring-offset-black' : ''"
+                        >
+                            <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full relative z-10 group-hover:bg-neutral-50 dark:group-hover:bg-neutral-900">
+                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-2 mb-2 text-neutral-600 dark:text-neutral-400 relative z-10">
+                                    Serious
+                                </dt>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight relative z-10" x-text="seriousIssues"></dd>
+                            </div>
+                            <div x-show="activeFilter === 'serious'" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45 z-20"></div>
+                        </button>
+
+                        <!-- Moderate -->
+                        <button 
+                            @click="activeFilter = (activeFilter === 'moderate' ? null : 'moderate')"
+                            class="relative group text-left transition-none"
+                            :class="activeFilter === 'moderate' ? 'ring-2 ring-offset-2 ring-black dark:ring-white dark:ring-offset-black' : ''"
+                        >
+                            <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full border-dashed relative z-10 group-hover:bg-neutral-50 dark:group-hover:bg-neutral-900">
                                 <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                                 
                                 <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 border-dashed pb-2 mb-2 text-neutral-500 dark:text-neutral-400 relative z-10">
-                                    Mod/Min Warnings
+                                    Moderate
                                 </dt>
-                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight text-neutral-500 dark:text-neutral-400 relative z-10" x-text="otherIssues"></dd>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight text-neutral-500 dark:text-neutral-400 relative z-10" x-text="moderateIssues"></dd>
                             </div>
-                        </div>
-                    </dl>
+                            <div x-show="activeFilter === 'moderate'" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45 z-20"></div>
+                        </button>
+
+                        <!-- Minor -->
+                        <button 
+                            @click="activeFilter = (activeFilter === 'minor' ? null : 'minor')"
+                            class="relative group text-left transition-none"
+                            :class="activeFilter === 'minor' ? 'ring-2 ring-offset-2 ring-black dark:ring-white dark:ring-offset-black' : ''"
+                        >
+                            <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 px-6 py-5 flex flex-col justify-between h-full border-dotted relative z-10 group-hover:bg-neutral-50 dark:group-hover:bg-neutral-900">
+                                <span class="crosshair absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
+                                
+                                <dt class="truncate text-xs font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 border-dotted pb-2 mb-2 text-neutral-400 dark:text-neutral-500 relative z-10">
+                                    Minor
+                                </dt>
+                                <dd class="mt-2 text-4xl font-mono font-bold tracking-tight text-neutral-400 dark:text-neutral-500 relative z-10" x-text="minorIssues"></dd>
+                            </div>
+                            <div x-show="activeFilter === 'minor'" class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 bg-black dark:bg-white rotate-45 z-20"></div>
+                        </button>
+                    </div>
 
                     <!-- Issue List -->
                     <div class="relative mt-8">
@@ -171,19 +214,24 @@
                             <span class="crosshair absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 bg-white dark:bg-black leading-none text-neutral-400 font-mono text-lg z-20">+</span>
                             
                             <div class="border-b border-black dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 px-6 py-4 flex items-center justify-between relative z-10">
-                                <h3 class="text-sm font-mono font-bold uppercase tracking-widest">Diagnostic Logs</h3>
-                                <span class="text-xs font-mono">COUNT: <span class="text-[#FF2D20] font-bold" x-text="issues.length"></span></span>
+                                <h3 class="text-sm font-mono font-bold uppercase tracking-widest" x-text="activeFilter ? `Filtered Logs: ${activeFilter}` : 'Diagnostic Logs'"></h3>
+                                <div class="flex items-center gap-4">
+                                    <template x-if="activeFilter">
+                                        <button @click="activeFilter = null" class="text-xs font-mono underline hover:text-[#FF2D20] uppercase">[ CLEAR_FILTER ]</button>
+                                    </template>
+                                    <span class="text-xs font-mono">SHOWING: <span class="text-[#FF2D20] font-bold" x-text="filteredIssues.length"></span></span>
+                                </div>
                             </div>
                             
-                            <template x-if="issues.length === 0">
+                            <template x-if="filteredIssues.length === 0">
                                 <div class="text-center py-16 px-6 font-mono relative z-10">
                                     <div class="text-2xl mb-2 font-bold">[ OK ]</div>
-                                    <p class="text-sm text-neutral-500 uppercase tracking-widest">Zero violations detected. Status nominal.</p>
+                                    <p class="text-sm text-neutral-500 uppercase tracking-widest">No violations found for this criteria.</p>
                                 </div>
                             </template>
 
                             <ul role="list" class="divide-y divide-black dark:divide-neutral-700 relative z-10">
-                                <template x-for="(issue, index) in issues" :key="index">
+                                <template x-for="(issue, index) in filteredIssues" :key="index">
                                     <li class="p-6 sm:p-8">
                                         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                                             <div class="flex-1 space-y-3">
@@ -303,6 +351,7 @@
                 error: null,
                 issues: [],
                 theme: localStorage.getItem('theme') || 'light',
+                activeFilter: null,
                 
                 // AI Fix State
                 isFixing: null,
@@ -324,13 +373,21 @@
                 
                 get totalIssues() { return this.issues.length; },
                 get criticalIssues() { return this.issues.filter(i => i.impact === 'critical').length; },
-                get otherIssues() { return this.issues.filter(i => i.impact !== 'critical').length; },
+                get seriousIssues() { return this.issues.filter(i => i.impact === 'serious').length; },
+                get moderateIssues() { return this.issues.filter(i => i.impact === 'moderate').length; },
+                get minorIssues() { return this.issues.filter(i => i.impact === 'minor').length; },
+
+                get filteredIssues() {
+                    if (!this.activeFilter) return this.issues;
+                    return this.issues.filter(i => i.impact === this.activeFilter);
+                },
 
                 async performScan() {
                     this.isLoading = true;
                     this.hasResults = false;
                     this.error = null;
                     this.issues = [];
+                    this.activeFilter = null;
 
                     try {
                         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
