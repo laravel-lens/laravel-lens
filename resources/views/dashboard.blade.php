@@ -79,8 +79,11 @@
                     <div class="bg-white dark:bg-black border border-black dark:border-neutral-700 p-8 sm:p-10 relative z-10">
                         <div class="max-w-2xl relative z-10">
                             <h2 class="text-2xl font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-4 mb-4">Target Designation</h2>
-                            <p class="mt-2 text-base font-sans text-neutral-700 dark:text-neutral-300">
-                                Enter target URL for WCAG compliance heuristics scan. System will output raw violation data.
+                            <p class="mt-2 text-base font-sans text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                                Enter target URL for comprehensive accessibility analysis. This auditor utilizes <a href="https://github.com/dequelabs/axe-core" target="_blank" class="underline decoration-black/20 hover:decoration-black dark:decoration-white/20 dark:hover:decoration-white transition-all">Axe-core</a> via <a href="https://spatie.be/docs/browsershot" target="_blank" class="underline decoration-black/20 hover:decoration-black dark:decoration-white/20 dark:hover:decoration-white transition-all">Spatie Browsershot</a> to identify WCAG violations.
+                            </p>
+                            <p class="mt-4 text-sm font-sans text-neutral-600 dark:text-neutral-400 leading-relaxed italic">
+                                System evaluates Level A, AA, and AAA compliance, identifies best practice improvements, and provides experimental remediation proposals powered by <a href="https://deepmind.google/technologies/gemini/" target="_blank" class="underline decoration-black/20 hover:decoration-black dark:decoration-white/20 dark:hover:decoration-white transition-all">Gemini AI</a>.
                             </p>
                         </div>
                         
