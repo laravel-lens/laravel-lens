@@ -35,4 +35,14 @@ return [
     'enabled_environments' => [
         'local',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | AI Fix Feature Flag
+    |--------------------------------------------------------------------------
+    |
+    | Whether the experimental AI Fix feature should be enabled in the UI.
+    |
+    */
+    'ai_fix_enabled' => env('LARAVEL_LENS_AI_FIX', false),
 ];

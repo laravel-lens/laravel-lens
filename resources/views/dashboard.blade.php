@@ -262,16 +262,18 @@
                                                     ></span>
                                                     <span class="text-sm font-mono font-bold tracking-widest text-neutral-700 dark:text-neutral-300" x-text="issue.id"></span>
                                                     <!-- AI Fix Button -->
-                                                    <template x-if="issue.fileName">
-                                                        <button 
-                                                            @click="suggestFix(issue, index)"
-                                                            :disabled="isFixing === index"
-                                                            class="ml-auto sm:ml-0 px-3 py-1 border border-black dark:border-white text-xs font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none disabled:opacity-50"
-                                                        >
-                                                            <span x-show="isFixing !== index">[ ⚡️ AI FIX ]</span>
-                                                            <span x-show="isFixing === index">[ ⚙️ INITIALIZING... ]</span>
-                                                        </button>
-                                                    </template>
+                                                    @if(config('laravel-lens.ai_fix_enabled'))
+                                                        <template x-if="issue.fileName">
+                                                            <button 
+                                                                @click="suggestFix(issue, index)"
+                                                                :disabled="isFixing === index"
+                                                                class="ml-auto sm:ml-0 px-3 py-1 border border-black dark:border-white text-xs font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none disabled:opacity-50"
+                                                            >
+                                                                <span x-show="isFixing !== index">[ ⚡️ AI FIX ]</span>
+                                                                <span x-show="isFixing === index">[ ⚙️ INITIALIZING... ]</span>
+                                                            </button>
+                                                        </template>
+                                                    @endif
                                                 </div>
                                                 <h4 class="text-base font-sans font-medium text-black dark:text-white" x-text="issue.description"></h4>
                                             </div>
