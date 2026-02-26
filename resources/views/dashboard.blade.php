@@ -466,6 +466,7 @@
                     }
                 },
                 
+                @if(config('laravel-lens.ai_fix_enabled'))
                 async suggestFix(issue, index) {
                     this.isFixing = index;
                     this.error = null;
@@ -537,6 +538,7 @@
                         this.isApplying = false;
                     }
                 },
+                @endif
                 
                 getBadgeColor(impact, tags) {
                     if (tags && tags.includes('wcag2a')) return 'bg-[#E11D48] text-white border border-[#E11D48]';
