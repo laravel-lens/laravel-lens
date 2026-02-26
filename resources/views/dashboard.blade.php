@@ -315,19 +315,6 @@
                                                         title="Preview element on page"
                                                     ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
 
-                                                    <!-- AI Fix Button -->
-                                                    @if(config('laravel-lens.ai_fix_enabled'))
-                                                        <template x-if="issue.fileName">
-                                                            <button 
-                                                                @click="suggestFix(issue, index)"
-                                                                :disabled="isFixing === index"
-                                                                class="ml-auto sm:ml-0 px-3 py-1 border border-black dark:border-white text-xs font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none disabled:opacity-50"
-                                                            >
-                                                                <span x-show="isFixing !== index">[ ⚡️ AI FIX ]</span>
-                                                                <span x-show="isFixing === index">[ ⚙️ INITIALIZING... ]</span>
-                                                            </button>
-                                                        </template>
-                                                    @endif
                                                 </div>
                                                 <h4 class="text-base font-sans font-medium text-black dark:text-white" x-text="issue.description"></h4>
                                             </div>
@@ -422,41 +409,6 @@
             </div>
         </div>
 
-        <!-- Fix Modal -->
-        <div x-show="showFixModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" x-cloak>
-            <div class="bg-white dark:bg-black border-2 border-black dark:border-white w-full max-w-3xl relative shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.2)]">
-                <div class="border-b border-black dark:border-white px-6 py-4 flex items-center justify-between bg-neutral-100 dark:bg-neutral-900">
-                    <h3 class="text-lg font-mono font-bold uppercase tracking-widest">[ AI_REMEDIATION_PROPOSAL ]</h3>
-                    <button @click="showFixModal = false" class="text-black dark:text-white hover:text-[#FF2D20] font-mono font-bold text-xl leading-none">&times;</button>
-                </div>
-                
-                <div class="p-6 space-y-6">
-                    <div>
-                        <p class="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 mb-2 uppercase tracking-widest"><span class="text-red-500">[-]</span> ORIGINAL_CODE</p>
-                        <div class="bg-red-50 dark:bg-red-950/30 border-l-4 border-red-500 p-4 font-mono text-sm overflow-x-auto border border-black dark:border-neutral-700">
-                            <pre><code class="whitespace-pre-wrap text-black dark:text-neutral-200" x-text="currentFixSuggestion?.original_snippet"></code></pre>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <p class="text-xs font-mono font-bold text-neutral-500 dark:text-neutral-400 mb-2 uppercase tracking-widest"><span class="text-green-500">[+]</span> PROPOSED_FIX</p>
-                        <div class="bg-green-50 dark:bg-green-950/30 border-l-4 border-green-500 p-4 font-mono text-sm overflow-x-auto border border-black dark:border-neutral-700">
-                            <pre><code class="whitespace-pre-wrap text-black dark:text-neutral-200" x-text="currentFixSuggestion?.fixed_snippet"></code></pre>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="border-t border-black dark:border-white px-6 py-4 bg-neutral-50 dark:bg-neutral-900 flex justify-end gap-4">
-                    <button @click="showFixModal = false" class="px-6 py-2 border border-black dark:border-white text-sm font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none">
-                        [ CANCEL ]
-                    </button>
-                    <button @click="applyFix" :disabled="isApplying" class="px-6 py-2 border border-black bg-black text-white dark:border-white dark:bg-white dark:text-black text-sm font-mono font-bold uppercase tracking-widest hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-none disabled:opacity-50">
-                        <span x-show="!isApplying">[ APPROVE & OVERWRITE FILE ]</span>
-                        <span x-show="isApplying">[ WRITING... ]</span>
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -487,11 +439,6 @@
                 previewScreenshot: null,
                 previewIssue: null,
 
-                // AI Fix State
-                isFixing: null,
-                showFixModal: false,
-                currentFixSuggestion: null,
-                isApplying: false,
                 
                 init() {
                     document.documentElement.classList.toggle('dark', this.theme === 'dark');
@@ -722,80 +669,6 @@
                         this.issues = data.issues || [];
                     }
                 },
-                
-                @if(config('laravel-lens.ai_fix_enabled'))
-                async suggestFix(issue, index) {
-                    this.isFixing = index;
-                    this.error = null;
-                    
-                    try {
-                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                        
-                        const response = await fetch('{{ route('laravel-lens.fix.suggest') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': token
-                            },
-                            body: JSON.stringify({ 
-                                file_path: issue.fileName,
-                                line_number: issue.lineNumber,
-                                issue_id: issue.id,
-                                description: issue.description
-                            })
-                        });
-
-                        const data = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(data.message || 'An error occurred while suggesting fix.');
-                        }
-
-                        this.currentFixSuggestion = data.suggestion;
-                        this.showFixModal = true;
-                    } catch (err) {
-                        alert(err.message);
-                    } finally {
-                        this.isFixing = null;
-                    }
-                },
-                
-                async applyFix() {
-                    this.isApplying = true;
-                    try {
-                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                        
-                        const response = await fetch('{{ route('laravel-lens.fix.apply') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': token
-                            },
-                            body: JSON.stringify({ 
-                                file_path: this.currentFixSuggestion.file_path,
-                                original_snippet: this.currentFixSuggestion.original_snippet,
-                                fixed_snippet: this.currentFixSuggestion.fixed_snippet
-                            })
-                        });
-
-                        const data = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(data.message || 'An error occurred while applying fix.');
-                        }
-
-                        alert('Fix applied successfully! You should rescan to verify.');
-                        this.showFixModal = false;
-                        this.currentFixSuggestion = null;
-                    } catch (err) {
-                        alert(err.message);
-                    } finally {
-                        this.isApplying = false;
-                    }
-                },
-                @endif
                 
                 getBadgeColor(impact, tags) {
                     if (tags && tags.includes('wcag2a')) return 'bg-[#E11D48] text-white border border-[#E11D48]';

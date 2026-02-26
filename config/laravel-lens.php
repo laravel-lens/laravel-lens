@@ -61,13 +61,4 @@ return [
     */
     'crawl_max_pages' => env('LARAVEL_LENS_CRAWL_MAX_PAGES', 50),
 
-    /*
-    |--------------------------------------------------------------------------
-    | AI Fix Feature Flag
-    |--------------------------------------------------------------------------
-    |
-    | Whether the experimental AI Fix feature should be enabled in the UI.
-    |
-    */
-    'ai_fix_enabled' => env('LARAVEL_LENS_AI_FIX', false),
 ];
