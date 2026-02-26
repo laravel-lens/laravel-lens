@@ -8,6 +8,7 @@ use LaravelLens\LaravelLens\Services\AiFixer;
 use LaravelLens\LaravelLens\Services\AxeScanner;
 use LaravelLens\LaravelLens\Services\FileLocator;
 use LaravelLens\LaravelLens\Services\SiteCrawler;
+use Spatie\Browsershot\Browsershot;
 
 // The prefix and middleware for these routes are automatically applied
 // by the LaravelLensServiceProvider based on your config.
@@ -80,6 +81,43 @@ Route::post('/scan', function (Request $request) {
         ], 500);
     }
 })->name('laravel-lens.scan');
+
+Route::post('/report/pdf', function (Request $request) {
+    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
+        abort(403, 'Laravel Lens is not allowed in this environment.');
+    }
+
+    $request->validate([
+        'issues' => ['required', 'array'],
+        'url'    => ['required', 'string'],
+    ]);
+
+    try {
+        $html = view('laravel-lens::report', [
+            'issues'      => $request->issues,
+            'url'         => $request->url,
+            'generatedAt' => now(),
+        ])->render();
+
+        $pdf = Browsershot::html($html)
+            ->noSandbox()
+            ->format('A4')
+            ->margins(0, 0, 0, 0)
+            ->pdf();
+
+        $filename = 'accessibility-report-'.now()->format('Y-m-d').'.pdf';
+
+        return response($pdf, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+})->name('laravel-lens.report.pdf');
 
 if (config('laravel-lens.ai_fix_enabled')) {
     Route::post('/fix/suggest', function (Request $request) {

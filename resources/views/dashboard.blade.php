@@ -169,9 +169,19 @@
                     
                     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-black dark:border-neutral-700 pb-4">
                         <h3 class="text-xl font-mono font-bold uppercase tracking-widest">Diagnostic Report</h3>
-                        <div class="text-sm font-mono">
-                            <span class="text-neutral-600 dark:text-neutral-300 uppercase">TOTAL_VIOLATIONS:</span>
-                            <span class="text-[#E11D48] font-bold" x-text="totalIssues"></span>
+                        <div class="flex items-center gap-6">
+                            <div class="text-sm font-mono">
+                                <span class="text-neutral-600 dark:text-neutral-300 uppercase">TOTAL_VIOLATIONS:</span>
+                                <span class="text-[#E11D48] font-bold" x-text="totalIssues"></span>
+                            </div>
+                            <button
+                                @click="generatePdf()"
+                                :disabled="isGeneratingPdf"
+                                class="flex items-center gap-2 px-4 py-2 border-2 border-black dark:border-white font-mono text-xs font-bold uppercase tracking-widest transition-colors hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <span x-show="!isGeneratingPdf">⬇ Export PDF</span>
+                                <span x-show="isGeneratingPdf" x-cloak>Generating...</span>
+                            </button>
                         </div>
                     </div>
 
@@ -430,6 +440,9 @@
                 progressStatus: 'Initializing...',
                 progressPercent: 0,
 
+                // PDF Export State
+                isGeneratingPdf: false,
+
                 // AI Fix State
                 isFixing: null,
                 showFixModal: false,
@@ -521,6 +534,36 @@
                         };
                         return getWeight(a) - getWeight(b);
                     });
+                },
+
+                async generatePdf() {
+                    this.isGeneratingPdf = true;
+                    this.error = null;
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const response = await fetch('{{ route('laravel-lens.report.pdf') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                            body: JSON.stringify({ issues: this.issues, url: this.url })
+                        });
+
+                        if (!response.ok) {
+                            const data = await response.json().catch(() => ({}));
+                            throw new Error(data.message || 'PDF generation failed.');
+                        }
+
+                        const blob = await response.blob();
+                        const objectUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = objectUrl;
+                        a.download = 'accessibility-report-{{ now()->format('Y-m-d') }}.pdf';
+                        a.click();
+                        URL.revokeObjectURL(objectUrl);
+                    } catch (err) {
+                        this.error = err.message;
+                    } finally {
+                        this.isGeneratingPdf = false;
+                    }
                 },
 
                 async performScan() {
