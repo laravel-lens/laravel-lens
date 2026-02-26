@@ -23,6 +23,7 @@ class AxeScanner
             // Configure Browsershot. Note that in some environments you may need
             // to configure the Node/NPM/Puppeteer path explicitly.
             $browsershot = Browsershot::url($url)
+                ->noSandbox()
                 ->waitUntilNetworkIdle(); // Wait for the page to fully load
 
             // We need to inject the axe-core library and run it.
@@ -53,7 +54,7 @@ JS;
 
             $violations = json_decode($browsershot->evaluate($script), true);
 
-            return $this->mapViolationsToIssues(is_array($violations) ? $violations : []);
+            return $this->mapViolationsToIssues(is_array($violations) ? $violations : [], $url);
         } catch (Throwable $e) {
             throw new ScannerException('Failed to run Axe-core scan: '.$e->getMessage(), 0, $e);
         }
@@ -64,7 +65,7 @@ JS;
      *
      * @return Collection<Issue>
      */
-    protected function mapViolationsToIssues(array $violations): Collection
+    protected function mapViolationsToIssues(array $violations, string $url): Collection
     {
         $issues = collect();
 
@@ -79,7 +80,8 @@ JS;
                     helpUrl: $violation['helpUrl'] ?? '',
                     htmlSnippet: $node['html'] ?? '',
                     selector: implode(', ', $node['target'] ?? []),
-                    tags: $violation['tags'] ?? []
+                    tags: $violation['tags'] ?? [],
+                    url: $url
                 ));
             }
         }

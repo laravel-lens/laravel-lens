@@ -38,6 +38,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Crawl Max Pages
+    |--------------------------------------------------------------------------
+    |
+    | Maximum number of pages to discover and scan in WHOLE_WEBSITE mode.
+    | Increase this if your site has many pages. The crawl phase uses a plain
+    | HTTP client (not headless Chrome), so higher limits are fast and safe.
+    |
+    */
+    'crawl_max_pages' => env('LARAVEL_LENS_CRAWL_MAX_PAGES', 50),
+
+    /*
+    |--------------------------------------------------------------------------
     | AI Fix Feature Flag
     |--------------------------------------------------------------------------
     |

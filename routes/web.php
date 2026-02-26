@@ -7,6 +7,7 @@ use LaravelLens\LaravelLens\Exceptions\ScannerException;
 use LaravelLens\LaravelLens\Services\AiFixer;
 use LaravelLens\LaravelLens\Services\AxeScanner;
 use LaravelLens\LaravelLens\Services\FileLocator;
+use LaravelLens\LaravelLens\Services\SiteCrawler;
 
 // The prefix and middleware for these routes are automatically applied
 // by the LaravelLensServiceProvider based on your config.
@@ -18,6 +19,31 @@ Route::get('/dashboard', function () {
 
     return view('laravel-lens::dashboard');
 })->name('laravel-lens.dashboard');
+
+Route::post('/crawl', function (Request $request) {
+    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
+        abort(403, 'Laravel Lens is not allowed in this environment.');
+    }
+
+    $request->validate([
+        'url' => ['required', 'url'],
+    ]);
+
+    try {
+        $crawler = new SiteCrawler;
+        $urls = $crawler->crawl($request->url, config('laravel-lens.crawl_max_pages', 50));
+
+        return response()->json([
+            'status' => 'success',
+            'urls' => $urls,
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+})->name('laravel-lens.crawl');
 
 Route::post('/scan', function (Request $request) {
     if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {

@@ -87,32 +87,65 @@
                             </p>
                         </div>
                         
-                        <form @submit.prevent="performScan" class="mt-8 flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900 relative z-10">
-                            <label for="target-url" class="sr-only">Target URL to scan</label>
-                            <div class="relative flex-grow">
-                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <span class="font-mono text-[#E11D48] font-bold" aria-hidden="true">></span>
-                                </div>
-                                <input 
-                                    type="url" 
-                                    id="target-url"
-                                    x-model="url" 
-                                    required
-                                    class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] dark:focus:ring-[#E11D48] sm:text-sm sm:leading-6 font-mono bg-white outline-none" 
-                                    placeholder="http://localhost"
+                        <form @submit.prevent="performScan" class="mt-8 space-y-4 relative z-10">
+                            <!-- Mode Toggle -->
+                            <div class="flex items-center gap-4 font-mono text-xs mb-4">
+                                <button 
+                                    type="button"
+                                    @click="scanMode = 'single'"
+                                    class="px-3 py-1 border transition-none"
+                                    :class="scanMode === 'single' ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white' : 'border-neutral-300 dark:border-neutral-700 text-neutral-500'"
                                 >
+                                    SINGLE_URL
+                                </button>
+                                <button 
+                                    type="button"
+                                    @click="scanMode = 'website'"
+                                    class="px-3 py-1 border transition-none"
+                                    :class="scanMode === 'website' ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white' : 'border-neutral-300 dark:border-neutral-700 text-neutral-500'"
+                                >
+                                    WHOLE_WEBSITE
+                                </button>
                             </div>
-                            <button 
-                                type="submit" 
-                                :disabled="isLoading"
-                                class="inline-flex items-center justify-center rounded-none bg-[#E11D48] text-white px-8 py-3 text-sm font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-none disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap border-l sm:border-t-0 border-t border-[#E11D48] hover:border-black sm:ml-1 mt-1 sm:mt-0"
-                            >
-                                <span x-show="!isLoading">EXECUTE</span>
-                                <span x-show="isLoading" class="flex items-center gap-2" x-cloak>
-                                    PROCESSING...
-                                </span>
-                            </button>
+
+                            <div class="flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900">
+                                <label for="target-url" class="sr-only">Target URL to scan</label>
+                                <div class="relative flex-grow">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                        <span class="font-mono text-[#E11D48] font-bold" aria-hidden="true">></span>
+                                    </div>
+                                    <input 
+                                        type="url" 
+                                        id="target-url"
+                                        x-model="url" 
+                                        required
+                                        class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] dark:focus:ring-[#E11D48] sm:text-sm sm:leading-6 font-mono bg-white outline-none" 
+                                        placeholder="http://localhost"
+                                    >
+                                </div>
+                                <button 
+                                    type="submit" 
+                                    :disabled="isLoading"
+                                    class="inline-flex items-center justify-center rounded-none bg-[#E11D48] text-white px-8 py-3 text-sm font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-none disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap border-l sm:border-t-0 border-t border-[#E11D48] hover:border-black sm:ml-1 mt-1 sm:mt-0"
+                                >
+                                    <span x-show="!isLoading">EXECUTE</span>
+                                    <span x-show="isLoading" class="flex items-center gap-2" x-cloak>
+                                        PROCESSING...
+                                    </span>
+                                </button>
+                            </div>
                         </form>
+
+                        <!-- Progress Bar -->
+                        <div x-show="isLoading && scanMode === 'website'" x-cloak class="mt-6 space-y-2">
+                            <div class="flex justify-between text-[10px] font-mono uppercase tracking-widest text-neutral-500">
+                                <span x-text="progressStatus"></span>
+                                <span x-text="`${progressPercent}%`" class="text-neutral-500"></span>
+                            </div>
+                            <div class="w-full h-1 bg-neutral-100 dark:bg-neutral-900 border border-black/5 dark:border-white/5">
+                                <div class="h-full bg-[#E11D48] transition-all duration-300" :style="`width: ${progressPercent}%`"></div>
+                            </div>
+                        </div>
 
                         <!-- Error Alert -->
                         <div x-show="error" x-cloak class="bg-white dark:bg-black p-4 border-2 border-[#E11D48] text-[#E11D48] mt-6 border-dashed relative z-10">
@@ -261,6 +294,10 @@
                                                         x-text="issue.tags && issue.tags.includes('wcag2a') ? '[WCAG A]' : (issue.tags && issue.tags.includes('wcag2aa') ? '[WCAG AA]' : (issue.tags && issue.tags.includes('wcag2aaa') ? '[WCAG AAA]' : '[OTHER]'))"
                                                     ></span>
                                                     <span class="text-sm font-mono font-bold tracking-widest text-neutral-700 dark:text-neutral-300" x-text="issue.id"></span>
+                                                    <!-- Page URL Badge -->
+                                                    <template x-if="scanMode === 'website' && issue.url">
+                                                        <span class="text-[10px] font-mono border border-black/10 dark:border-white/10 px-1.5 py-0.5 bg-neutral-50 dark:bg-neutral-900 text-neutral-500" x-text="new URL(issue.url).pathname"></span>
+                                                    </template>
                                                     <!-- AI Fix Button -->
                                                     @if(config('laravel-lens.ai_fix_enabled'))
                                                         <template x-if="issue.fileName">
@@ -368,6 +405,11 @@
                 theme: localStorage.getItem('theme') || 'light',
                 activeFilter: null,
                 
+                // Scan Mode & Progress
+                scanMode: 'single', // 'single' or 'website'
+                progressStatus: 'Initializing...',
+                progressPercent: 0,
+
                 // AI Fix State
                 isFixing: null,
                 showFixModal: false,
@@ -437,32 +479,78 @@
                     this.error = null;
                     this.issues = [];
                     this.activeFilter = null;
+                    this.progressPercent = 0;
 
                     try {
                         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                         
-                        const response = await fetch('{{ route('laravel-lens.scan') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': token
-                            },
-                            body: JSON.stringify({ url: this.url })
-                        });
-
-                        const data = await response.json();
-
-                        if (!response.ok) {
-                            throw new Error(data.message || 'An error occurred during scanning.');
+                        if (this.scanMode === 'single') {
+                            this.progressStatus = 'Scanning page...';
+                            this.progressPercent = 50;
+                            await this.scanSingleUrl(this.url, token);
+                            this.progressPercent = 100;
+                        } else {
+                            this.progressStatus = 'Crawling website...';
+                            this.progressPercent = 10;
+                            
+                            // 1. Crawl
+                            const crawlResponse = await fetch('{{ route('laravel-lens.crawl') }}', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token },
+                                body: JSON.stringify({ url: this.url })
+                            });
+                            
+                            const crawlData = await crawlResponse.json();
+                            if (!crawlResponse.ok) throw new Error(crawlData.message || 'Crawling failed.');
+                            
+                            const urls = crawlData.urls || [];
+                            if (urls.length === 0) throw new Error('No internal links discovered.');
+                            
+                            // 2. Scan each URL
+                            for (let i = 0; i < urls.length; i++) {
+                                const currentUrl = urls[i];
+                                this.progressPercent = 10 + Math.round(((i) / urls.length) * 90);
+                                this.progressStatus = `Scanning [${i + 1}/${urls.length}]: ${currentUrl}`;
+                                
+                                try {
+                                    await this.scanSingleUrl(currentUrl, token, true);
+                                } catch (e) {
+                                    console.error(`Failed to scan ${currentUrl}:`, e);
+                                }
+                            }
+                            this.progressPercent = 100;
+                            this.progressStatus = 'Scan complete.';
                         }
 
-                        this.issues = data.issues || [];
                         this.hasResults = true;
                     } catch (err) {
                         this.error = err.message;
                     } finally {
                         this.isLoading = false;
+                    }
+                },
+
+                async scanSingleUrl(targetUrl, token, append = false) {
+                    const response = await fetch('{{ route('laravel-lens.scan') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token
+                        },
+                        body: JSON.stringify({ url: targetUrl })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || 'An error occurred during scanning.');
+                    }
+
+                    if (append) {
+                        this.issues = [...this.issues, ...(data.issues || [])];
+                    } else {
+                        this.issues = data.issues || [];
                     }
                 },
                 
