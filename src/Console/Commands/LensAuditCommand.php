@@ -56,7 +56,7 @@ class LensAuditCommand extends Command
 
         if ($violationCount === 0) {
             $this->newLine();
-            $this->components->success('No violations found. Accessibility score: 100%');
+            $this->components->success('No violations found.');
 
             return self::SUCCESS;
         }
@@ -361,22 +361,6 @@ class LensAuditCommand extends Command
             'Best Practice'=> $issues->filter(fn (Issue $i) => ! in_array('wcag2a', $i->tags) && ! in_array('wcag2aa', $i->tags) && ! in_array('wcag2aaa', $i->tags))->count(),
         ];
 
-        // ── Score ──────────────────────────────────────────────────────────────
-        if ($isCrawl) {
-            // Average across all scanned pages (pages with 0 issues score 100)
-            $byPage = $issues->groupBy('url');
-            $totalScore = 0;
-            foreach ($scannedUrls as $pageUrl) {
-                $pageIssues = $byPage->get($pageUrl, collect());
-                $totalScore += $this->computeScore($pageIssues);
-            }
-            $score = (int) round($totalScore / count($scannedUrls));
-        } else {
-            $score = $this->computeScore($issues);
-        }
-
-        $scoreColor = $score >= 90 ? 'green' : ($score >= 60 ? 'yellow' : 'red');
-
         $this->line('  <options=bold>Summary</>');
         $this->line('  ─────────────────────────────────────────────');
 
@@ -405,10 +389,6 @@ class LensAuditCommand extends Command
             }
         }
 
-        $scoreLabel = $isCrawl ? 'Avg. Accessibility Score' : 'Accessibility Score';
-        $this->newLine();
-        $this->line("  {$scoreLabel} : <fg={$scoreColor};options=bold>{$score}%</>");
-        $this->line('  <fg=gray>(Score = 100 minus weighted deductions per impact level'.($isCrawl ? ', averaged across pages' : '').')</>');
         $this->newLine();
     }
 
@@ -505,23 +485,6 @@ class LensAuditCommand extends Command
         }
 
         return trim(strip_tags($html));
-    }
-
-    /**
-     * Compute a 0-100 accessibility score.
-     * Deductions: critical=10, serious=5, moderate=3, minor=1.
-     */
-    private function computeScore(Collection $issues): int
-    {
-        $deduction = $issues->sum(fn (Issue $i) => match ($i->impact) {
-            'critical' => 10,
-            'serious'  => 5,
-            'moderate' => 3,
-            'minor'    => 1,
-            default    => 2,
-        });
-
-        return max(0, 100 - $deduction);
     }
 
     private function renderTroubleshooting(): void
