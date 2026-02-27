@@ -10,9 +10,13 @@ use Throwable;
 class SiteCrawler
 {
     protected array $visited = [];
+
     protected array $toVisit = [];
+
     protected string $baseUrl = '';
+
     protected string $host = '';
+
     protected string $scheme = '';
 
     /**

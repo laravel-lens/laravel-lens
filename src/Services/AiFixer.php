@@ -24,17 +24,17 @@ class AiFixer
         array $tags = []
     ): array {
         $viewsBase = resource_path('views');
-        $fullPath  = realpath($viewsBase . DIRECTORY_SEPARATOR . $fileName);
+        $fullPath = realpath($viewsBase.DIRECTORY_SEPARATOR.$fileName);
 
-        if (! $fullPath || ! str_starts_with($fullPath, $viewsBase . DIRECTORY_SEPARATOR)) {
+        if (! $fullPath || ! str_starts_with($fullPath, $viewsBase.DIRECTORY_SEPARATOR)) {
             throw new \RuntimeException('File access denied: path is outside the views directory.');
         }
 
-        $lines      = explode("\n", file_get_contents($fullPath));
-        $context    = 20;
+        $lines = explode("\n", file_get_contents($fullPath));
+        $context = 20;
         $startIndex = max(0, $lineNumber - 1 - $context);
-        $endIndex   = min(count($lines) - 1, $lineNumber - 1 + $context);
-        $codeBlock  = implode("\n", array_slice($lines, $startIndex, $endIndex - $startIndex + 1));
+        $endIndex = min(count($lines) - 1, $lineNumber - 1 + $context);
+        $codeBlock = implode("\n", array_slice($lines, $startIndex, $endIndex - $startIndex + 1));
 
         $wcagTags = implode(', ', array_filter($tags, fn ($t) => str_starts_with($t, 'wcag')));
 
@@ -57,7 +57,7 @@ PROMPT;
         $result = agent(
             instructions: 'You are an expert in web accessibility (WCAG) and Laravel Blade templates. You produce minimal, precise fixes that resolve accessibility violations without touching unrelated code.',
             schema: fn ($schema) => [
-                'fixedCode'   => $schema->string()->required(),
+                'fixedCode' => $schema->string()->required(),
                 'explanation' => $schema->string()->required(),
             ],
         )->prompt(
@@ -67,10 +67,10 @@ PROMPT;
 
         return [
             'originalCode' => $codeBlock,
-            'fixedCode'    => $result['fixedCode'],
-            'explanation'  => $result['explanation'],
-            'fileName'     => $fileName,
-            'startLine'    => $startIndex + 1,
+            'fixedCode' => $result['fixedCode'],
+            'explanation' => $result['explanation'],
+            'fileName' => $fileName,
+            'startLine' => $startIndex + 1,
         ];
     }
 }

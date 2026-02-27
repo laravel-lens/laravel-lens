@@ -2,11 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use LaravelLens\LaravelLens\Exceptions\ScannerException;
+use LaravelLens\LaravelLens\Services\AiFixer;
 use LaravelLens\LaravelLens\Services\AxeScanner;
 use LaravelLens\LaravelLens\Services\FileLocator;
 use LaravelLens\LaravelLens\Services\SiteCrawler;
-use LaravelLens\LaravelLens\Services\AiFixer;
 use Spatie\Browsershot\Browsershot;
 
 // The prefix and middleware for these routes are automatically applied
@@ -30,7 +29,7 @@ Route::post('/crawl', function (Request $request) {
     ]);
 
     try {
-        $crawler = new SiteCrawler;
+        $crawler = app(SiteCrawler::class);
         $urls = $crawler->crawl($request->url, config('laravel-lens.crawl_max_pages', 50));
 
         return response()->json([
@@ -55,10 +54,10 @@ Route::post('/scan', function (Request $request) {
     ]);
 
     try {
-        $scanner = new AxeScanner;
+        $scanner = app(AxeScanner::class);
         $issues = $scanner->scan($request->url);
 
-        $fileLocator = new FileLocator;
+        $fileLocator = app(FileLocator::class);
 
         // Enhance each issue with its estimated file location
         foreach ($issues as $issue) {
@@ -87,7 +86,7 @@ Route::post('/preview', function (Request $request) {
     }
 
     $request->validate([
-        'url'      => ['required', 'url'],
+        'url' => ['required', 'url'],
         'selector' => ['required', 'string', 'max:500'],
     ]);
 
@@ -140,14 +139,14 @@ Route::post('/fix/suggest', function (Request $request) {
     $request->validate([
         'htmlSnippet' => ['required', 'string', 'max:2000'],
         'description' => ['required', 'string', 'max:500'],
-        'fileName'    => ['required', 'string', 'max:500'],
-        'lineNumber'  => ['required', 'integer', 'min:1'],
-        'tags'        => ['nullable', 'array'],
-        'tags.*'      => ['string'],
+        'fileName' => ['required', 'string', 'max:500'],
+        'lineNumber' => ['required', 'integer', 'min:1'],
+        'tags' => ['nullable', 'array'],
+        'tags.*' => ['string'],
     ]);
 
     try {
-        $result = (new AiFixer)->suggestFix(
+        $result = app(AiFixer::class)->suggestFix(
             $request->htmlSnippet,
             $request->description,
             $request->fileName,
@@ -167,15 +166,15 @@ Route::post('/fix/apply', function (Request $request) {
     }
 
     $request->validate([
-        'fileName'     => ['required', 'string', 'max:500'],
+        'fileName' => ['required', 'string', 'max:500'],
         'originalCode' => ['required', 'string'],
-        'fixedCode'    => ['required', 'string'],
+        'fixedCode' => ['required', 'string'],
     ]);
 
     $viewsBase = resource_path('views');
-    $fullPath  = realpath($viewsBase . DIRECTORY_SEPARATOR . $request->fileName);
+    $fullPath = realpath($viewsBase.DIRECTORY_SEPARATOR.$request->fileName);
 
-    if (! $fullPath || ! str_starts_with($fullPath, $viewsBase . DIRECTORY_SEPARATOR)) {
+    if (! $fullPath || ! str_starts_with($fullPath, $viewsBase.DIRECTORY_SEPARATOR)) {
         return response()->json(['status' => 'error', 'message' => 'File access denied.'], 403);
     }
 
@@ -183,7 +182,7 @@ Route::post('/fix/apply', function (Request $request) {
 
     if (! str_contains($content, $request->originalCode)) {
         return response()->json([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => 'Original code not found in file. The file may have been modified since the fix was generated.',
         ], 422);
     }
@@ -200,13 +199,13 @@ Route::post('/report/pdf', function (Request $request) {
 
     $request->validate([
         'issues' => ['required', 'array'],
-        'url'    => ['required', 'string'],
+        'url' => ['required', 'string'],
     ]);
 
     try {
         $html = view('laravel-lens::report', [
-            'issues'      => $request->issues,
-            'url'         => $request->url,
+            'issues' => $request->issues,
+            'url' => $request->url,
             'generatedAt' => now(),
         ])->render();
 
@@ -219,14 +218,13 @@ Route::post('/report/pdf', function (Request $request) {
         $filename = 'accessibility-report-'.now()->format('Y-m-d').'.pdf';
 
         return response($pdf, 200, [
-            'Content-Type'        => 'application/pdf',
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     } catch (\Throwable $e) {
         return response()->json([
-            'status'  => 'error',
+            'status' => 'error',
             'message' => $e->getMessage(),
         ], 500);
     }
 })->name('laravel-lens.report.pdf');
-

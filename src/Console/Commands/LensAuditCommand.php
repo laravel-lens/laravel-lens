@@ -94,7 +94,7 @@ class LensAuditCommand extends Command
         $this->newLine();
 
         try {
-            $scanner = new AxeScanner();
+            $scanner = app(AxeScanner::class);
             $issues = null;
 
             $this->components->task('Launching Browsershot + axe-core', function () {});
@@ -104,7 +104,7 @@ class LensAuditCommand extends Command
             });
 
             $this->components->task('Resolving Blade source locations', function () use ($issues) {
-                $locator = new FileLocator();
+                $locator = app(FileLocator::class);
                 foreach ($issues as $issue) {
                     $location = $locator->locate($issue->htmlSnippet, $issue->selector);
                     if ($location) {
@@ -144,7 +144,7 @@ class LensAuditCommand extends Command
         $this->components->task(
             "Crawling site (limit: {$maxPages} pages)",
             function () use ($url, $maxPages, &$urls) {
-                $urls = (new SiteCrawler())->crawl($url, $maxPages);
+                $urls = app(SiteCrawler::class)->crawl($url, $maxPages);
             }
         );
 
@@ -160,8 +160,8 @@ class LensAuditCommand extends Command
         $this->newLine();
 
         // ── Step 2: axe-core scan per page ────────────────────────────────────
-        $scanner = new AxeScanner();
-        $locator = new FileLocator();
+        $scanner = app(AxeScanner::class);
+        $locator = app(FileLocator::class);
         $allIssues = collect();
         $scannedUrls = [];
         $failedUrls = [];
@@ -243,8 +243,8 @@ class LensAuditCommand extends Command
     private function filterByLevel(Collection $issues, string $level): Collection
     {
         return match ($level) {
-            'a'     => $issues->filter(fn (Issue $i) => in_array('wcag2a', $i->tags)),
-            'aa'    => $issues->filter(fn (Issue $i) => in_array('wcag2a', $i->tags) || in_array('wcag2aa', $i->tags)),
+            'a' => $issues->filter(fn (Issue $i) => in_array('wcag2a', $i->tags)),
+            'aa' => $issues->filter(fn (Issue $i) => in_array('wcag2a', $i->tags) || in_array('wcag2aa', $i->tags)),
             default => $issues,
         };
     }
@@ -254,8 +254,8 @@ class LensAuditCommand extends Command
     private function renderHeader(string $url, string $levelFilter, int $threshold, bool $crawlMode): void
     {
         $levelLabel = match ($levelFilter) {
-            'a'     => 'WCAG A only',
-            'aa'    => 'WCAG A + AA',
+            'a' => 'WCAG A only',
+            'aa' => 'WCAG A + AA',
             default => 'A + AA + AAA + Best Practice',
         };
 
@@ -355,10 +355,10 @@ class LensAuditCommand extends Command
         $isCrawl = count($scannedUrls) > 1;
 
         $levelCounts = [
-            'A'            => $issues->filter(fn (Issue $i) => in_array('wcag2a', $i->tags))->count(),
-            'AA'           => $issues->filter(fn (Issue $i) => in_array('wcag2aa', $i->tags) && ! in_array('wcag2a', $i->tags))->count(),
-            'AAA'          => $issues->filter(fn (Issue $i) => in_array('wcag2aaa', $i->tags) && ! in_array('wcag2a', $i->tags) && ! in_array('wcag2aa', $i->tags))->count(),
-            'Best Practice'=> $issues->filter(fn (Issue $i) => ! in_array('wcag2a', $i->tags) && ! in_array('wcag2aa', $i->tags) && ! in_array('wcag2aaa', $i->tags))->count(),
+            'A' => $issues->filter(fn (Issue $i) => in_array('wcag2a', $i->tags))->count(),
+            'AA' => $issues->filter(fn (Issue $i) => in_array('wcag2aa', $i->tags) && ! in_array('wcag2a', $i->tags))->count(),
+            'AAA' => $issues->filter(fn (Issue $i) => in_array('wcag2aaa', $i->tags) && ! in_array('wcag2a', $i->tags) && ! in_array('wcag2aa', $i->tags))->count(),
+            'Best Practice' => $issues->filter(fn (Issue $i) => ! in_array('wcag2a', $i->tags) && ! in_array('wcag2aa', $i->tags) && ! in_array('wcag2aaa', $i->tags))->count(),
         ];
 
         $this->line('  <options=bold>Summary</>');
@@ -366,7 +366,7 @@ class LensAuditCommand extends Command
 
         if ($isCrawl) {
             $uniqueRules = $issues->pluck('id')->unique()->count();
-            $this->line("  Pages scanned     : <options=bold>".count($scannedUrls).'</>');
+            $this->line('  Pages scanned     : <options=bold>'.count($scannedUrls).'</>');
             $this->line("  Unique rules hit  : <options=bold>{$uniqueRules}</>");
         }
 
@@ -413,10 +413,10 @@ class LensAuditCommand extends Command
     {
         return match ($impact) {
             'critical' => '<fg=red;options=bold>critical</>',
-            'serious'  => '<fg=red>serious</>',
+            'serious' => '<fg=red>serious</>',
             'moderate' => '<fg=yellow>moderate</>',
-            'minor'    => '<fg=gray>minor</>',
-            default    => $impact,
+            'minor' => '<fg=gray>minor</>',
+            default => $impact,
         };
     }
 
@@ -438,7 +438,7 @@ class LensAuditCommand extends Command
         $text = $this->extractNodeText($html, $tag);
         $label = "[{$tag}]".($text !== '' ? " \"{$text}\"" : '');
 
-        return Str::limit($label, 30);
+        return Str::limit($label, 27);
     }
 
     /**
