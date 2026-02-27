@@ -4,6 +4,7 @@ namespace LaravelLens\LaravelLens;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use LaravelLens\LaravelLens\Console\Commands\LensAuditCommand;
 
 class LaravelLensServiceProvider extends ServiceProvider
 {
@@ -23,6 +24,7 @@ class LaravelLensServiceProvider extends ServiceProvider
         $this->registerRoutes();
         $this->registerViews();
         $this->registerPublishing();
+        $this->registerCommands();
     }
 
     /**
@@ -44,6 +46,18 @@ class LaravelLensServiceProvider extends ServiceProvider
     protected function registerViews(): void
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-lens');
+    }
+
+    /**
+     * Register the package's Artisan commands.
+     */
+    protected function registerCommands(): void
+    {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                LensAuditCommand::class,
+            ]);
+        }
     }
 
     /**
