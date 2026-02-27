@@ -6,6 +6,7 @@ use LaravelLens\LaravelLens\Exceptions\ScannerException;
 use LaravelLens\LaravelLens\Services\AxeScanner;
 use LaravelLens\LaravelLens\Services\FileLocator;
 use LaravelLens\LaravelLens\Services\SiteCrawler;
+use LaravelLens\LaravelLens\Services\AiFixer;
 use Spatie\Browsershot\Browsershot;
 
 // The prefix and middleware for these routes are automatically applied
@@ -130,6 +131,67 @@ Route::post('/preview', function (Request $request) {
         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
     }
 })->name('laravel-lens.preview');
+
+Route::post('/fix/suggest', function (Request $request) {
+    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
+        abort(403, 'Laravel Lens is not allowed in this environment.');
+    }
+
+    $request->validate([
+        'htmlSnippet' => ['required', 'string', 'max:2000'],
+        'description' => ['required', 'string', 'max:500'],
+        'fileName'    => ['required', 'string', 'max:500'],
+        'lineNumber'  => ['required', 'integer', 'min:1'],
+        'tags'        => ['nullable', 'array'],
+        'tags.*'      => ['string'],
+    ]);
+
+    try {
+        $result = (new AiFixer)->suggestFix(
+            $request->htmlSnippet,
+            $request->description,
+            $request->fileName,
+            $request->lineNumber,
+            $request->input('tags', [])
+        );
+
+        return response()->json(['status' => 'success', ...$result]);
+    } catch (\Throwable $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+    }
+})->name('laravel-lens.fix.suggest');
+
+Route::post('/fix/apply', function (Request $request) {
+    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
+        abort(403, 'Laravel Lens is not allowed in this environment.');
+    }
+
+    $request->validate([
+        'fileName'     => ['required', 'string', 'max:500'],
+        'originalCode' => ['required', 'string'],
+        'fixedCode'    => ['required', 'string'],
+    ]);
+
+    $viewsBase = resource_path('views');
+    $fullPath  = realpath($viewsBase . DIRECTORY_SEPARATOR . $request->fileName);
+
+    if (! $fullPath || ! str_starts_with($fullPath, $viewsBase . DIRECTORY_SEPARATOR)) {
+        return response()->json(['status' => 'error', 'message' => 'File access denied.'], 403);
+    }
+
+    $content = file_get_contents($fullPath);
+
+    if (! str_contains($content, $request->originalCode)) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Original code not found in file. The file may have been modified since the fix was generated.',
+        ], 422);
+    }
+
+    file_put_contents($fullPath, str_replace($request->originalCode, $request->fixedCode, $content));
+
+    return response()->json(['status' => 'success']);
+})->name('laravel-lens.fix.apply');
 
 Route::post('/report/pdf', function (Request $request) {
     if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {

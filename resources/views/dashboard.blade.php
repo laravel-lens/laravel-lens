@@ -314,6 +314,14 @@
                                                         class="px-2 py-1 border border-black/20 dark:border-white/20 text-xs font-mono uppercase tracking-widest hover:border-black dark:hover:border-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
                                                         title="Preview element on page"
                                                     ><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                                                    <!-- AI Fix Button -->
+                                                    <template x-if="issue.fileName">
+                                                        <button
+                                                            @click="requestAiFix(issue)"
+                                                            class="px-2 py-1 border border-black/20 dark:border-white/20 text-xs font-mono font-bold uppercase tracking-widest hover:border-[#E11D48] hover:bg-[#E11D48] hover:text-white transition-colors"
+                                                            title="Fix with AI"
+                                                        >AI FIX</button>
+                                                    </template>
 
                                                 </div>
                                                 <h4 class="text-base font-sans font-medium text-black dark:text-white" x-text="issue.description"></h4>
@@ -378,6 +386,133 @@
             </div>
         </main>
         
+        <!-- AI Fix Modal -->
+        <div x-show="showFixModal" @keydown.escape.window="closeFixModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" x-cloak>
+            <div class="bg-white dark:bg-black border-2 border-black dark:border-white w-full max-w-4xl relative shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.2)] flex flex-col max-h-[90vh]">
+
+                <!-- Header -->
+                <div class="border-b border-black dark:border-white px-6 py-4 flex items-center justify-between bg-neutral-100 dark:bg-neutral-900 shrink-0">
+                    <div>
+                        <h3 class="text-lg font-mono font-bold uppercase tracking-widest">[ AI_FIX ]</h3>
+                        <p class="text-xs font-mono text-neutral-500 uppercase tracking-widest mt-0.5" x-text="fixIssue?.id ?? ''"></p>
+                    </div>
+                    <button @click="closeFixModal()" class="text-black dark:text-white hover:text-[#E11D48] font-mono font-bold text-2xl leading-none">&times;</button>
+                </div>
+
+                <!-- Body -->
+                <div class="overflow-y-auto flex-1 p-6 space-y-6">
+
+                    <!-- Loading -->
+                    <div x-show="isLoadingFix" class="flex flex-col items-center justify-center py-16 gap-4">
+                        <div class="w-6 h-6 rounded-full border-2 border-black dark:border-white border-t-transparent animate-spin"></div>
+                        <div class="font-mono text-center">
+                            <p class="text-sm font-bold uppercase tracking-widest">Consulting AI...</p>
+                            <p class="text-xs text-neutral-500 mt-1 uppercase tracking-widest">Gemini is analyzing the accessibility issue</p>
+                        </div>
+                    </div>
+
+                    <!-- Error -->
+                    <div x-show="!isLoadingFix && fixError" x-cloak class="border-2 border-dashed border-[#E11D48] p-4">
+                        <p class="font-mono text-xs font-bold uppercase tracking-widest text-[#E11D48] mb-2">[ERR] Fix generation failed</p>
+                        <p class="font-mono text-sm" x-text="fixError"></p>
+                    </div>
+
+                    <!-- Applied success -->
+                    <div x-show="fixApplied" x-cloak class="border-2 border-green-500 p-6 text-center space-y-2">
+                        <p class="font-mono text-sm font-bold uppercase tracking-widest text-green-500">✓ Fix Applied Successfully</p>
+                        <p class="font-mono text-xs text-neutral-500 uppercase tracking-widest">The file has been updated. Re-scan to verify the fix.</p>
+                    </div>
+
+                    <!-- Fix Data -->
+                    <template x-if="!isLoadingFix && fixData && !fixApplied">
+                        <div class="space-y-6">
+
+                            <!-- AI Explanation -->
+                            <div class="bg-neutral-100 dark:bg-neutral-900 border-l-4 border-black dark:border-white p-4">
+                                <p class="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-2">>> AI Explanation</p>
+                                <p class="font-mono text-sm leading-relaxed" x-text="fixData.explanation"></p>
+                            </div>
+
+                            <!-- File info -->
+                            <div class="font-mono text-xs text-neutral-500 uppercase tracking-widest">
+                                <span class="font-bold text-black dark:text-white">File:</span>
+                                <span x-text="fixData.fileName + '  (context from line ' + fixData.startLine + ')'"></span>
+                            </div>
+
+                            <!-- Diff view -->
+                            <div>
+                                <p class="text-xs font-mono font-bold uppercase tracking-widest text-neutral-500 mb-2">>> Diff</p>
+                                <div class="border border-black dark:border-neutral-700 overflow-hidden bg-[#0d1117]">
+                                    <!-- Diff legend -->
+                                    <div class="flex items-center gap-4 px-4 py-2 bg-neutral-800 border-b border-neutral-700 text-xs font-mono">
+                                        <span class="text-red-400">— original</span>
+                                        <span class="text-neutral-600">|</span>
+                                        <span class="text-green-400">+ fixed</span>
+                                    </div>
+                                    <!-- Diff lines -->
+                                    <div class="overflow-x-auto">
+                                        <template x-for="(line, idx) in fixDiff" :key="idx">
+                                            <div
+                                                class="flex items-start px-2 font-mono text-xs leading-5 whitespace-pre"
+                                                :class="{
+                                                    'bg-red-950/60': line.type === 'removed',
+                                                    'bg-green-950/60': line.type === 'added',
+                                                }"
+                                            >
+                                                <span
+                                                    class="select-none shrink-0 w-5 mr-2 text-center"
+                                                    :class="{
+                                                        'text-red-400': line.type === 'removed',
+                                                        'text-green-400': line.type === 'added',
+                                                        'text-neutral-600': line.type === 'context',
+                                                    }"
+                                                    x-text="line.type === 'removed' ? '-' : (line.type === 'added' ? '+' : ' ')"
+                                                ></span>
+                                                <span
+                                                    :class="{
+                                                        'text-red-300': line.type === 'removed',
+                                                        'text-green-300': line.type === 'added',
+                                                        'text-neutral-400': line.type === 'context',
+                                                    }"
+                                                    x-text="line.text"
+                                                ></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Footer — actions -->
+                <div x-show="!isLoadingFix && fixData && !fixApplied" x-cloak class="border-t border-black dark:border-white px-6 py-4 flex justify-end gap-3 bg-neutral-100 dark:bg-neutral-900 shrink-0">
+                    <button
+                        @click="closeFixModal()"
+                        class="px-6 py-2 border-2 border-black dark:border-white font-mono text-sm font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none"
+                    >REJECT</button>
+                    <button
+                        @click="applyFix()"
+                        :disabled="isApplyingFix"
+                        class="px-6 py-2 bg-[#E11D48] border-2 border-[#E11D48] text-white font-mono text-sm font-bold uppercase tracking-widest hover:bg-black hover:border-black transition-none disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <span x-show="!isApplyingFix">ACCEPT &amp; APPLY</span>
+                        <span x-show="isApplyingFix" x-cloak>APPLYING...</span>
+                    </button>
+                </div>
+
+                <!-- Footer — after applied -->
+                <div x-show="fixApplied" x-cloak class="border-t border-black dark:border-white px-6 py-4 flex justify-end bg-neutral-100 dark:bg-neutral-900 shrink-0">
+                    <button
+                        @click="closeFixModal()"
+                        class="px-6 py-2 border-2 border-black dark:border-white font-mono text-sm font-bold uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-none"
+                    >CLOSE</button>
+                </div>
+
+            </div>
+        </div>
+
         <!-- Preview Modal -->
         <div x-show="showPreviewModal" @keydown.escape.window="closePreview()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" x-cloak>
             <div class="bg-white dark:bg-black border-2 border-black dark:border-white w-full max-w-5xl relative shadow-[8px_8px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_rgba(255,255,255,0.2)]">
@@ -438,6 +573,15 @@
                 isLoadingPreview: false,
                 previewScreenshot: null,
                 previewIssue: null,
+
+                // AI Fix State
+                showFixModal: false,
+                isLoadingFix: false,
+                fixIssue: null,
+                fixData: null,
+                isApplyingFix: false,
+                fixApplied: false,
+                fixError: null,
 
                 
                 init() {
@@ -670,6 +814,98 @@
                     }
                 },
                 
+                async requestAiFix(issue) {
+                    this.fixIssue = issue;
+                    this.fixData = null;
+                    this.fixError = null;
+                    this.fixApplied = false;
+                    this.isLoadingFix = true;
+                    this.showFixModal = true;
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const response = await fetch('{{ route('laravel-lens.fix.suggest') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                            body: JSON.stringify({
+                                htmlSnippet: issue.htmlSnippet,
+                                description: issue.description,
+                                fileName:    issue.fileName,
+                                lineNumber:  issue.lineNumber,
+                                tags:        issue.tags ?? [],
+                            })
+                        });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.message || 'AI fix generation failed.');
+                        this.fixData = data;
+                    } catch (err) {
+                        this.fixError = err.message;
+                    } finally {
+                        this.isLoadingFix = false;
+                    }
+                },
+
+                async applyFix() {
+                    if (!this.fixData) return;
+                    this.isApplyingFix = true;
+                    this.fixError = null;
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const response = await fetch('{{ route('laravel-lens.fix.apply') }}', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                            body: JSON.stringify({
+                                fileName:     this.fixData.fileName,
+                                originalCode: this.fixData.originalCode,
+                                fixedCode:    this.fixData.fixedCode,
+                            })
+                        });
+                        const data = await response.json();
+                        if (!response.ok) throw new Error(data.message || 'Failed to apply fix.');
+                        this.fixApplied = true;
+                    } catch (err) {
+                        this.fixError = err.message;
+                    } finally {
+                        this.isApplyingFix = false;
+                    }
+                },
+
+                closeFixModal() {
+                    this.showFixModal = false;
+                    this.fixIssue     = null;
+                    this.fixData      = null;
+                    this.fixError     = null;
+                    this.fixApplied   = false;
+                },
+
+                // LCS-based line diff (Myers-style, simplified)
+                _lcs(a, b) {
+                    const m = a.length, n = b.length;
+                    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+                    for (let i = 1; i <= m; i++)
+                        for (let j = 1; j <= n; j++)
+                            dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] + 1 : Math.max(dp[i-1][j], dp[i][j-1]);
+                    const diff = [];
+                    let i = m, j = n;
+                    while (i > 0 || j > 0) {
+                        if (i > 0 && j > 0 && a[i-1] === b[j-1]) {
+                            diff.unshift({ type: 'context', text: a[i-1] }); i--; j--;
+                        } else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) {
+                            diff.unshift({ type: 'added',   text: b[j-1] }); j--;
+                        } else {
+                            diff.unshift({ type: 'removed', text: a[i-1] }); i--;
+                        }
+                    }
+                    return diff;
+                },
+
+                get fixDiff() {
+                    if (!this.fixData) return [];
+                    return this._lcs(
+                        this.fixData.originalCode.split('\n'),
+                        this.fixData.fixedCode.split('\n')
+                    );
+                },
+
                 getBadgeColor(impact, tags) {
                     if (tags && tags.includes('wcag2a')) return 'bg-[#E11D48] text-white border border-[#E11D48]';
                     if (tags && tags.includes('wcag2aa')) return 'bg-white text-black dark:bg-black dark:text-white border border-black dark:border-white';
