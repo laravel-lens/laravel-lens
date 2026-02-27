@@ -14,7 +14,7 @@ use LaravelLens\LaravelLens\Services\SiteCrawler;
 class LensAuditCommand extends Command
 {
     protected $signature = 'lens:audit
-                            {url? : Target URL to audit (defaults to app URL)}
+                            {url* : Target URLs to audit (defaults to app URL)}
                             {--a : Report only WCAG Level A violations}
                             {--aa : Report WCAG Level A and AA violations}
                             {--all : Report all violation levels including AAA and best-practice (default)}
@@ -25,16 +25,26 @@ class LensAuditCommand extends Command
 
     public function handle(): int
     {
-        $url = $this->argument('url') ?? url('/');
+        $urlArgs = (array) $this->argument('url');
+        $urls = empty($urlArgs) ? [url('/')] : $urlArgs;
         $threshold = (int) $this->option('threshold');
         $levelFilter = $this->resolveLevelFilter();
-        $crawlMode = (bool) $this->option('crawl');
+        $multipleMode = count($urls) > 1;
+        $crawlMode = (bool) $this->option('crawl') && ! $multipleMode;
 
-        $this->renderHeader($url, $levelFilter, $threshold, $crawlMode);
+        $this->renderHeader($urls[0], $levelFilter, $threshold, $crawlMode, $multipleMode);
 
         // ── Scan ──────────────────────────────────────────────────────────────
-        if ($crawlMode) {
-            $result = $this->runCrawlScan($url);
+        if ($multipleMode) {
+            $result = $this->runMultipleUrlScan($urls);
+
+            if ($result === null) {
+                return self::FAILURE;
+            }
+
+            [$issues, $scannedUrls] = $result;
+        } elseif ($crawlMode) {
+            $result = $this->runCrawlScan($urls[0]);
 
             if ($result === null) {
                 return self::FAILURE;
@@ -42,8 +52,8 @@ class LensAuditCommand extends Command
 
             [$issues, $scannedUrls] = $result;
         } else {
-            $issues = $this->runScan($url);
-            $scannedUrls = [$url];
+            $issues = $this->runScan($urls[0]);
+            $scannedUrls = [$urls[0]];
 
             if ($issues === null) {
                 return self::FAILURE;
@@ -61,7 +71,7 @@ class LensAuditCommand extends Command
             return self::SUCCESS;
         }
 
-        if ($crawlMode) {
+        if ($multipleMode || $crawlMode) {
             $this->renderCrawlTable($filtered);
         } else {
             $this->renderTable($filtered);
@@ -122,6 +132,78 @@ class LensAuditCommand extends Command
 
             return null;
         }
+    }
+
+    // ─── Multiple-URL scan ───────────────────────────────────────────────────────
+
+    /**
+     * Scan a provided list of URLs with axe-core and return all collected issues
+     * along with the list of actually-scanned URLs.
+     *
+     * @param  string[]  $urls
+     * @return array{0: Collection<Issue>, 1: string[]}|null
+     */
+    private function runMultipleUrlScan(array $urls): ?array
+    {
+        $total = count($urls);
+        $this->newLine();
+
+        $scanner = app(AxeScanner::class);
+        $locator = app(FileLocator::class);
+        $allIssues = collect();
+        $scannedUrls = [];
+        $failedUrls = [];
+
+        $bar = $this->output->createProgressBar($total);
+        $bar->setFormat("  <fg=gray>%message%</>\n  [%bar%] %current%/%max% (%percent:3s%%)");
+        $bar->setMessage('Initializing...');
+        $bar->start();
+
+        foreach ($urls as $pageUrl) {
+            $displayPath = mb_strimwidth($pageUrl, 0, 55, '…');
+            $bar->setMessage($displayPath);
+            $bar->display();
+
+            try {
+                $pageIssues = $scanner->scan($pageUrl);
+
+                foreach ($pageIssues as $issue) {
+                    $location = $locator->locate($issue->htmlSnippet, $issue->selector);
+                    if ($location) {
+                        $issue->fileName = $location['file'];
+                        $issue->lineNumber = $location['line'];
+                    }
+                }
+
+                $allIssues = $allIssues->merge($pageIssues);
+                $scannedUrls[] = $pageUrl;
+            } catch (ScannerException $e) {
+                $failedUrls[] = $pageUrl;
+            }
+
+            $bar->advance();
+        }
+
+        $bar->setMessage('Done.');
+        $bar->finish();
+        $this->newLine(2);
+
+        if (! empty($failedUrls)) {
+            $this->line(sprintf(
+                '  <fg=yellow>⚠ %d page(s) could not be scanned and were skipped.</>',
+                count($failedUrls)
+            ));
+            $this->newLine();
+        }
+
+        if (empty($scannedUrls)) {
+            $this->components->error('All pages failed to scan.');
+            $this->renderTroubleshooting();
+
+            return null;
+        }
+
+        return [$allIssues, $scannedUrls];
     }
 
     // ─── Crawl scan ─────────────────────────────────────────────────────────────
@@ -251,7 +333,7 @@ class LensAuditCommand extends Command
 
     // ─── Rendering ──────────────────────────────────────────────────────────────
 
-    private function renderHeader(string $url, string $levelFilter, int $threshold, bool $crawlMode): void
+    private function renderHeader(string $url, string $levelFilter, int $threshold, bool $crawlMode, bool $multipleMode = false): void
     {
         $levelLabel = match ($levelFilter) {
             'a' => 'WCAG A only',
@@ -259,7 +341,11 @@ class LensAuditCommand extends Command
             default => 'A + AA + AAA + Best Practice',
         };
 
-        $modeLabel = $crawlMode ? '<fg=cyan>WHOLE_WEBSITE</>' : '<fg=gray>SINGLE_URL</>';
+        $modeLabel = match (true) {
+            $multipleMode => '<fg=magenta>MULTIPLE_URLS</>',
+            $crawlMode => '<fg=cyan>WHOLE_WEBSITE</>',
+            default => '<fg=gray>SINGLE_URL</>',
+        };
 
         $this->newLine();
         $this->line('  <options=bold>Laravel Lens — Accessibility Audit</>');

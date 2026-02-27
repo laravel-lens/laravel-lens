@@ -146,18 +146,34 @@
                                         'border-neutral-300 dark:border-neutral-600 text-neutral-500 hover:border-neutral-500 dark:hover:border-neutral-400 hover:text-black dark:hover:text-neutral-200'">
                                     WHOLE_WEBSITE
                                 </button>
+                                <button type="button" @click="scanMode = 'multiple'"
+                                    class="px-3 py-1 border transition-colors"
+                                    :class="scanMode === 'multiple' ?
+                                        'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white' :
+                                        'border-neutral-300 dark:border-neutral-600 text-neutral-500 hover:border-neutral-500 dark:hover:border-neutral-400 hover:text-black dark:hover:text-neutral-200'">
+                                    MULTIPLE_URLS
+                                </button>
                             </div>
 
                             <div
                                 class="flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900">
                                 <label for="target-url" class="sr-only">Target URL to scan</label>
                                 <div class="relative flex-grow">
-                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-start pt-3 pl-3" :class="scanMode === 'multiple' ? 'items-start pt-3' : 'items-center'">
                                         <span class="font-mono text-[#E11D48] font-bold" aria-hidden="true">></span>
                                     </div>
-                                    <input type="url" id="target-url" x-model="url" required
+                                    <input type="url" id="target-url" x-model="url"
+                                        x-show="scanMode !== 'multiple'"
+                                        :required="scanMode !== 'multiple'"
                                         class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] dark:focus:ring-[#E11D48] sm:text-sm sm:leading-6 font-mono bg-white outline-none"
                                         placeholder="http://localhost">
+                                    <textarea id="target-urls" x-model="urlsText"
+                                        x-show="scanMode === 'multiple'"
+                                        :required="scanMode === 'multiple'"
+                                        rows="4"
+                                        class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] sm:text-sm font-mono bg-white outline-none resize-none"
+                                        placeholder="https://example.com/page-1&#10;https://example.com/page-2&#10;https://example.com/about"
+                                        x-cloak></textarea>
                                 </div>
                                 <button type="submit" :disabled="isLoading"
                                     class="inline-flex items-center justify-center rounded-none bg-[#E11D48] text-white px-8 py-3 text-sm font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap border-l sm:border-t-0 border-t border-[#E11D48] hover:border-black sm:ml-1 mt-1 sm:mt-0">
@@ -170,7 +186,7 @@
                         </form>
 
                         <!-- Progress Bar -->
-                        <div x-show="isLoading && scanMode === 'website'" x-cloak class="mt-6 space-y-2">
+                        <div x-show="isLoading && (scanMode === 'website' || scanMode === 'multiple')" x-cloak class="mt-6 space-y-2">
                             <div
                                 class="flex justify-between text-[10px] font-mono uppercase tracking-widest text-neutral-500">
                                 <span x-text="progressStatus"></span>
@@ -668,7 +684,8 @@
                 activeFilter: null,
 
                 // Scan Mode & Progress
-                scanMode: 'single', // 'single' or 'website'
+                scanMode: 'single', // 'single' | 'website' | 'multiple'
+                urlsText: '',       // textarea content for multiple mode, one URL per line
                 progressStatus: 'Initializing...',
                 progressPercent: 0,
 
@@ -905,7 +922,7 @@
                             this.progressPercent = 50;
                             await this.scanSingleUrl(this.url, token);
                             this.progressPercent = 100;
-                        } else {
+                        } else if (this.scanMode === 'website') {
                             this.progressStatus = 'Crawling website...';
                             this.progressPercent = 10;
 
@@ -938,6 +955,26 @@
 
                                 try {
                                     await this.scanSingleUrl(currentUrl, token, true);
+                                } catch (e) {
+                                    console.error(`Failed to scan ${currentUrl}:`, e);
+                                }
+                            }
+                            this.progressPercent = 100;
+                            this.progressStatus = 'Scan complete.';
+                        } else if (this.scanMode === 'multiple') {
+                            const urlList = this.urlsText
+                                .split('\n')
+                                .map(u => u.trim())
+                                .filter(u => u.length > 0);
+
+                            if (urlList.length === 0) throw new Error('No URLs provided.');
+
+                            for (let i = 0; i < urlList.length; i++) {
+                                const currentUrl = urlList[i];
+                                this.progressPercent = Math.round((i / urlList.length) * 100);
+                                this.progressStatus = `Scanning [${i + 1}/${urlList.length}]: ${currentUrl}`;
+                                try {
+                                    await this.scanSingleUrl(currentUrl, token, i > 0);
                                 } catch (e) {
                                     console.error(`Failed to scan ${currentUrl}:`, e);
                                 }
