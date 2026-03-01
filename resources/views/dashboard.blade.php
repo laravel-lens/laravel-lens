@@ -123,9 +123,7 @@
                             <p
                                 class="mt-4 text-sm font-sans text-neutral-600 dark:text-neutral-400 leading-relaxed italic">
                                 System evaluates Level A, AA, and AAA compliance, identifies best practice improvements,
-                                and provides experimental remediation proposals powered by <a
-                                    href="https://github.com/webcrafts-studio/lens-for-laravel" target="_blank"
-                                    class="underline decoration-black/20 hover:decoration-black dark:decoration-white/20 dark:hover:decoration-white transition-all">AI</a>.
+                                and provides experimental remediation proposals powered by AI.
                             </p>
                         </div>
 
@@ -306,7 +304,7 @@
 
                 <!-- Level Description Area -->
                 <div x-show="activeFilter" x-cloak x-transition
-                    class="bg-neutral-100 dark:bg-neutral-900 border-l-4 border-black dark:border-white p-4 font-mono text-sm uppercase tracking-wider relative">
+                    class="bg-neutral-100 dark:bg-neutral-900 border-l-4 border-black dark:border-white p-4 font-mono text-sm relative">
                     <span class="text-[#FF2D20] font-bold">INFO:</span> <span x-text="levelDescription"></span>
                 </div>
 
@@ -474,21 +472,24 @@
     <footer class="border-t-2 border-black dark:border-neutral-700 bg-white dark:bg-black overflow-hidden">
         <div class="px-6 py-12 sm:py-16 flex flex-col items-center gap-8 w-full">
             <div class="flex flex-col lg:flex-row items-center justify-center w-full gap-6 lg:gap-8">
-                <pre aria-label="Lens" class="font-mono leading-none select-none text-black dark:text-white w-fit text-[8px] sm:text-[10px] md:text-[12px] lg:text-[15px]"
+                <pre aria-label="Lens"
+                    class="font-mono leading-none select-none text-black dark:text-white w-fit text-[8px] sm:text-[10px] md:text-[12px] lg:text-[15px]"
                     style="line-height:1.2">██╗     ███████╗███╗   ██╗███████╗
 ██║     ██╔════╝████╗  ██║██╔════╝
 ██║     █████╗  ██╔██╗ ██║███████╗
 ██║     ██╔══╝  ██║╚██╗██║╚════██║
 ███████╗███████╗██║ ╚████║███████║
 ╚══════╝╚══════╝╚═╝  ╚═══╝╚══════╝</pre>
-                <pre aria-label="for" class="font-mono leading-none select-none text-neutral-500 w-fit text-[8px] sm:text-[10px] md:text-[12px] lg:text-[15px]"
+                <pre aria-label="for"
+                    class="font-mono leading-none select-none text-neutral-500 w-fit text-[8px] sm:text-[10px] md:text-[12px] lg:text-[15px]"
                     style="line-height:1.2">███████╗ ██████╗ ██████╗ 
 ██╔════╝██╔═══██╗██╔══██╗
 █████╗  ██║   ██║██████╔╝
 ██╔══╝  ██║   ██║██╔══██╗
 ██║     ╚██████╔╝██║  ██║
 ╚═╝      ╚═════╝ ╚═╝  ╚═╝</pre>
-                <pre aria-label="Laravel" class="font-mono leading-none select-none text-[#E11D48] w-fit text-[6px] sm:text-[8px] md:text-[10px] lg:text-[15px]"
+                <pre aria-label="Laravel"
+                    class="font-mono leading-none select-none text-[#E11D48] w-fit text-[6px] sm:text-[8px] md:text-[10px] lg:text-[15px]"
                     style="line-height:1.2">██╗      █████╗ ██████╗  █████╗ ██╗   ██╗███████╗██╗
 ██║     ██╔══██╗██╔══██╗██╔══██╗██║   ██║██╔════╝██║
 ██║     ███████║██████╔╝███████║╚██╗ ██╔╝█████╗  ██║
@@ -1036,20 +1037,20 @@
                         const token = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
                         const response = await fetch(
-                        '{{ route('lens-for-laravel.fix.suggest') }}', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': token
-                            },
-                            body: JSON.stringify({
-                                htmlSnippet: issue.htmlSnippet,
-                                description: issue.description,
-                                fileName: issue.fileName,
-                                lineNumber: issue.lineNumber,
-                                tags: issue.tags ?? [],
-                            })
-                        });
+                            '{{ route('lens-for-laravel.fix.suggest') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': token
+                                },
+                                body: JSON.stringify({
+                                    htmlSnippet: issue.htmlSnippet,
+                                    description: issue.description,
+                                    fileName: issue.fileName,
+                                    lineNumber: issue.lineNumber,
+                                    tags: issue.tags ?? [],
+                                })
+                            });
                         const data = await response.json();
                         if (!response.ok) throw new Error(data.message ||
                             'AI fix generation failed.');
