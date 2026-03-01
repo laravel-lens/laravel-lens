@@ -75,11 +75,12 @@
                     <!-- Lens For Laravel logomark -->
 
                     <h1 class="font-sans font-bold text-xl tracking-tight whitespace-nowrap">
-                        <span class="text-black dark:text-white">Laravel</span><span class="text-[#E11D48]"> Lens</span>
+                        <span class="text-black dark:text-white">Lens for</span><span class="text-[#E11D48]">
+                            Laravel</span>
                     </h1>
                 </div>
                 <div class="flex items-center gap-6 font-mono text-sm">
-                    <a href="https://github.com/lens-for-laravel/lens-for-laravel" target="_blank"
+                    <a href="https://github.com/webcrafts-studio/lens-for-laravel" target="_blank"
                         class="hover:underline hidden sm:block uppercase tracking-wider">REPOSITORY</a>
                     <!-- Theme Toggle -->
                     <button @click="toggleTheme" aria-label="Toggle Color Theme"
@@ -159,21 +160,18 @@
                                 class="flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900">
                                 <label for="target-url" class="sr-only">Target URL to scan</label>
                                 <div class="relative flex-grow">
-                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-start pt-3 pl-3" :class="scanMode === 'multiple' ? 'items-start pt-3' : 'items-center'">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-start pt-3 pl-3"
+                                        :class="scanMode === 'multiple' ? 'items-start pt-3' : 'items-center'">
                                         <span class="font-mono text-[#E11D48] font-bold" aria-hidden="true">></span>
                                     </div>
                                     <input type="url" id="target-url" x-model="url"
-                                        x-show="scanMode !== 'multiple'"
-                                        :required="scanMode !== 'multiple'"
+                                        x-show="scanMode !== 'multiple'" :required="scanMode !== 'multiple'"
                                         class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] dark:focus:ring-[#E11D48] sm:text-sm sm:leading-6 font-mono bg-white outline-none"
                                         placeholder="http://localhost">
-                                    <textarea id="target-urls" x-model="urlsText"
-                                        x-show="scanMode === 'multiple'"
-                                        :required="scanMode === 'multiple'"
+                                    <textarea id="target-urls" x-model="urlsText" x-show="scanMode === 'multiple'" :required="scanMode === 'multiple'"
                                         rows="4"
                                         class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] sm:text-sm font-mono bg-white outline-none resize-none"
-                                        placeholder="https://example.com/page-1&#10;https://example.com/page-2&#10;https://example.com/about"
-                                        x-cloak></textarea>
+                                        placeholder="https://example.com/page-1&#10;https://example.com/page-2&#10;https://example.com/about" x-cloak></textarea>
                                 </div>
                                 <button type="submit" :disabled="isLoading"
                                     class="inline-flex items-center justify-center rounded-none bg-[#E11D48] text-white px-8 py-3 text-sm font-mono font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap border-l sm:border-t-0 border-t border-[#E11D48] hover:border-black sm:ml-1 mt-1 sm:mt-0">
@@ -186,7 +184,8 @@
                         </form>
 
                         <!-- Progress Bar -->
-                        <div x-show="isLoading && (scanMode === 'website' || scanMode === 'multiple')" x-cloak class="mt-6 space-y-2">
+                        <div x-show="isLoading && (scanMode === 'website' || scanMode === 'multiple')" x-cloak
+                            class="mt-6 space-y-2">
                             <div
                                 class="flex justify-between text-[10px] font-mono uppercase tracking-widest text-neutral-500">
                                 <span x-text="progressStatus"></span>
@@ -325,7 +324,8 @@
                             <div class="flex items-center gap-4">
                                 <template x-if="activeFilter">
                                     <button @click="activeFilter = null"
-                                        class="text-xs font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 hover:text-[#E11D48] dark:hover:text-[#E11D48] transition-colors">[ CLEAR_FILTER ]</button>
+                                        class="text-xs font-mono uppercase tracking-widest text-neutral-500 dark:text-neutral-400 hover:text-[#E11D48] dark:hover:text-[#E11D48] transition-colors">[
+                                        CLEAR_FILTER ]</button>
                                 </template>
                                 <template x-if="hasResults">
                                     <span class="text-xs font-mono dark:text-white">SHOWING: <span
@@ -404,7 +404,8 @@
                                     <div class="mt-6">
                                         <p
                                             class="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-300 mb-2 uppercase tracking-widest">
-                                            <span class="text-black dark:text-white">>>></span> FAILING_NODE</p>
+                                            <span class="text-black dark:text-white">>>></span> FAILING_NODE
+                                        </p>
                                         <div
                                             class="bg-neutral-100 dark:bg-neutral-900 border-l-4 border-black dark:border-neutral-500 p-4 overflow-x-auto">
                                             <pre><code class="text-sm font-mono whitespace-pre-wrap text-neutral-800 dark:text-neutral-200" x-text="issue.htmlSnippet"></code></pre>
@@ -473,21 +474,28 @@
     <!-- Footer -->
     <footer class="border-t-2 border-black dark:border-neutral-700 bg-white dark:bg-black overflow-hidden">
         <div class="px-6 py-12 sm:py-16 flex flex-col items-center gap-8 w-full">
-            <div class="flex items-start justify-center overflow-x-auto w-full" style="gap:2em">
-                <pre aria-label="Laravel" class="font-mono leading-none select-none text-black dark:text-white w-fit"
-                    style="font-size:clamp(6px, 1.6vw, 15px);line-height:1.2">██╗      █████╗ ██████╗  █████╗ ██╗   ██╗███████╗██╗
-██║     ██╔══██╗██╔══██╗██╔══██╗██║   ██║██╔════╝██║
-██║     ███████║██████╔╝███████║╚██╗ ██╔╝█████╗  ██║
-██║     ██╔══██║██╔══██╗██╔══██║ ╚████╔╝ ██╔══╝  ██║
-███████╗██║  ██║██║  ██║██║  ██║  ╚██╔╝  ███████╗███████╗
-╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝</pre>
-                <pre aria-label="Lens" class="font-mono leading-none select-none text-[#E11D48] w-fit"
-                    style="font-size:clamp(6px, 1.6vw, 15px);line-height:1.2">██╗     ███████╗███╗   ██╗███████╗
+            <div class="flex flex-col lg:flex-row items-center justify-center w-full gap-6 lg:gap-8">
+                <pre aria-label="Lens" class="font-mono leading-none select-none text-black dark:text-white w-fit text-[8px] sm:text-[10px] md:text-[12px] lg:text-[15px]"
+                    style="line-height:1.2">██╗     ███████╗███╗   ██╗███████╗
 ██║     ██╔════╝████╗  ██║██╔════╝
 ██║     █████╗  ██╔██╗ ██║███████╗
 ██║     ██╔══╝  ██║╚██╗██║╚════██║
 ███████╗███████╗██║ ╚████║███████║
 ╚══════╝╚══════╝╚═╝  ╚═══╝╚══════╝</pre>
+                <pre aria-label="for" class="font-mono leading-none select-none text-neutral-500 w-fit text-[8px] sm:text-[10px] md:text-[12px] lg:text-[15px]"
+                    style="line-height:1.2">███████╗ ██████╗ ██████╗ 
+██╔════╝██╔═══██╗██╔══██╗
+█████╗  ██║   ██║██████╔╝
+██╔══╝  ██║   ██║██╔══██╗
+██║     ╚██████╔╝██║  ██║
+╚═╝      ╚═════╝ ╚═╝  ╚═╝</pre>
+                <pre aria-label="Laravel" class="font-mono leading-none select-none text-[#E11D48] w-fit text-[6px] sm:text-[8px] md:text-[10px] lg:text-[15px]"
+                    style="line-height:1.2">██╗      █████╗ ██████╗  █████╗ ██╗   ██╗███████╗██╗
+██║     ██╔══██╗██╔══██╗██╔══██╗██║   ██║██╔════╝██║
+██║     ███████║██████╔╝███████║╚██╗ ██╔╝█████╗  ██║
+██║     ██╔══██║██╔══██╗██╔══██║ ╚████╔╝ ██╔══╝  ██║
+███████╗██║  ██║██║  ██║██║  ██║  ╚██╔╝  ███████╗███████╗
+╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝</pre>
             </div>
             <div class="flex flex-col items-center gap-2 text-center font-mono text-xs uppercase tracking-widest">
                 <span class="text-neutral-500">WCAG Accessibility Auditor &middot; Powered by axe-core &amp; Gemini
@@ -685,7 +693,7 @@
 
                 // Scan Mode & Progress
                 scanMode: 'single', // 'single' | 'website' | 'multiple'
-                urlsText: '',       // textarea content for multiple mode, one URL per line
+                urlsText: '', // textarea content for multiple mode, one URL per line
                 progressStatus: 'Initializing...',
                 progressPercent: 0,
 
@@ -795,7 +803,7 @@
                             break;
                         case 'sublime':
                             url =
-                            `subl://open?url=${encodeURIComponent('file://' + path)}&line=${line}`;
+                                `subl://open?url=${encodeURIComponent('file://' + path)}&line=${line}`;
                             break;
                         case 'cursor':
                             url = `cursor://file/${path}:${line}`;
@@ -810,11 +818,11 @@
                     if (this.activeFilter) {
                         if (this.activeFilter === 'other') {
                             return this.issues.filter(i => !i.tags || (!i.tags.includes('wcag2a') &&
-                                    !i.tags.includes('wcag2aa') && !i.tags.includes('wcag2aaa')
-                                    ));
+                                !i.tags.includes('wcag2aa') && !i.tags.includes('wcag2aaa')
+                            ));
                         }
                         return this.issues.filter(i => i.tags && i.tags.includes(this
-                        .activeFilter));
+                            .activeFilter));
                     }
 
                     // Sort issues by WCAG level when no filter is active
@@ -927,17 +935,18 @@
                             this.progressPercent = 10;
 
                             // 1. Crawl
-                            const crawlResponse = await fetch('{{ route('lens-for-laravel.crawl') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json',
-                                    'X-CSRF-TOKEN': token
-                                },
-                                body: JSON.stringify({
-                                    url: this.url
-                                })
-                            });
+                            const crawlResponse = await fetch(
+                                '{{ route('lens-for-laravel.crawl') }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': token
+                                    },
+                                    body: JSON.stringify({
+                                        url: this.url
+                                    })
+                                });
 
                             const crawlData = await crawlResponse.json();
                             if (!crawlResponse.ok) throw new Error(crawlData.message ||
@@ -972,7 +981,8 @@
                             for (let i = 0; i < urlList.length; i++) {
                                 const currentUrl = urlList[i];
                                 this.progressPercent = Math.round((i / urlList.length) * 100);
-                                this.progressStatus = `Scanning [${i + 1}/${urlList.length}]: ${currentUrl}`;
+                                this.progressStatus =
+                                    `Scanning [${i + 1}/${urlList.length}]: ${currentUrl}`;
                                 try {
                                     await this.scanSingleUrl(currentUrl, token, i > 0);
                                 } catch (e) {
@@ -1027,7 +1037,8 @@
                     try {
                         const token = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
-                        const response = await fetch('{{ route('lens-for-laravel.fix.suggest') }}', {
+                        const response = await fetch(
+                        '{{ route('lens-for-laravel.fix.suggest') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1138,11 +1149,11 @@
 
                 getBadgeColor(impact, tags) {
                     if (tags && tags.includes('wcag2a'))
-                    return 'bg-[#E11D48] text-white border border-[#E11D48]';
+                        return 'bg-[#E11D48] text-white border border-[#E11D48]';
                     if (tags && tags.includes('wcag2aa'))
-                    return 'bg-white text-black dark:bg-black dark:text-white border border-black dark:border-white';
+                        return 'bg-white text-black dark:bg-black dark:text-white border border-black dark:border-white';
                     if (tags && tags.includes('wcag2aaa'))
-                    return 'bg-white text-neutral-600 dark:bg-black dark:text-neutral-400 border border-dashed border-neutral-600 dark:border-neutral-400';
+                        return 'bg-white text-neutral-600 dark:bg-black dark:text-neutral-400 border border-dashed border-neutral-600 dark:border-neutral-400';
 
                     // Fallback to OTHER style (subtle but readable)
                     return 'bg-white text-neutral-700 dark:bg-black dark:text-neutral-300 border border-dotted border-neutral-700 dark:border-neutral-300';

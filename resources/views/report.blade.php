@@ -250,7 +250,7 @@
 {{-- ── Header ── --}}
 <div class="header">
     <div class="header-top">
-        <div class="brand">Laravel<span>Lens</span></div>
+        <div class="brand">Lens for <span>Laravel</span></div>
         <div class="meta">
             <div>ACCESSIBILITY AUDIT REPORT</div>
             <div>Generated: {{ $generatedAt->format('Y-m-d H:i') }}</div>
