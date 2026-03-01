@@ -160,8 +160,8 @@
                                 class="flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900">
                                 <label for="target-url" class="sr-only">Target URL to scan</label>
                                 <div class="relative flex-grow">
-                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-start pt-3 pl-3"
-                                        :class="scanMode === 'multiple' ? 'items-start pt-3' : 'items-center'">
+                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex"
+                                        :class="scanMode === 'multiple' ? 'items-start pt-3 pl-3' : 'items-center pl-3'">
                                         <span class="font-mono text-[#E11D48] font-bold" aria-hidden="true">></span>
                                     </div>
                                     <input type="url" id="target-url" x-model="url"
