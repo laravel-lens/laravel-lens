@@ -20,7 +20,7 @@ test('POST /scan rejects invalid url format', function () {
 test('POST /scan returns 403 when environment not allowed', function () {
     $this->app['config']->set('lens-for-laravel.enabled_environments', ['local']);
 
-    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'https://example.com'])
+    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'http://localhost'])
         ->assertStatus(403);
 });
 
@@ -33,13 +33,13 @@ test('POST /scan returns violations on success', function () {
         htmlSnippet: '<img src="x.png">',
         selector: 'img',
         tags: ['wcag2a'],
-        url: 'https://example.com',
+        url: 'http://localhost',
     );
 
     $scannerMock = Mockery::mock(AxeScanner::class);
     $scannerMock->shouldReceive('scan')
         ->once()
-        ->with('https://example.com')
+        ->with('http://localhost')
         ->andReturn(collect([$mockIssue]));
     app()->instance(AxeScanner::class, $scannerMock);
 
@@ -47,7 +47,7 @@ test('POST /scan returns violations on success', function () {
     $locatorMock->shouldReceive('locate')->andReturn(null);
     app()->instance(FileLocator::class, $locatorMock);
 
-    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'https://example.com'])
+    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'http://localhost'])
         ->assertStatus(200)
         ->assertJson(['status' => 'success'])
         ->assertJsonStructure(['status', 'issues']);
@@ -59,7 +59,7 @@ test('POST /scan returns 500 when scanner throws exception', function () {
         ->andThrow(new ScannerException('Puppeteer not available'));
     app()->instance(AxeScanner::class, $scannerMock);
 
-    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'https://example.com'])
+    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'http://localhost'])
         ->assertStatus(500)
         ->assertJson(['status' => 'error']);
 });
@@ -73,7 +73,7 @@ test('POST /scan enriches issues with blade file locations', function () {
         htmlSnippet: '<img id="logo" src="x.png">',
         selector: '#logo',
         tags: ['wcag2a'],
-        url: 'https://example.com',
+        url: 'http://localhost',
     );
 
     $scannerMock = Mockery::mock(AxeScanner::class);
@@ -85,7 +85,7 @@ test('POST /scan enriches issues with blade file locations', function () {
         ->andReturn(['file' => 'layouts/app.blade.php', 'line' => 15]);
     app()->instance(FileLocator::class, $locatorMock);
 
-    $response = $this->postJson(route('lens-for-laravel.scan'), ['url' => 'https://example.com'])
+    $response = $this->postJson(route('lens-for-laravel.scan'), ['url' => 'http://localhost'])
         ->assertStatus(200);
 
     $issues = $response->json('issues');

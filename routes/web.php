@@ -25,7 +25,12 @@ Route::post('/crawl', function (Request $request) {
     }
 
     $request->validate([
-        'url' => ['required', 'url'],
+        'url' => ['required', 'url', function ($attribute, $value, $fail) {
+            $appHost = parse_url(config('app.url'), PHP_URL_HOST) ?: request()->getHost();
+            if (parse_url($value, PHP_URL_HOST) !== $appHost) {
+                $fail("Scanning external domains is not allowed. URL must be on the {$appHost} domain.");
+            }
+        }],
     ]);
 
     try {
@@ -50,7 +55,12 @@ Route::post('/scan', function (Request $request) {
     }
 
     $request->validate([
-        'url' => ['required', 'url'],
+        'url' => ['required', 'url', function ($attribute, $value, $fail) {
+            $appHost = parse_url(config('app.url'), PHP_URL_HOST) ?: request()->getHost();
+            if (parse_url($value, PHP_URL_HOST) !== $appHost) {
+                $fail("Scanning external domains is not allowed. URL must be on the {$appHost} domain.");
+            }
+        }],
     ]);
 
     try {
@@ -86,7 +96,12 @@ Route::post('/preview', function (Request $request) {
     }
 
     $request->validate([
-        'url' => ['required', 'url'],
+        'url' => ['required', 'url', function ($attribute, $value, $fail) {
+            $appHost = parse_url(config('app.url'), PHP_URL_HOST) ?: request()->getHost();
+            if (parse_url($value, PHP_URL_HOST) !== $appHost) {
+                $fail("Scanning external domains is not allowed. URL must be on the {$appHost} domain.");
+            }
+        }],
         'selector' => ['required', 'string', 'max:500'],
     ]);
 

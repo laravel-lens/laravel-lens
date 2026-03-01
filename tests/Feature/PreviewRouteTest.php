@@ -7,14 +7,14 @@ test('POST /preview requires url', function () {
 });
 
 test('POST /preview requires selector', function () {
-    $this->postJson(route('lens-for-laravel.preview'), ['url' => 'https://example.com'])
+    $this->postJson(route('lens-for-laravel.preview'), ['url' => 'http://localhost'])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['selector']);
 });
 
 test('POST /preview rejects selector longer than 500 characters', function () {
     $this->postJson(route('lens-for-laravel.preview'), [
-        'url' => 'https://example.com',
+        'url' => 'http://localhost',
         'selector' => str_repeat('a', 501),
     ])->assertStatus(422)
         ->assertJsonValidationErrors(['selector']);
@@ -24,7 +24,7 @@ test('POST /preview returns 403 when environment not allowed', function () {
     $this->app['config']->set('lens-for-laravel.enabled_environments', ['local']);
 
     $this->postJson(route('lens-for-laravel.preview'), [
-        'url' => 'https://example.com',
+        'url' => 'http://localhost',
         'selector' => 'img',
     ])->assertStatus(403);
 });
@@ -32,7 +32,7 @@ test('POST /preview returns 403 when environment not allowed', function () {
 test('POST /preview returns error json when browsershot fails', function () {
     // Without mocking Browsershot, it will throw — the route catches Throwable and returns JSON
     $this->postJson(route('lens-for-laravel.preview'), [
-        'url' => 'https://example.com',
+        'url' => 'http://localhost',
         'selector' => 'img.logo',
     ])->assertStatus(500)
         ->assertJson(['status' => 'error']);
