@@ -1,5 +1,5 @@
 {
-  "name": "laravel-lens/laravel-lens",
+  "name": "lens-for-laravel/lens-for-laravel",
   "description": "A plug-and-play accessibility auditor for Laravel.",
   "type": "library",
   "require": {
@@ -11,7 +11,7 @@
   },
   "autoload": {
     "psr-4": {
-      "LaravelLens\\LaravelLens\\": "src/"
+      "LensForLaravel\\LensForLaravel\\": "src/"
     }
   },
   "autoload-dev": {
@@ -22,7 +22,7 @@
   "extra": {
     "laravel": {
       "providers": [
-        "LaravelLens\\LaravelLens\\LaravelLensServiceProvider"
+        "LensForLaravel\\LensForLaravel\\LensForLaravelServiceProvider"
       ]
     }
   },

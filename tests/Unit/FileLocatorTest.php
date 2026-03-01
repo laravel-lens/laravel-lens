@@ -1,6 +1,6 @@
 <?php
 
-use LaravelLens\LaravelLens\Services\FileLocator;
+use LensForLaravel\LensForLaravel\Services\FileLocator;
 
 beforeEach(function () {
     $this->viewsPath = $this->app->resourcePath('views');

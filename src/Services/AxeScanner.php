@@ -1,10 +1,10 @@
 <?php
 
-namespace LaravelLens\LaravelLens\Services;
+namespace LensForLaravel\LensForLaravel\Services;
 
 use Illuminate\Support\Collection;
-use LaravelLens\LaravelLens\DTOs\Issue;
-use LaravelLens\LaravelLens\Exceptions\ScannerException;
+use LensForLaravel\LensForLaravel\DTOs\Issue;
+use LensForLaravel\LensForLaravel\Exceptions\ScannerException;
 use Spatie\Browsershot\Browsershot;
 use Throwable;
 

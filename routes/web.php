@@ -2,26 +2,26 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use LaravelLens\LaravelLens\Services\AiFixer;
-use LaravelLens\LaravelLens\Services\AxeScanner;
-use LaravelLens\LaravelLens\Services\FileLocator;
-use LaravelLens\LaravelLens\Services\SiteCrawler;
+use LensForLaravel\LensForLaravel\Services\AiFixer;
+use LensForLaravel\LensForLaravel\Services\AxeScanner;
+use LensForLaravel\LensForLaravel\Services\FileLocator;
+use LensForLaravel\LensForLaravel\Services\SiteCrawler;
 use Spatie\Browsershot\Browsershot;
 
 // The prefix and middleware for these routes are automatically applied
-// by the LaravelLensServiceProvider based on your config.
+// by the LensForLaravelServiceProvider based on your config.
 
 Route::get('/dashboard', function () {
-    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
-        abort(403, 'Laravel Lens is not allowed in this environment.');
+    if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
+        abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
-    return view('laravel-lens::dashboard');
-})->name('laravel-lens.dashboard');
+    return view('lens-for-laravel::dashboard');
+})->name('lens-for-laravel.dashboard');
 
 Route::post('/crawl', function (Request $request) {
-    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
-        abort(403, 'Laravel Lens is not allowed in this environment.');
+    if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
+        abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
@@ -30,7 +30,7 @@ Route::post('/crawl', function (Request $request) {
 
     try {
         $crawler = app(SiteCrawler::class);
-        $urls = $crawler->crawl($request->url, config('laravel-lens.crawl_max_pages', 50));
+        $urls = $crawler->crawl($request->url, config('lens-for-laravel.crawl_max_pages', 50));
 
         return response()->json([
             'status' => 'success',
@@ -42,11 +42,11 @@ Route::post('/crawl', function (Request $request) {
             'message' => $e->getMessage(),
         ], 500);
     }
-})->name('laravel-lens.crawl');
+})->name('lens-for-laravel.crawl');
 
 Route::post('/scan', function (Request $request) {
-    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
-        abort(403, 'Laravel Lens is not allowed in this environment.');
+    if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
+        abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
@@ -78,11 +78,11 @@ Route::post('/scan', function (Request $request) {
             'message' => $e->getMessage(),
         ], 500);
     }
-})->name('laravel-lens.scan');
+})->name('lens-for-laravel.scan');
 
 Route::post('/preview', function (Request $request) {
-    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
-        abort(403, 'Laravel Lens is not allowed in this environment.');
+    if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
+        abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
@@ -129,11 +129,11 @@ Route::post('/preview', function (Request $request) {
     } catch (\Throwable $e) {
         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
     }
-})->name('laravel-lens.preview');
+})->name('lens-for-laravel.preview');
 
 Route::post('/fix/suggest', function (Request $request) {
-    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
-        abort(403, 'Laravel Lens is not allowed in this environment.');
+    if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
+        abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
@@ -158,11 +158,11 @@ Route::post('/fix/suggest', function (Request $request) {
     } catch (\Throwable $e) {
         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
     }
-})->name('laravel-lens.fix.suggest');
+})->name('lens-for-laravel.fix.suggest');
 
 Route::post('/fix/apply', function (Request $request) {
-    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
-        abort(403, 'Laravel Lens is not allowed in this environment.');
+    if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
+        abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
@@ -190,11 +190,11 @@ Route::post('/fix/apply', function (Request $request) {
     file_put_contents($fullPath, str_replace($request->originalCode, $request->fixedCode, $content));
 
     return response()->json(['status' => 'success']);
-})->name('laravel-lens.fix.apply');
+})->name('lens-for-laravel.fix.apply');
 
 Route::post('/report/pdf', function (Request $request) {
-    if (! in_array(app()->environment(), config('laravel-lens.enabled_environments', ['local']))) {
-        abort(403, 'Laravel Lens is not allowed in this environment.');
+    if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
+        abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
@@ -203,7 +203,7 @@ Route::post('/report/pdf', function (Request $request) {
     ]);
 
     try {
-        $html = view('laravel-lens::report', [
+        $html = view('lens-for-laravel::report', [
             'issues' => $request->issues,
             'url' => $request->url,
             'generatedAt' => now(),
@@ -227,4 +227,4 @@ Route::post('/report/pdf', function (Request $request) {
             'message' => $e->getMessage(),
         ], 500);
     }
-})->name('laravel-lens.report.pdf');
+})->name('lens-for-laravel.report.pdf');

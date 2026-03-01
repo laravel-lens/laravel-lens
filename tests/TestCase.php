@@ -3,24 +3,24 @@
 namespace Tests;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
-use LaravelLens\LaravelLens\LaravelLensServiceProvider;
+use LensForLaravel\LensForLaravel\LensForLaravelServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
 {
     protected function getPackageProviders($app): array
     {
-        return [LaravelLensServiceProvider::class];
+        return [LensForLaravelServiceProvider::class];
     }
 
     protected function defineEnvironment($app): void
     {
         $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
-        $app['config']->set('laravel-lens.enabled_environments', ['testing']);
-        $app['config']->set('laravel-lens.route_prefix', 'laravel-lens');
-        $app['config']->set('laravel-lens.middleware', ['web']);
-        $app['config']->set('laravel-lens.crawl_max_pages', 5);
-        $app['config']->set('laravel-lens.editor', 'vscode');
+        $app['config']->set('lens-for-laravel.enabled_environments', ['testing']);
+        $app['config']->set('lens-for-laravel.route_prefix', 'lens-for-laravel');
+        $app['config']->set('lens-for-laravel.middleware', ['web']);
+        $app['config']->set('lens-for-laravel.crawl_max_pages', 5);
+        $app['config']->set('lens-for-laravel.editor', 'vscode');
     }
 
     protected function setUp(): void

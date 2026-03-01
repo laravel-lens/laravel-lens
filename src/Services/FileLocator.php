@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelLens\LaravelLens\Services;
+namespace LensForLaravel\LensForLaravel\Services;
 
 use Symfony\Component\Finder\Finder;
 

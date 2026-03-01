@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelLens\LaravelLens\DTOs;
+namespace LensForLaravel\LensForLaravel\DTOs;
 
 class Issue
 {

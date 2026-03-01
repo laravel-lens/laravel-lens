@@ -1,26 +1,26 @@
 <?php
 
-use LaravelLens\LaravelLens\DTOs\Issue;
-use LaravelLens\LaravelLens\Exceptions\ScannerException;
-use LaravelLens\LaravelLens\Services\AxeScanner;
-use LaravelLens\LaravelLens\Services\FileLocator;
+use LensForLaravel\LensForLaravel\DTOs\Issue;
+use LensForLaravel\LensForLaravel\Exceptions\ScannerException;
+use LensForLaravel\LensForLaravel\Services\AxeScanner;
+use LensForLaravel\LensForLaravel\Services\FileLocator;
 
 test('POST /scan requires url', function () {
-    $this->postJson(route('laravel-lens.scan'), [])
+    $this->postJson(route('lens-for-laravel.scan'), [])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['url']);
 });
 
 test('POST /scan rejects invalid url format', function () {
-    $this->postJson(route('laravel-lens.scan'), ['url' => 'not-a-url'])
+    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'not-a-url'])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['url']);
 });
 
 test('POST /scan returns 403 when environment not allowed', function () {
-    $this->app['config']->set('laravel-lens.enabled_environments', ['local']);
+    $this->app['config']->set('lens-for-laravel.enabled_environments', ['local']);
 
-    $this->postJson(route('laravel-lens.scan'), ['url' => 'https://example.com'])
+    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'https://example.com'])
         ->assertStatus(403);
 });
 
@@ -47,7 +47,7 @@ test('POST /scan returns violations on success', function () {
     $locatorMock->shouldReceive('locate')->andReturn(null);
     app()->instance(FileLocator::class, $locatorMock);
 
-    $this->postJson(route('laravel-lens.scan'), ['url' => 'https://example.com'])
+    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'https://example.com'])
         ->assertStatus(200)
         ->assertJson(['status' => 'success'])
         ->assertJsonStructure(['status', 'issues']);
@@ -59,7 +59,7 @@ test('POST /scan returns 500 when scanner throws exception', function () {
         ->andThrow(new ScannerException('Puppeteer not available'));
     app()->instance(AxeScanner::class, $scannerMock);
 
-    $this->postJson(route('laravel-lens.scan'), ['url' => 'https://example.com'])
+    $this->postJson(route('lens-for-laravel.scan'), ['url' => 'https://example.com'])
         ->assertStatus(500)
         ->assertJson(['status' => 'error']);
 });
@@ -85,7 +85,7 @@ test('POST /scan enriches issues with blade file locations', function () {
         ->andReturn(['file' => 'layouts/app.blade.php', 'line' => 15]);
     app()->instance(FileLocator::class, $locatorMock);
 
-    $response = $this->postJson(route('laravel-lens.scan'), ['url' => 'https://example.com'])
+    $response = $this->postJson(route('lens-for-laravel.scan'), ['url' => 'https://example.com'])
         ->assertStatus(200);
 
     $issues = $response->json('issues');

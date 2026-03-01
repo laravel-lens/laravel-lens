@@ -1,6 +1,6 @@
-# Laravel Lens
+# Lens For Laravel
 
-Laravel Lens is a plug-and-play accessibility auditor for your Laravel applications. It dynamically scans your local application for WCAG compliance using [Axe-core](https://github.com/dequelabs/axe-core).
+Lens For Laravel is a plug-and-play accessibility auditor for your Laravel applications. It dynamically scans your local application for WCAG compliance using [Axe-core](https://github.com/dequelabs/axe-core).
 
 Best of all? It attempts to reverse-engineer failing CSS selectors to tell you exactly **which Blade file and line number** is causing the issue.
 
@@ -13,7 +13,7 @@ Best of all? It attempts to reverse-engineer failing CSS selectors to tell you e
 
 ## Requirements
 
-Since Laravel Lens uses [Spatie Browsershot](https://github.com/spatie/browsershot) under the hood to render Javascript and execute Axe-core, your server/local environment **must** have:
+Since Lens For Laravel uses [Spatie Browsershot](https://github.com/spatie/browsershot) under the hood to render Javascript and execute Axe-core, your server/local environment **must** have:
 
 1. **Node.js** installed.
 2. **Puppeteer** installed (either globally or locally within your project).
@@ -24,10 +24,10 @@ npm install puppeteer --save-dev
 
 ## Installation
 
-We highly recommend installing Laravel Lens as a development-only dependency.
+We highly recommend installing Lens For Laravel as a development-only dependency.
 
 ```bash
-composer require laravel-lens/laravel-lens --dev
+composer require lens-for-laravel/lens-for-laravel --dev
 ```
 
 *(Note: Currently, this package is not published to Packagist. To use it locally, add it as a path repository in your host application's `composer.json`.)*
@@ -37,20 +37,20 @@ composer require laravel-lens/laravel-lens --dev
 Once installed, simply start your Laravel server (or use Laravel Herd) and navigate to the dashboard:
 
 ```text
-http://your-app.test/laravel-lens/dashboard
+http://your-app.test/lens-for-laravel/dashboard
 ```
 
 Enter the local URL you want to test and click **"Scan Now"**.
 
 ### Configuration (Optional)
 
-By default, Laravel Lens is only accessible in the `local` environment. You can publish the configuration file to change this behavior (e.g., enabling it on a staging server):
+By default, Lens For Laravel is only accessible in the `local` environment. You can publish the configuration file to change this behavior (e.g., enabling it on a staging server):
 
 ```bash
-php artisan vendor:publish --tag="laravel-lens-config"
+php artisan vendor:publish --tag="lens-for-laravel-config"
 ```
 
-This will create `config/laravel-lens.php` where you can modify the `route_prefix` and `enabled_environments`.
+This will create `config/lens-for-laravel.php` where you can modify the `route_prefix` and `enabled_environments`.
 
 ## Disclaimer
 

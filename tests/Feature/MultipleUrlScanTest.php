@@ -1,9 +1,9 @@
 <?php
 
-use LaravelLens\LaravelLens\DTOs\Issue;
-use LaravelLens\LaravelLens\Services\AxeScanner;
-use LaravelLens\LaravelLens\Services\FileLocator;
-use LaravelLens\LaravelLens\Services\SiteCrawler;
+use LensForLaravel\LensForLaravel\DTOs\Issue;
+use LensForLaravel\LensForLaravel\Services\AxeScanner;
+use LensForLaravel\LensForLaravel\Services\FileLocator;
+use LensForLaravel\LensForLaravel\Services\SiteCrawler;
 
 // ── Multiple URL mode — exit 0 with no violations ─────────────────────────────
 

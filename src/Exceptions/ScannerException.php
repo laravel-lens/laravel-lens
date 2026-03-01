@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelLens\LaravelLens\Exceptions;
+namespace LensForLaravel\LensForLaravel\Exceptions;
 
 use Exception;
 

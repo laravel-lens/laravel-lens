@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Collection;
-use LaravelLens\LaravelLens\Console\Commands\LensAuditCommand;
-use LaravelLens\LaravelLens\DTOs\Issue;
+use LensForLaravel\LensForLaravel\Console\Commands\LensAuditCommand;
+use LensForLaravel\LensForLaravel\DTOs\Issue;
 
 /**
  * Helper: call a private/protected method on an object via reflection.

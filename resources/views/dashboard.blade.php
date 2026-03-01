@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Laravel Lens - Technical Auditor</title>
+    <title>Lens For Laravel - Technical Auditor</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -72,14 +72,14 @@
         <header class="border-b border-black dark:border-neutral-700 bg-white dark:bg-black sticky top-0 z-30">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <!-- Laravel Lens logomark -->
+                    <!-- Lens For Laravel logomark -->
 
                     <h1 class="font-sans font-bold text-xl tracking-tight whitespace-nowrap">
                         <span class="text-black dark:text-white">Laravel</span><span class="text-[#E11D48]"> Lens</span>
                     </h1>
                 </div>
                 <div class="flex items-center gap-6 font-mono text-sm">
-                    <a href="https://github.com/laravel-lens/laravel-lens" target="_blank"
+                    <a href="https://github.com/lens-for-laravel/lens-for-laravel" target="_blank"
                         class="hover:underline hidden sm:block uppercase tracking-wider">REPOSITORY</a>
                     <!-- Theme Toggle -->
                     <button @click="toggleTheme" aria-label="Toggle Color Theme"
@@ -671,7 +671,7 @@
 
     <script>
         const LENS_VIEWS_PATH = @json(resource_path('views'));
-        const LENS_EDITOR = @json(config('laravel-lens.editor', 'vscode'));
+        const LENS_EDITOR = @json(config('lens-for-laravel.editor', 'vscode'));
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('scanner', () => ({
@@ -846,7 +846,7 @@
                     try {
                         const token = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
-                        const response = await fetch('{{ route('laravel-lens.preview') }}', {
+                        const response = await fetch('{{ route('lens-for-laravel.preview') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -874,7 +874,7 @@
                     try {
                         const token = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
-                        const response = await fetch('{{ route('laravel-lens.report.pdf') }}', {
+                        const response = await fetch('{{ route('lens-for-laravel.report.pdf') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -927,7 +927,7 @@
                             this.progressPercent = 10;
 
                             // 1. Crawl
-                            const crawlResponse = await fetch('{{ route('laravel-lens.crawl') }}', {
+                            const crawlResponse = await fetch('{{ route('lens-for-laravel.crawl') }}', {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -992,7 +992,7 @@
                 },
 
                 async scanSingleUrl(targetUrl, token, append = false) {
-                    const response = await fetch('{{ route('laravel-lens.scan') }}', {
+                    const response = await fetch('{{ route('lens-for-laravel.scan') }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1027,7 +1027,7 @@
                     try {
                         const token = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
-                        const response = await fetch('{{ route('laravel-lens.fix.suggest') }}', {
+                        const response = await fetch('{{ route('lens-for-laravel.fix.suggest') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -1059,7 +1059,7 @@
                     try {
                         const token = document.querySelector('meta[name="csrf-token"]')
                             .getAttribute('content');
-                        const response = await fetch('{{ route('laravel-lens.fix.apply') }}', {
+                        const response = await fetch('{{ route('lens-for-laravel.fix.apply') }}', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

@@ -1,15 +1,15 @@
 <?php
 
-namespace LaravelLens\LaravelLens\Console\Commands;
+namespace LensForLaravel\LensForLaravel\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
-use LaravelLens\LaravelLens\DTOs\Issue;
-use LaravelLens\LaravelLens\Exceptions\ScannerException;
-use LaravelLens\LaravelLens\Services\AxeScanner;
-use LaravelLens\LaravelLens\Services\FileLocator;
-use LaravelLens\LaravelLens\Services\SiteCrawler;
+use LensForLaravel\LensForLaravel\DTOs\Issue;
+use LensForLaravel\LensForLaravel\Exceptions\ScannerException;
+use LensForLaravel\LensForLaravel\Services\AxeScanner;
+use LensForLaravel\LensForLaravel\Services\FileLocator;
+use LensForLaravel\LensForLaravel\Services\SiteCrawler;
 
 class LensAuditCommand extends Command
 {
@@ -216,7 +216,7 @@ class LensAuditCommand extends Command
      */
     private function runCrawlScan(string $url): ?array
     {
-        $maxPages = (int) config('laravel-lens.crawl_max_pages', 50);
+        $maxPages = (int) config('lens-for-laravel.crawl_max_pages', 50);
 
         $this->newLine();
 
@@ -348,7 +348,7 @@ class LensAuditCommand extends Command
         };
 
         $this->newLine();
-        $this->line('  <options=bold>Laravel Lens — Accessibility Audit</>');
+        $this->line('  <options=bold>Lens For Laravel — Accessibility Audit</>');
         $this->line('  ─────────────────────────────────────────────');
         $this->line("  <fg=gray>URL</>       : {$url}");
         $this->line("  <fg=gray>Mode</>      : {$modeLabel}");

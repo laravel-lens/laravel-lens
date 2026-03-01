@@ -1,13 +1,13 @@
 <?php
 
 test('POST /fix/suggest requires all fields', function () {
-    $this->postJson(route('laravel-lens.fix.suggest'), [])
+    $this->postJson(route('lens-for-laravel.fix.suggest'), [])
         ->assertStatus(422)
         ->assertJsonValidationErrors(['htmlSnippet', 'description', 'fileName', 'lineNumber']);
 });
 
 test('POST /fix/suggest rejects htmlSnippet longer than 2000 characters', function () {
-    $this->postJson(route('laravel-lens.fix.suggest'), [
+    $this->postJson(route('lens-for-laravel.fix.suggest'), [
         'htmlSnippet' => str_repeat('a', 2001),
         'description' => 'Test',
         'fileName' => 'test.blade.php',
@@ -17,7 +17,7 @@ test('POST /fix/suggest rejects htmlSnippet longer than 2000 characters', functi
 });
 
 test('POST /fix/suggest rejects lineNumber less than 1', function () {
-    $this->postJson(route('laravel-lens.fix.suggest'), [
+    $this->postJson(route('lens-for-laravel.fix.suggest'), [
         'htmlSnippet' => '<img src="x.png">',
         'description' => 'Missing alt',
         'fileName' => 'test.blade.php',
@@ -27,9 +27,9 @@ test('POST /fix/suggest rejects lineNumber less than 1', function () {
 });
 
 test('POST /fix/suggest returns 403 when environment not allowed', function () {
-    $this->app['config']->set('laravel-lens.enabled_environments', ['local']);
+    $this->app['config']->set('lens-for-laravel.enabled_environments', ['local']);
 
-    $this->postJson(route('laravel-lens.fix.suggest'), [
+    $this->postJson(route('lens-for-laravel.fix.suggest'), [
         'htmlSnippet' => '<img src="x.png">',
         'description' => 'Missing alt',
         'fileName' => 'test.blade.php',
@@ -40,7 +40,7 @@ test('POST /fix/suggest returns 403 when environment not allowed', function () {
 test('POST /fix/suggest blocks path traversal in fileName', function () {
     // AiFixer::suggestFix throws RuntimeException before calling AI
     // when the path traversal is detected
-    $this->postJson(route('laravel-lens.fix.suggest'), [
+    $this->postJson(route('lens-for-laravel.fix.suggest'), [
         'htmlSnippet' => '<img src="x.png">',
         'description' => 'Missing alt',
         'fileName' => '../../../etc/passwd',
@@ -59,7 +59,7 @@ test('POST /fix/suggest returns 500 when AI call fails', function () {
     file_put_contents($file, '<img src="logo.png">');
 
     // Without a real Gemini key, the agent() call will throw
-    $this->postJson(route('laravel-lens.fix.suggest'), [
+    $this->postJson(route('lens-for-laravel.fix.suggest'), [
         'htmlSnippet' => '<img src="logo.png">',
         'description' => 'Images must have alternate text',
         'fileName' => 'suggest-test.blade.php',

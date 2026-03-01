@@ -6,18 +6,18 @@ return [
     | Route Prefix
     |--------------------------------------------------------------------------
     |
-    | The prefix for the Laravel Lens dashboard routes.
-    | Default: 'laravel-lens'
+    | The prefix for the Lens For Laravel dashboard routes.
+    | Default: 'lens-for-laravel'
     |
     */
-    'route_prefix' => 'laravel-lens',
+    'route_prefix' => 'lens-for-laravel',
 
     /*
     |--------------------------------------------------------------------------
     | Middleware
     |--------------------------------------------------------------------------
     |
-    | The middleware that should be applied to the Laravel Lens routes.
+    | The middleware that should be applied to the Lens For Laravel routes.
     | You might want to add 'auth' to restrict access in production.
     |
     */
@@ -28,7 +28,7 @@ return [
     | Enabled Environments
     |--------------------------------------------------------------------------
     |
-    | The environments where Laravel Lens is allowed to run.
+    | The environments where Lens For Laravel is allowed to run.
     | Usually, you only want this enabled in local development.
     |
     */
@@ -47,7 +47,7 @@ return [
     | Supported values: 'vscode', 'cursor', 'phpstorm', 'sublime', 'none'
     |
     */
-    'editor' => env('LARAVEL_LENS_EDITOR', 'vscode'),
+    'editor' => env('LENS_FOR_LARAVEL_EDITOR', 'vscode'),
 
     /*
     |--------------------------------------------------------------------------
@@ -59,6 +59,6 @@ return [
     | HTTP client (not headless Chrome), so higher limits are fast and safe.
     |
     */
-    'crawl_max_pages' => env('LARAVEL_LENS_CRAWL_MAX_PAGES', 50),
+    'crawl_max_pages' => env('LENS_FOR_LARAVEL_CRAWL_MAX_PAGES', 50),
 
 ];

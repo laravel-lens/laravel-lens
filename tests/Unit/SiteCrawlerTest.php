@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Http;
-use LaravelLens\LaravelLens\Services\SiteCrawler;
+use LensForLaravel\LensForLaravel\Services\SiteCrawler;
 
 function fakeSitemapNotFound(): array
 {

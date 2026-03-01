@@ -1,6 +1,6 @@
 <?php
 
-use LaravelLens\LaravelLens\DTOs\Issue;
+use LensForLaravel\LensForLaravel\DTOs\Issue;
 
 test('stores all constructor properties', function () {
     $issue = new Issue(

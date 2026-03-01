@@ -360,7 +360,7 @@
 
 {{-- ── Footer ── --}}
 <div class="footer">
-    <span>Laravel Lens — Accessibility Auditor</span>
+    <span>Lens For Laravel — Accessibility Auditor</span>
     <span>{{ $generatedAt->format('Y-m-d') }}</span>
 </div>
 

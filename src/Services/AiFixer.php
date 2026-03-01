@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelLens\LaravelLens\Services;
+namespace LensForLaravel\LensForLaravel\Services;
 
 use Laravel\Ai\Enums\Lab;
 

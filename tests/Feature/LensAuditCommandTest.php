@@ -1,10 +1,10 @@
 <?php
 
-use LaravelLens\LaravelLens\DTOs\Issue;
-use LaravelLens\LaravelLens\Exceptions\ScannerException;
-use LaravelLens\LaravelLens\Services\AxeScanner;
-use LaravelLens\LaravelLens\Services\FileLocator;
-use LaravelLens\LaravelLens\Services\SiteCrawler;
+use LensForLaravel\LensForLaravel\DTOs\Issue;
+use LensForLaravel\LensForLaravel\Exceptions\ScannerException;
+use LensForLaravel\LensForLaravel\Services\AxeScanner;
+use LensForLaravel\LensForLaravel\Services\FileLocator;
+use LensForLaravel\LensForLaravel\Services\SiteCrawler;
 
 // ── Command registration ───────────────────────────────────────────────────────
 
