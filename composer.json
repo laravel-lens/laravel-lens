@@ -1,5 +1,5 @@
 {
-  "name": "lens-for-laravel/lens-for-laravel",
+  "name": "webcrafts-studio/lens-for-laravel",
   "description": "A plug-and-play accessibility auditor for Laravel.",
   "type": "library",
   "require": {
