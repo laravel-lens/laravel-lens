@@ -124,9 +124,8 @@
                                 class="mt-4 text-sm font-sans text-neutral-600 dark:text-neutral-400 leading-relaxed italic">
                                 System evaluates Level A, AA, and AAA compliance, identifies best practice improvements,
                                 and provides experimental remediation proposals powered by <a
-                                    href="https://deepmind.google/technologies/gemini/" target="_blank"
-                                    class="underline decoration-black/20 hover:decoration-black dark:decoration-white/20 dark:hover:decoration-white transition-all">Gemini
-                                    AI</a>.
+                                    href="https://github.com/webcrafts-studio/lens-for-laravel" target="_blank"
+                                    class="underline decoration-black/20 hover:decoration-black dark:decoration-white/20 dark:hover:decoration-white transition-all">AI</a>.
                             </p>
                         </div>
 
@@ -498,8 +497,7 @@
 ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚══════╝╚══════╝</pre>
             </div>
             <div class="flex flex-col items-center gap-2 text-center font-mono text-xs uppercase tracking-widest">
-                <span class="text-neutral-500">WCAG Accessibility Auditor &middot; Powered by axe-core &amp; Gemini
-                    AI</span>
+                <span class="text-neutral-500">WCAG Accessibility Auditor &middot; Powered by axe-core &amp; AI</span>
                 <span class="text-neutral-400 dark:text-neutral-600">A / AA / AAA &nbsp;&bull;&nbsp; Laravel 10 / 11 /
                     12</span>
             </div>
@@ -534,7 +532,7 @@
                     </div>
                     <div class="font-mono text-center">
                         <p class="text-sm font-bold uppercase tracking-widest">Consulting AI...</p>
-                        <p class="text-xs text-neutral-500 mt-1 uppercase tracking-widest">Gemini is analyzing the
+                        <p class="text-xs text-neutral-500 mt-1 uppercase tracking-widest">AI is analyzing the
                             accessibility issue</p>
                     </div>
                 </div>

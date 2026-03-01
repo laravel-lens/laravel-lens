@@ -61,4 +61,16 @@ return [
     */
     'crawl_max_pages' => env('LENS_FOR_LARAVEL_CRAWL_MAX_PAGES', 50),
 
+    /*
+    |--------------------------------------------------------------------------
+    | AI Provider
+    |--------------------------------------------------------------------------
+    |
+    | The AI provider used for generating code fixes.
+    |
+    | Supported values: 'gemini', 'openai', 'anthropic'
+    |
+    */
+    'ai_provider' => env('LENS_FOR_LARAVEL_AI_PROVIDER', 'gemini'),
+
 ];

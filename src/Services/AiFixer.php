@@ -54,6 +54,13 @@ WCAG Standards: {$wcagTags}
 Return the corrected version of the ENTIRE code block shown above. Only fix what is necessary — do not reformat unrelated code. Preserve all Blade directives, whitespace, and indentation exactly.
 PROMPT;
 
+        $providerConfig = config('lens-for-laravel.ai_provider', 'gemini');
+        $provider = match (strtolower($providerConfig)) {
+            'openai' => Lab::OpenAI,
+            'anthropic' => Lab::Anthropic,
+            default => Lab::Gemini,
+        };
+
         $result = agent(
             instructions: 'You are an expert in web accessibility (WCAG) and Laravel Blade templates. You produce minimal, precise fixes that resolve accessibility violations without touching unrelated code.',
             schema: fn ($schema) => [
@@ -62,7 +69,7 @@ PROMPT;
             ],
         )->prompt(
             $prompt,
-            provider: Lab::Gemini,
+            provider: $provider,
         );
 
         return [
