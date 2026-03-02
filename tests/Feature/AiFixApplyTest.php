@@ -77,3 +77,41 @@ test('POST /fix/apply blocks access to non-blade files', function () {
     ])->assertStatus(422)
         ->assertJson(['status' => 'error', 'message' => 'Only .blade.php files can be modified.']);
 });
+
+test('POST /fix/apply blocks fixedCode containing RCE functions', function () {
+    file_put_contents($this->bladeFile, '<div><img src="x.png"></div>');
+
+    foreach (['shell_exec(', 'system(', 'exec(', 'passthru(', 'proc_open(', 'popen(', 'eval('] as $pattern) {
+        $this->postJson(route('lens-for-laravel.fix.apply'), [
+            'fileName' => basename($this->bladeFile),
+            'originalCode' => '<img src="x.png">',
+            'fixedCode' => "<img src=\"x.png\" alt=\"x\"> <?php {$pattern}'id'); ?>",
+        ])->assertStatus(422)
+            ->assertJson(['status' => 'error']);
+    }
+});
+
+test('POST /fix/apply blocks fixedCode that introduces new PHP open tags', function () {
+    file_put_contents($this->bladeFile, '<div><img src="x.png"></div>');
+
+    $this->postJson(route('lens-for-laravel.fix.apply'), [
+        'fileName' => basename($this->bladeFile),
+        'originalCode' => '<img src="x.png">',
+        'fixedCode' => '<img src="x.png" alt="x"> <?php echo "backdoor"; ?>',
+    ])->assertStatus(422)
+        ->assertJson(['status' => 'error']);
+});
+
+test('POST /fix/apply allows fixedCode that preserves existing PHP tags', function () {
+    $original = '<?php echo $title; ?><img src="x.png">';
+    $fixed = '<?php echo $title; ?><img src="x.png" alt="Logo">';
+
+    file_put_contents($this->bladeFile, $original);
+
+    $this->postJson(route('lens-for-laravel.fix.apply'), [
+        'fileName' => basename($this->bladeFile),
+        'originalCode' => $original,
+        'fixedCode' => $fixed,
+    ])->assertStatus(200)
+        ->assertJson(['status' => 'success']);
+});

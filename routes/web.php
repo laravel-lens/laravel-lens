@@ -179,7 +179,14 @@ Route::post('/fix/suggest', function (Request $request) {
 
         return response()->json(['status' => 'success', ...$result]);
     } catch (\Throwable $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        // Log the full error internally but never expose provider details
+        // (error messages from AI SDKs can contain API key fragments or account info).
+        logger()->error('Lens AI fix suggestion failed', ['error' => $e->getMessage()]);
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'The AI provider returned an error. Check your API key configuration and try again.',
+        ], 500);
     }
 })->name('lens-for-laravel.fix.suggest')->middleware('throttle:20,1');
 
@@ -220,11 +227,40 @@ Route::post('/fix/apply', function (Request $request) {
         ], 422);
     }
 
+    // Protect against prompt-injection attacks where a malicious scanned page causes
+    // the AI to embed RCE payloads in the suggested fix.
+    // Check unconditionally for server-side code execution functions — these have no
+    // place in a Blade template regardless of what was in the original code block.
+    $rcePatterns = ['shell_exec(', 'system(', 'exec(', 'passthru(', 'proc_open(', 'popen(', 'eval('];
+    foreach ($rcePatterns as $pattern) {
+        if (str_contains($request->fixedCode, $pattern)) {
+            logger()->warning('Lens AI fix blocked: RCE pattern detected in AI response', ['pattern' => $pattern]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The AI-generated fix was blocked because it contains potentially dangerous code. Please apply the fix manually after reviewing.',
+            ], 422);
+        }
+    }
+
+    // Reject PHP open tags introduced by the AI that were not present in the
+    // original code block — a legitimate accessibility fix never needs to add raw PHP.
+    foreach (['<?php', '<?='] as $phpTag) {
+        if (str_contains($request->fixedCode, $phpTag) && ! str_contains($request->originalCode, $phpTag)) {
+            logger()->warning('Lens AI fix blocked: unexpected PHP tag in AI response', ['tag' => $phpTag]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The AI-generated fix was blocked because it introduces unexpected PHP code. Please apply the fix manually after reviewing.',
+            ], 422);
+        }
+    }
+
     // LOCK_EX ensures the write is atomic and prevents concurrent overwrites.
     file_put_contents($fullPath, str_replace($request->originalCode, $request->fixedCode, $content), LOCK_EX);
 
     return response()->json(['status' => 'success']);
-})->name('lens-for-laravel.fix.apply');
+})->name('lens-for-laravel.fix.apply')->middleware('throttle:20,1');
 
 Route::post('/report/pdf', function (Request $request) {
     if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {

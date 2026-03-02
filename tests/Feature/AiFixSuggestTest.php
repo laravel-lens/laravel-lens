@@ -39,7 +39,8 @@ test('POST /fix/suggest returns 403 when environment not allowed', function () {
 
 test('POST /fix/suggest blocks path traversal in fileName', function () {
     // AiFixer::suggestFix throws RuntimeException before calling AI
-    // when the path traversal is detected
+    // when the path traversal is detected; the route catches it and
+    // returns a generic error message (no internal details exposed).
     $this->postJson(route('lens-for-laravel.fix.suggest'), [
         'htmlSnippet' => '<img src="x.png">',
         'description' => 'Missing alt',
@@ -49,7 +50,7 @@ test('POST /fix/suggest blocks path traversal in fileName', function () {
         ->assertJson(['status' => 'error']);
 });
 
-test('POST /fix/suggest returns 500 when AI call fails', function () {
+test('POST /fix/suggest returns 500 with generic message when AI call fails', function () {
     // Create a real blade file so path validation passes
     $viewsPath = $this->app->resourcePath('views');
     if (! is_dir($viewsPath)) {
@@ -58,14 +59,18 @@ test('POST /fix/suggest returns 500 when AI call fails', function () {
     $file = $viewsPath.'/suggest-test.blade.php';
     file_put_contents($file, '<img src="logo.png">');
 
-    // Without a real Gemini key, the agent() call will throw
-    $this->postJson(route('lens-for-laravel.fix.suggest'), [
+    // Without a real API key, the agent() call will throw.
+    // The response must NOT expose raw SDK error messages (which may contain key fragments).
+    $response = $this->postJson(route('lens-for-laravel.fix.suggest'), [
         'htmlSnippet' => '<img src="logo.png">',
         'description' => 'Images must have alternate text',
         'fileName' => 'suggest-test.blade.php',
         'lineNumber' => 1,
     ])->assertStatus(500)
         ->assertJson(['status' => 'error']);
+
+    // Message must be generic — no raw SDK error details.
+    expect($response->json('message'))->toBe('The AI provider returned an error. Check your API key configuration and try again.');
 
     unlink($file);
 });
