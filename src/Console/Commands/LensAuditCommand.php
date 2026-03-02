@@ -14,7 +14,7 @@ use LensForLaravel\LensForLaravel\Services\SiteCrawler;
 class LensAuditCommand extends Command
 {
     protected $signature = 'lens:audit
-                            {url* : Target URLs to audit (defaults to app URL)}
+                            {url?* : Target URLs to audit (defaults to app URL)}
                             {--a : Report only WCAG Level A violations}
                             {--aa : Report WCAG Level A and AA violations}
                             {--all : Report all violation levels including AAA and best-practice (default)}
