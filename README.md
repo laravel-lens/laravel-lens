@@ -50,22 +50,6 @@ Install as a development-only Composer dependency:
 composer require webcrafts-studio/lens-for-laravel --dev
 ```
 
-> **Note:** This package is not yet published to Packagist. To use it locally, add it as a [path repository](https://getcomposer.org/doc/05-repositories.md#path) in your application's `composer.json`:
->
-> ```json
-> {
->     "repositories": [
->         {
->             "type": "path",
->             "url": "../lens-for-laravel"
->         }
->     ],
->     "require-dev": {
->         "webcrafts-studio/lens-for-laravel": "*"
->     }
-> }
-> ```
-
 The package auto-discovers and registers its service provider. No additional configuration is required to get started.
 
 ---
