@@ -11,6 +11,29 @@ use Spatie\Browsershot\Browsershot;
 // The prefix and middleware for these routes are automatically applied
 // by the LensForLaravelServiceProvider based on your config.
 
+// Shared domain validation rule used by all scan-related endpoints.
+// Rejects non-HTTP(S) schemes (e.g. file://, gopher://) and any host
+// that does not match APP_URL, preventing SSRF and host-header spoofing.
+$domainRule = function (string $attribute, string $value, \Closure $fail): void {
+    $scheme = parse_url($value, PHP_URL_SCHEME);
+    if (! in_array($scheme, ['http', 'https'], true)) {
+        $fail('Only HTTP and HTTPS URLs are allowed.');
+
+        return;
+    }
+
+    $appHost = parse_url(config('app.url', ''), PHP_URL_HOST);
+    if (! $appHost) {
+        $fail('APP_URL is not configured correctly. Cannot validate the target domain.');
+
+        return;
+    }
+
+    if (parse_url($value, PHP_URL_HOST) !== $appHost) {
+        $fail("Scanning external domains is not allowed. URL must be on the {$appHost} domain.");
+    }
+};
+
 Route::get('/dashboard', function () {
     if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
         abort(403, 'Lens For Laravel is not allowed in this environment.');
@@ -19,18 +42,13 @@ Route::get('/dashboard', function () {
     return view('lens-for-laravel::dashboard');
 })->name('lens-for-laravel.dashboard');
 
-Route::post('/crawl', function (Request $request) {
+Route::post('/crawl', function (Request $request) use ($domainRule) {
     if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
         abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
-        'url' => ['required', 'url', function ($attribute, $value, $fail) {
-            $appHost = parse_url(config('app.url'), PHP_URL_HOST) ?: request()->getHost();
-            if (parse_url($value, PHP_URL_HOST) !== $appHost) {
-                $fail("Scanning external domains is not allowed. URL must be on the {$appHost} domain.");
-            }
-        }],
+        'url' => ['required', 'url', $domainRule],
     ]);
 
     try {
@@ -47,20 +65,15 @@ Route::post('/crawl', function (Request $request) {
             'message' => $e->getMessage(),
         ], 500);
     }
-})->name('lens-for-laravel.crawl');
+})->name('lens-for-laravel.crawl')->middleware('throttle:5,1');
 
-Route::post('/scan', function (Request $request) {
+Route::post('/scan', function (Request $request) use ($domainRule) {
     if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
         abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
-        'url' => ['required', 'url', function ($attribute, $value, $fail) {
-            $appHost = parse_url(config('app.url'), PHP_URL_HOST) ?: request()->getHost();
-            if (parse_url($value, PHP_URL_HOST) !== $appHost) {
-                $fail("Scanning external domains is not allowed. URL must be on the {$appHost} domain.");
-            }
-        }],
+        'url' => ['required', 'url', $domainRule],
     ]);
 
     try {
@@ -88,20 +101,15 @@ Route::post('/scan', function (Request $request) {
             'message' => $e->getMessage(),
         ], 500);
     }
-})->name('lens-for-laravel.scan');
+})->name('lens-for-laravel.scan')->middleware('throttle:10,1');
 
-Route::post('/preview', function (Request $request) {
+Route::post('/preview', function (Request $request) use ($domainRule) {
     if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
         abort(403, 'Lens For Laravel is not allowed in this environment.');
     }
 
     $request->validate([
-        'url' => ['required', 'url', function ($attribute, $value, $fail) {
-            $appHost = parse_url(config('app.url'), PHP_URL_HOST) ?: request()->getHost();
-            if (parse_url($value, PHP_URL_HOST) !== $appHost) {
-                $fail("Scanning external domains is not allowed. URL must be on the {$appHost} domain.");
-            }
-        }],
+        'url'      => ['required', 'url', $domainRule],
         'selector' => ['required', 'string', 'max:500'],
     ]);
 
@@ -144,7 +152,7 @@ Route::post('/preview', function (Request $request) {
     } catch (\Throwable $e) {
         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
     }
-})->name('lens-for-laravel.preview');
+})->name('lens-for-laravel.preview')->middleware('throttle:20,1');
 
 Route::post('/fix/suggest', function (Request $request) {
     if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
@@ -173,7 +181,7 @@ Route::post('/fix/suggest', function (Request $request) {
     } catch (\Throwable $e) {
         return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
     }
-})->name('lens-for-laravel.fix.suggest');
+})->name('lens-for-laravel.fix.suggest')->middleware('throttle:20,1');
 
 Route::post('/fix/apply', function (Request $request) {
     if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
@@ -181,10 +189,20 @@ Route::post('/fix/apply', function (Request $request) {
     }
 
     $request->validate([
-        'fileName' => ['required', 'string', 'max:500'],
+        'fileName'     => ['required', 'string', 'max:500'],
         'originalCode' => ['required', 'string'],
-        'fixedCode' => ['required', 'string'],
+        'fixedCode'    => ['required', 'string'],
     ]);
+
+    // Reject path traversal sequences before hitting the filesystem.
+    if (str_contains($request->fileName, '..')) {
+        return response()->json(['status' => 'error', 'message' => 'Invalid file path.'], 422);
+    }
+
+    // Only Blade templates may be modified.
+    if (! str_ends_with($request->fileName, '.blade.php')) {
+        return response()->json(['status' => 'error', 'message' => 'Only .blade.php files can be modified.'], 422);
+    }
 
     $viewsBase = resource_path('views');
     $fullPath = realpath($viewsBase.DIRECTORY_SEPARATOR.$request->fileName);
@@ -202,7 +220,8 @@ Route::post('/fix/apply', function (Request $request) {
         ], 422);
     }
 
-    file_put_contents($fullPath, str_replace($request->originalCode, $request->fixedCode, $content));
+    // LOCK_EX ensures the write is atomic and prevents concurrent overwrites.
+    file_put_contents($fullPath, str_replace($request->originalCode, $request->fixedCode, $content), LOCK_EX);
 
     return response()->json(['status' => 'success']);
 })->name('lens-for-laravel.fix.apply');
@@ -213,8 +232,15 @@ Route::post('/report/pdf', function (Request $request) {
     }
 
     $request->validate([
-        'issues' => ['required', 'array'],
-        'url' => ['required', 'string'],
+        'issues'              => ['required', 'array', 'max:500'],
+        'issues.*.id'         => ['nullable', 'string', 'max:100'],
+        'issues.*.impact'     => ['nullable', 'string', 'in:critical,serious,moderate,minor,unknown'],
+        'issues.*.description'=> ['nullable', 'string', 'max:1000'],
+        'issues.*.htmlSnippet'=> ['nullable', 'string', 'max:5000'],
+        'issues.*.selector'   => ['nullable', 'string', 'max:500'],
+        'issues.*.tags'       => ['nullable', 'array'],
+        'issues.*.tags.*'     => ['string', 'max:50'],
+        'url'                 => ['required', 'url', 'max:2048'],
     ]);
 
     try {

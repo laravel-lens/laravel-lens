@@ -23,6 +23,10 @@ class AiFixer
         int $lineNumber,
         array $tags = []
     ): array {
+        if (! str_ends_with($fileName, '.blade.php')) {
+            throw new \RuntimeException('Only .blade.php files are supported.');
+        }
+
         $viewsBase = resource_path('views');
         $fullPath = realpath($viewsBase.DIRECTORY_SEPARATOR.$fileName);
 

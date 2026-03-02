@@ -65,15 +65,15 @@ test('POST /fix/apply blocks path traversal attempts', function () {
         'fileName' => '../../../etc/passwd',
         'originalCode' => 'root',
         'fixedCode' => 'hacked',
-    ])->assertStatus(403)
-        ->assertJson(['status' => 'error', 'message' => 'File access denied.']);
+    ])->assertStatus(422)
+        ->assertJson(['status' => 'error', 'message' => 'Invalid file path.']);
 });
 
-test('POST /fix/apply blocks access to files outside views directory', function () {
+test('POST /fix/apply blocks access to non-blade files', function () {
     $this->postJson(route('lens-for-laravel.fix.apply'), [
         'fileName' => '/etc/hosts',
         'originalCode' => 'localhost',
         'fixedCode' => 'hacked',
-    ])->assertStatus(403)
-        ->assertJson(['status' => 'error', 'message' => 'File access denied.']);
+    ])->assertStatus(422)
+        ->assertJson(['status' => 'error', 'message' => 'Only .blade.php files can be modified.']);
 });
