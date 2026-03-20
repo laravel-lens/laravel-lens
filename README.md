@@ -30,7 +30,7 @@ Lens for Laravel dynamically scans your local application for WCAG compliance us
 | Requirement | Version |
 |---|---|
 | PHP | ^8.2 |
-| Laravel | ^10.0 \| ^11.0 \| ^12.0 |
+| Laravel | ^10.0 \| ^11.0 \| ^12.0 \| ^13.0 |
 | Node.js | any recent LTS |
 | Puppeteer | ^21 |
 
