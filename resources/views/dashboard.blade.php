@@ -437,6 +437,9 @@
                                                         ''"
                                                     :title="editorEnabled ? ('Open in ' + editorLabel) : ''"
                                                     @click="openInEditor(issue.fileName, issue.lineNumber)">
+                                                    <span x-show="issue.sourceType"
+                                                        class="text-[10px] uppercase tracking-widest border border-black/20 dark:border-white/20 px-1"
+                                                        x-text="issue.sourceType"></span>
                                                     <span x-text="issue.fileName + ':' + issue.lineNumber"></span>
                                                     <span x-show="editorEnabled"
                                                         class="text-base leading-none opacity-60 group-hover:opacity-100 transition-opacity"
@@ -1360,6 +1363,7 @@
                                     url: i.url,
                                     fileName: i.fileName,
                                     lineNumber: i.lineNumber,
+                                    sourceType: i.sourceType,
                                 }))
                             })
                         });

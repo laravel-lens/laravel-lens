@@ -14,6 +14,7 @@ class Issue
         public array $tags = [],
         public ?string $url = null,
         public ?string $fileName = null,
-        public ?int $lineNumber = null
+        public ?int $lineNumber = null,
+        public ?string $sourceType = null
     ) {}
 }

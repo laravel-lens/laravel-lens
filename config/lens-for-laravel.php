@@ -63,6 +63,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Render JavaScript During Crawling
+    |--------------------------------------------------------------------------
+    |
+    | Enable this for SPA/Inertia applications where internal links are rendered
+    | by React or Vue after the initial HTML response. The HTTP crawler remains
+    | the default because it is much faster for traditional Laravel pages.
+    |
+    */
+    'crawler_render_javascript' => env('LENS_FOR_LARAVEL_CRAWLER_RENDER_JAVASCRIPT', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Scan Wait Time
+    |--------------------------------------------------------------------------
+    |
+    | Extra milliseconds to wait after network idle before axe-core runs. This is
+    | useful for Livewire, Inertia, React, or Vue screens with delayed hydration.
+    |
+    */
+    'scan_wait_ms' => env('LENS_FOR_LARAVEL_SCAN_WAIT_MS', 0),
+
+    /*
+    |--------------------------------------------------------------------------
     | AI Provider
     |--------------------------------------------------------------------------
     |

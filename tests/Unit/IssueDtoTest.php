@@ -23,7 +23,8 @@ test('stores all constructor properties', function () {
         ->and($issue->tags)->toBe(['wcag2a', 'wcag2aa'])
         ->and($issue->url)->toBe('https://example.com')
         ->and($issue->fileName)->toBeNull()
-        ->and($issue->lineNumber)->toBeNull();
+        ->and($issue->lineNumber)->toBeNull()
+        ->and($issue->sourceType)->toBeNull();
 });
 
 test('optional parameters default to correct values', function () {
@@ -39,14 +40,17 @@ test('optional parameters default to correct values', function () {
     expect($issue->tags)->toBe([])
         ->and($issue->url)->toBeNull()
         ->and($issue->fileName)->toBeNull()
-        ->and($issue->lineNumber)->toBeNull();
+        ->and($issue->lineNumber)->toBeNull()
+        ->and($issue->sourceType)->toBeNull();
 });
 
 test('file location can be assigned after construction', function () {
     $issue = new Issue('id', 'impact', 'desc', 'url', 'html', 'sel');
     $issue->fileName = 'layouts/app.blade.php';
     $issue->lineNumber = 42;
+    $issue->sourceType = 'blade';
 
     expect($issue->fileName)->toBe('layouts/app.blade.php')
-        ->and($issue->lineNumber)->toBe(42);
+        ->and($issue->lineNumber)->toBe(42)
+        ->and($issue->sourceType)->toBe('blade');
 });

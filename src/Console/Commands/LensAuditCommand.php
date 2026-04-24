@@ -120,6 +120,7 @@ class LensAuditCommand extends Command
                     if ($location) {
                         $issue->fileName = $location['file'];
                         $issue->lineNumber = $location['line'];
+                        $issue->sourceType = $location['type'] ?? null;
                     }
                 }
             });
@@ -172,6 +173,7 @@ class LensAuditCommand extends Command
                     if ($location) {
                         $issue->fileName = $location['file'];
                         $issue->lineNumber = $location['line'];
+                        $issue->sourceType = $location['type'] ?? null;
                     }
                 }
 
@@ -272,6 +274,7 @@ class LensAuditCommand extends Command
                     if ($location) {
                         $issue->fileName = $location['file'];
                         $issue->lineNumber = $location['line'];
+                        $issue->sourceType = $location['type'] ?? null;
                     }
                 }
 

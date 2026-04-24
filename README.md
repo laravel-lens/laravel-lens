@@ -123,6 +123,12 @@ return [
     // Maximum number of pages to crawl in whole-site scan mode
     'crawl_max_pages' => env('LENS_FOR_LARAVEL_CRAWL_MAX_PAGES', 50),
 
+    // Render JavaScript while crawling links (useful for SPA/Inertia)
+    'crawler_render_javascript' => env('LENS_FOR_LARAVEL_CRAWLER_RENDER_JAVASCRIPT', false),
+
+    // Extra delay after network-idle before running axe-core
+    'scan_wait_ms' => env('LENS_FOR_LARAVEL_SCAN_WAIT_MS', 0),
+
     // AI provider used for generating code fix suggestions
     // Supported: 'gemini', 'openai', 'anthropic'
     'ai_provider' => env('LENS_FOR_LARAVEL_AI_PROVIDER', 'gemini'),

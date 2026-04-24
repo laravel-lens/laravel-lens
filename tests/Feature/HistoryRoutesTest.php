@@ -21,6 +21,7 @@ function createScanPayload(array $overrides = []): array
                 'url' => 'http://localhost',
                 'fileName' => 'welcome.blade.php',
                 'lineNumber' => 10,
+                'sourceType' => 'blade',
             ],
             [
                 'id' => 'image-alt',
@@ -50,6 +51,7 @@ test('store creates scan with issues', function () {
 
     expect(Scan::count())->toBe(1);
     expect(ScanIssue::count())->toBe(2);
+    expect(ScanIssue::first()->source_type)->toBe('blade');
 });
 
 test('store validates required fields', function () {

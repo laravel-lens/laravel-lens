@@ -40,7 +40,8 @@ test('locates element by id attribute', function () {
 
     expect($result)->not->toBeNull()
         ->and($result['file'])->toEndWith('lens-locator-test.blade.php')
-        ->and($result['line'])->toBe(1);
+        ->and($result['line'])->toBe(1)
+        ->and($result['type'])->toBe('blade');
 });
 
 test('locates element by name attribute', function () {
@@ -102,7 +103,8 @@ test('locates react element by jsx className from selector', function () {
 
     expect($result)->not->toBeNull()
         ->and($result['file'])->toBe('js/Components/LensLocatorTest.jsx')
-        ->and($result['line'])->toBe(2);
+        ->and($result['line'])->toBe(2)
+        ->and($result['type'])->toBe('react');
 });
 
 test('locates react element by jsx expression attribute', function () {
@@ -148,7 +150,8 @@ test('locates vue element by class from selector', function () {
 
     expect($result)->not->toBeNull()
         ->and($result['file'])->toBe('js/Components/LensLocatorTest.vue')
-        ->and($result['line'])->toBe(2);
+        ->and($result['line'])->toBe(2)
+        ->and($result['type'])->toBe('vue');
 });
 
 test('locates vue element by dynamic bound attribute', function () {
@@ -176,6 +179,44 @@ test('prefers vue attribute match over weak blade tag fallback', function () {
     );
 
     $result = (new FileLocator)->locate('<a href="/pricing">Pricing</a>', 'a');
+
+    expect($result)->not->toBeNull()
+        ->and($result['file'])->toBe('js/Components/LensLocatorTest.vue')
+        ->and($result['line'])->toBe(2);
+});
+
+test('locates inertia react pages under resources js pages', function () {
+    $page = $this->jsPath.'/Pages/LensInertiaPage.tsx';
+    if (! is_dir(dirname($page))) {
+        mkdir(dirname($page), 0755, true);
+    }
+
+    file_put_contents(
+        $page,
+        "export default function PricingPage() {\n".
+        "    return <button className={styles.primaryButton}>Buy</button>;\n".
+        "}\n"
+    );
+
+    $result = (new FileLocator)->locate('<button class="primary-button">Buy</button>', '.primary-button');
+
+    expect($result)->not->toBeNull()
+        ->and($result['file'])->toBe('js/Pages/LensInertiaPage.tsx')
+        ->and($result['line'])->toBe(2)
+        ->and($result['type'])->toBe('react');
+
+    unlink($page);
+});
+
+test('locates vue class object entries by selector part', function () {
+    file_put_contents(
+        $this->vueFile,
+        "<template>\n".
+        "    <button :class=\"{ active: isActive }\">Toggle</button>\n".
+        "</template>\n"
+    );
+
+    $result = (new FileLocator)->locate('<button class="active">Toggle</button>', '.active');
 
     expect($result)->not->toBeNull()
         ->and($result['file'])->toBe('js/Components/LensLocatorTest.vue')

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('url', 2048)->nullable();
             $table->string('file_name', 500)->nullable();
             $table->unsignedInteger('line_number')->nullable();
+            $table->string('source_type', 20)->nullable();
             $table->timestamp('created_at')->nullable();
         });
     }

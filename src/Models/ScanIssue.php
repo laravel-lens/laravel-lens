@@ -23,6 +23,7 @@ class ScanIssue extends Model
         'url',
         'file_name',
         'line_number',
+        'source_type',
     ];
 
     protected $casts = [

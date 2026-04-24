@@ -26,6 +26,11 @@ class AxeScanner
                 ->noSandbox()
                 ->waitUntilNetworkIdle(); // Wait for the page to fully load
 
+            $scanWaitMs = (int) config('lens-for-laravel.scan_wait_ms', 0);
+            if ($scanWaitMs > 0) {
+                $browsershot->setDelay($scanWaitMs);
+            }
+
             // We need to inject the axe-core library and run it.
             // Spatie Browsershot allows evaluating JavaScript on the page.
             $script = <<<'JS'

@@ -123,6 +123,7 @@ Route::post('/scan', function (Request $request) use ($domainRule) {
             if ($location) {
                 $issue->fileName = $location['file'];
                 $issue->lineNumber = $location['line'];
+                $issue->sourceType = $location['type'] ?? null;
             }
         }
 
@@ -430,6 +431,7 @@ Route::post('/history', function (Request $request) {
             'issues.*.url' => ['nullable', 'string', 'max:2048'],
             'issues.*.fileName' => ['nullable', 'string', 'max:500'],
             'issues.*.lineNumber' => ['nullable', 'integer', 'min:1'],
+            'issues.*.sourceType' => ['nullable', 'string', 'in:blade,react,vue'],
         ]);
 
         $issues = $validated['issues'];
@@ -460,6 +462,7 @@ Route::post('/history', function (Request $request) {
                     'url' => $issue['url'] ?? null,
                     'file_name' => $issue['fileName'] ?? null,
                     'line_number' => $issue['lineNumber'] ?? null,
+                    'source_type' => $issue['sourceType'] ?? null,
                 ]);
             }
 

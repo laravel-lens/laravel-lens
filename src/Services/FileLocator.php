@@ -57,6 +57,7 @@ class FileLocator
                     return [
                         'file' => $file->getRelativePathname(),
                         'line' => $index + 1,
+                        'type' => 'blade',
                     ];
                 }
             }
@@ -94,6 +95,7 @@ class FileLocator
                     return [
                         'file' => 'js/'.$file->getRelativePathname(),
                         'line' => $index + 1,
+                        'type' => $this->sourceTypeForExtension($file->getExtension()),
                     ];
                 }
             }
@@ -105,6 +107,11 @@ class FileLocator
     protected function frontendFilePatterns(): array
     {
         return array_map(fn ($extension) => '*.'.$extension, $this->frontendExtensions);
+    }
+
+    protected function sourceTypeForExtension(string $extension): string
+    {
+        return strtolower($extension) === 'vue' ? 'vue' : 'react';
     }
 
     /**
@@ -165,15 +172,39 @@ class FileLocator
         $selectorParts = $matches[1] ?? [];
 
         foreach ($selectorParts as $part) {
-            if (stripos($line, $part) !== false) {
-                return true;
+            foreach ($this->selectorPartVariants($part) as $variant) {
+                if (stripos($line, $variant) !== false) {
+                    return true;
+                }
             }
         }
 
         return empty(array_filter($attributes)) && empty($selectorParts);
     }
 
+    protected function selectorPartVariants(string $part): array
+    {
+        $camel = preg_replace_callback('/-([a-z0-9])/i', fn ($matches) => strtoupper($matches[1]), strtolower($part));
+
+        return array_values(array_unique(array_filter([
+            $part,
+            $camel,
+            ucfirst((string) $camel),
+        ])));
+    }
+
     protected function lineContainsFrontendAttribute(string $line, string $attribute, string $value): bool
+    {
+        foreach ($this->attributeNamesForFrontend($attribute) as $frontendAttribute) {
+            if ($this->lineContainsAttributeValue($line, $frontendAttribute, $value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function attributeNamesForFrontend(string $attribute): array
     {
         $jsxAttribute = match ($attribute) {
             'class' => 'className',
@@ -181,14 +212,17 @@ class FileLocator
             default => $attribute,
         };
 
+        return array_values(array_unique([$attribute, $jsxAttribute]));
+    }
+
+    protected function lineContainsAttributeValue(string $line, string $attribute, string $value): bool
+    {
         $quotedValue = preg_quote($value, '/');
-        $quotedAttribute = preg_quote($jsxAttribute, '/');
-        $quotedVueAttribute = preg_quote($attribute, '/');
+        $quotedAttribute = preg_quote($attribute, '/');
 
         return (bool) preg_match('/\b'.$quotedAttribute.'\s*=\s*(["\'])'.$quotedValue.'\1/i', $line)
             || (bool) preg_match('/\b'.$quotedAttribute.'\s*=\s*\{\s*(["\'])'.$quotedValue.'\1\s*\}/i', $line)
-            || (bool) preg_match('/\b'.$quotedVueAttribute.'\s*=\s*(["\'])'.$quotedValue.'\1/i', $line)
-            || (bool) preg_match('/(?::|v-bind:)'.$quotedVueAttribute.'\s*=\s*(["\'])\s*([\'"])'.$quotedValue.'\2\s*\1/i', $line);
+            || (bool) preg_match('/(?::|v-bind:)'.$quotedAttribute.'\s*=\s*(["\'])\s*([\'"])'.$quotedValue.'\2\s*\1/i', $line);
     }
 
     /**

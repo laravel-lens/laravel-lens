@@ -82,7 +82,7 @@ test('POST /scan enriches issues with blade file locations', function () {
 
     $locatorMock = Mockery::mock(FileLocator::class);
     $locatorMock->shouldReceive('locate')
-        ->andReturn(['file' => 'layouts/app.blade.php', 'line' => 15]);
+        ->andReturn(['file' => 'layouts/app.blade.php', 'line' => 15, 'type' => 'blade']);
     app()->instance(FileLocator::class, $locatorMock);
 
     $response = $this->postJson(route('lens-for-laravel.scan'), ['url' => 'http://localhost'])
@@ -90,5 +90,6 @@ test('POST /scan enriches issues with blade file locations', function () {
 
     $issues = $response->json('issues');
     expect($issues[0]['fileName'])->toBe('layouts/app.blade.php')
-        ->and($issues[0]['lineNumber'])->toBe(15);
+        ->and($issues[0]['lineNumber'])->toBe(15)
+        ->and($issues[0]['sourceType'])->toBe('blade');
 });

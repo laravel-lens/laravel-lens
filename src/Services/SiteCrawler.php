@@ -5,6 +5,7 @@ namespace LensForLaravel\LensForLaravel\Services;
 use DOMDocument;
 use DOMXPath;
 use Illuminate\Support\Facades\Http;
+use Spatie\Browsershot\Browsershot;
 use Throwable;
 
 class SiteCrawler
@@ -161,6 +162,14 @@ class SiteCrawler
      */
     protected function extractLinks(string $url): array
     {
+        if (config('lens-for-laravel.crawler_render_javascript', false)) {
+            $browserLinks = $this->extractLinksWithBrowser($url);
+
+            if (! empty($browserLinks)) {
+                return $browserLinks;
+            }
+        }
+
         $response = Http::timeout(10)
             ->withHeaders(['Accept' => 'text/html,application/xhtml+xml'])
             ->get($url);
@@ -175,6 +184,34 @@ class SiteCrawler
         }
 
         return $this->parseLinksFromHtml($response->body(), $url);
+    }
+
+    protected function extractLinksWithBrowser(string $url): array
+    {
+        try {
+            $json = Browsershot::url($url)
+                ->noSandbox()
+                ->waitUntilNetworkIdle()
+                ->evaluate(<<<'JS'
+                    JSON.stringify(
+                        Array.from(document.querySelectorAll('a[href]'))
+                            .map((anchor) => anchor.getAttribute('href'))
+                            .filter(Boolean)
+                    )
+                JS);
+
+            $hrefs = json_decode($json, true);
+            if (! is_array($hrefs)) {
+                return [];
+            }
+
+            return array_values(array_unique(array_filter(array_map(
+                fn ($href) => is_string($href) ? $this->toAbsoluteUrl(trim($href), $url) : null,
+                $hrefs
+            ))));
+        } catch (Throwable) {
+            return [];
+        }
     }
 
     protected function parseLinksFromHtml(string $html, string $baseUrl): array
