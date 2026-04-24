@@ -6,11 +6,11 @@ use Symfony\Component\Finder\Finder;
 
 class FileLocator
 {
-    protected array $reactExtensions = ['js', 'jsx', 'ts', 'tsx'];
+    protected array $frontendExtensions = ['js', 'jsx', 'ts', 'tsx', 'vue'];
 
     /**
      * Locate the file and line number for a given HTML snippet and CSS selector.
-     * Uses heuristics to find the best matching Blade or React source file in the host application.
+     * Uses heuristics to find the best matching Blade, React, or Vue source file in the host application.
      *
      * @return array|null Returns ['file' => string, 'line' => int] or null if not found.
      */
@@ -29,9 +29,9 @@ class FileLocator
             return $bladeLocation;
         }
 
-        $reactLocation = $this->locateInReact($tagName, $id, $name, $selector, $htmlSnippet);
-        if ($reactLocation) {
-            return $reactLocation;
+        $frontendLocation = $this->locateInFrontend($tagName, $id, $name, $selector, $htmlSnippet);
+        if ($frontendLocation) {
+            return $frontendLocation;
         }
 
         return $this->locateInBlade($tagName, $id, $name, $selector);
@@ -65,7 +65,7 @@ class FileLocator
         return null;
     }
 
-    protected function locateInReact(string $tagName, ?string $id, ?string $name, string $selector, string $htmlSnippet): ?array
+    protected function locateInFrontend(string $tagName, ?string $id, ?string $name, string $selector, string $htmlSnippet): ?array
     {
         $jsPath = resource_path('js');
 
@@ -74,7 +74,7 @@ class FileLocator
         }
 
         $finder = new Finder;
-        $finder->files()->in($jsPath)->name($this->reactFilePatterns());
+        $finder->files()->in($jsPath)->name($this->frontendFilePatterns());
 
         $attributes = [
             'id' => $id,
@@ -90,7 +90,7 @@ class FileLocator
             $lines = preg_split('/\r?\n/', $contents);
 
             foreach ($lines as $index => $line) {
-                if ($this->isReactMatch($line, $tagName, $attributes, $selector)) {
+                if ($this->isFrontendMatch($line, $tagName, $attributes, $selector)) {
                     return [
                         'file' => 'js/'.$file->getRelativePathname(),
                         'line' => $index + 1,
@@ -102,9 +102,9 @@ class FileLocator
         return null;
     }
 
-    protected function reactFilePatterns(): array
+    protected function frontendFilePatterns(): array
     {
-        return array_map(fn ($extension) => '*.'.$extension, $this->reactExtensions);
+        return array_map(fn ($extension) => '*.'.$extension, $this->frontendExtensions);
     }
 
     /**
@@ -147,16 +147,16 @@ class FileLocator
     }
 
     /**
-     * Determine if a line of JSX/TSX likely emitted the failing DOM element.
+     * Determine if a line of JSX/TSX/Vue likely emitted the failing DOM element.
      */
-    protected function isReactMatch(string $line, string $tagName, array $attributes, string $selector): bool
+    protected function isFrontendMatch(string $line, string $tagName, array $attributes, string $selector): bool
     {
         if (stripos($line, '<'.$tagName) === false) {
             return false;
         }
 
         foreach ($attributes as $attribute => $value) {
-            if ($value && $this->lineContainsJsxAttribute($line, $attribute, $value)) {
+            if ($value && $this->lineContainsFrontendAttribute($line, $attribute, $value)) {
                 return true;
             }
         }
@@ -173,7 +173,7 @@ class FileLocator
         return empty(array_filter($attributes)) && empty($selectorParts);
     }
 
-    protected function lineContainsJsxAttribute(string $line, string $attribute, string $value): bool
+    protected function lineContainsFrontendAttribute(string $line, string $attribute, string $value): bool
     {
         $jsxAttribute = match ($attribute) {
             'class' => 'className',
@@ -183,9 +183,12 @@ class FileLocator
 
         $quotedValue = preg_quote($value, '/');
         $quotedAttribute = preg_quote($jsxAttribute, '/');
+        $quotedVueAttribute = preg_quote($attribute, '/');
 
         return (bool) preg_match('/\b'.$quotedAttribute.'\s*=\s*(["\'])'.$quotedValue.'\1/i', $line)
-            || (bool) preg_match('/\b'.$quotedAttribute.'\s*=\s*\{\s*(["\'])'.$quotedValue.'\1\s*\}/i', $line);
+            || (bool) preg_match('/\b'.$quotedAttribute.'\s*=\s*\{\s*(["\'])'.$quotedValue.'\1\s*\}/i', $line)
+            || (bool) preg_match('/\b'.$quotedVueAttribute.'\s*=\s*(["\'])'.$quotedValue.'\1/i', $line)
+            || (bool) preg_match('/(?::|v-bind:)'.$quotedVueAttribute.'\s*=\s*(["\'])\s*([\'"])'.$quotedValue.'\2\s*\1/i', $line);
     }
 
     /**

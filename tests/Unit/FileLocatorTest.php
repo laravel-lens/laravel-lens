@@ -16,6 +16,7 @@ beforeEach(function () {
 
     $this->bladeFile = $this->viewsPath.'/lens-locator-test.blade.php';
     $this->reactFile = $this->jsPath.'/Components/LensLocatorTest.jsx';
+    $this->vueFile = $this->jsPath.'/Components/LensLocatorTest.vue';
 });
 
 afterEach(function () {
@@ -25,6 +26,10 @@ afterEach(function () {
 
     if (file_exists($this->reactFile)) {
         unlink($this->reactFile);
+    }
+
+    if (file_exists($this->vueFile)) {
+        unlink($this->vueFile);
     }
 });
 
@@ -128,5 +133,51 @@ test('prefers react attribute match over weak blade tag fallback', function () {
 
     expect($result)->not->toBeNull()
         ->and($result['file'])->toBe('js/Components/LensLocatorTest.jsx')
+        ->and($result['line'])->toBe(2);
+});
+
+test('locates vue element by class from selector', function () {
+    file_put_contents(
+        $this->vueFile,
+        "<template>\n".
+        "    <img class=\"main-logo\" src=\"/logo.png\">\n".
+        "</template>\n"
+    );
+
+    $result = (new FileLocator)->locate('<img class="main-logo" src="/logo.png">', '.main-logo');
+
+    expect($result)->not->toBeNull()
+        ->and($result['file'])->toBe('js/Components/LensLocatorTest.vue')
+        ->and($result['line'])->toBe(2);
+});
+
+test('locates vue element by dynamic bound attribute', function () {
+    file_put_contents(
+        $this->vueFile,
+        "<template>\n".
+        "    <a :href=\"'/pricing'\">Pricing</a>\n".
+        "</template>\n"
+    );
+
+    $result = (new FileLocator)->locate('<a href="/pricing">Pricing</a>', 'a');
+
+    expect($result)->not->toBeNull()
+        ->and($result['file'])->toBe('js/Components/LensLocatorTest.vue')
+        ->and($result['line'])->toBe(2);
+});
+
+test('prefers vue attribute match over weak blade tag fallback', function () {
+    file_put_contents($this->bladeFile, '<a href="/fallback">Fallback</a>');
+    file_put_contents(
+        $this->vueFile,
+        "<template>\n".
+        "    <a href=\"/pricing\">Pricing</a>\n".
+        "</template>\n"
+    );
+
+    $result = (new FileLocator)->locate('<a href="/pricing">Pricing</a>', 'a');
+
+    expect($result)->not->toBeNull()
+        ->and($result['file'])->toBe('js/Components/LensLocatorTest.vue')
         ->and($result['line'])->toBe(2);
 });

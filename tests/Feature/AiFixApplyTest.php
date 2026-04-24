@@ -14,6 +14,7 @@ beforeEach(function () {
 
     $this->bladeFile = $this->viewsPath.'/lens-fix-test.blade.php';
     $this->reactFile = $this->jsPath.'/Components/LensFixTest.jsx';
+    $this->vueFile = $this->jsPath.'/Components/LensFixTest.vue';
 });
 
 afterEach(function () {
@@ -23,6 +24,10 @@ afterEach(function () {
 
     if (file_exists($this->reactFile)) {
         unlink($this->reactFile);
+    }
+
+    if (file_exists($this->vueFile)) {
+        unlink($this->vueFile);
     }
 });
 
@@ -73,6 +78,23 @@ test('POST /fix/apply applies fix and replaces content in react file', function 
         ->assertJson(['status' => 'success']);
 
     expect(file_get_contents($this->reactFile))->toContain($fixed)
+        ->not->toContain($original);
+});
+
+test('POST /fix/apply applies fix and replaces content in vue file', function () {
+    $original = '<img class="logo" src="/logo.png">';
+    $fixed = '<img class="logo" src="/logo.png" alt="Company logo">';
+
+    file_put_contents($this->vueFile, "<template>\n    {$original}\n</template>\n");
+
+    $this->postJson(route('lens-for-laravel.fix.apply'), [
+        'fileName' => 'js/Components/LensFixTest.vue',
+        'originalCode' => $original,
+        'fixedCode' => $fixed,
+    ])->assertStatus(200)
+        ->assertJson(['status' => 'success']);
+
+    expect(file_get_contents($this->vueFile))->toContain($fixed)
         ->not->toContain($original);
 });
 

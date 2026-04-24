@@ -54,7 +54,7 @@ $resolveEditableSourceFile = function (string $fileName): array {
     }
 
     $extension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
-    if (str_starts_with($fileName, 'js/') && in_array($extension, ['js', 'jsx', 'ts', 'tsx'], true)) {
+    if (str_starts_with($fileName, 'js/') && in_array($extension, ['js', 'jsx', 'ts', 'tsx', 'vue'], true)) {
         $basePath = resource_path('js');
         $relativePath = substr($fileName, 3);
         $fullPath = realpath($basePath.DIRECTORY_SEPARATOR.$relativePath);
@@ -63,10 +63,10 @@ $resolveEditableSourceFile = function (string $fileName): array {
             return ['error' => response()->json(['status' => 'error', 'message' => 'File access denied.'], 403)];
         }
 
-        return ['path' => $fullPath, 'type' => 'react'];
+        return ['path' => $fullPath, 'type' => $extension === 'vue' ? 'vue' : 'react'];
     }
 
-    return ['error' => response()->json(['status' => 'error', 'message' => 'Only .blade.php files and React files under resources/js can be modified.'], 422)];
+    return ['error' => response()->json(['status' => 'error', 'message' => 'Only .blade.php files and React/Vue files under resources/js can be modified.'], 422)];
 };
 
 Route::get('/dashboard', function () {
