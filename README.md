@@ -1,27 +1,34 @@
 # Lens for Laravel
 
-**A plug-and-play accessibility auditor for Laravel applications.**
+**A local-first accessibility auditor for Laravel applications.**
 
-Lens for Laravel dynamically scans your local application for WCAG compliance using [Axe-core](https://github.com/dequelabs/axe-core) and attempts to reverse-engineer failing CSS selectors back to the exact **Blade file and line number** causing the issue.
+Lens for Laravel scans your application with [axe-core](https://github.com/dequelabs/axe-core), renders JavaScript through [Spatie Browsershot](https://github.com/spatie/browsershot), maps violations back to source files, and can generate AI-assisted fixes for Blade, React, and Vue code.
 
-**[Documentation & full feature overview → lens.webcrafts.pl](https://lens.webcrafts.pl/)**
+**v2.0.0 focus:** Laravel teams using Blade, Livewire, Inertia, React, Vue, or mixed frontends.
+
+**[Documentation & full feature overview -> lens.webcrafts.pl](https://lens.webcrafts.pl/)**
 
 ---
 
 ## Features
 
-- **Zero frontend build step** — uses Alpine.js and Tailwind CSS via CDN; works immediately after installation
-- **Powered by Axe-core** — industry-standard accessibility testing engine covering WCAG 2.x rules
-- **Blade + React + Vue source locator** — maps compiled HTML violations back to `resources/views/**/*.blade.php` or frontend files under `resources/js`
-- **WCAG level filtering** — view issues by Level A, AA, AAA, or best-practice separately
-- **Whole-site crawler** — discovers pages via sitemap or link-crawling and scans up to a configurable limit
-- **Multi-URL scanning** — target specific pages in a single run
-- **AI-powered fix suggestions** — generates diff previews and applies fixes directly to Blade, React, and Vue source files (supports Gemini, OpenAI, Anthropic)
-- **IDE integration** — click any source location in the dashboard to open the file at the exact line in VSCode, Cursor, PhpStorm, or Sublime Text
-- **Element preview** — takes a screenshot of the page with the offending element highlighted
-- **PDF reports** — export full accessibility audit results as a formatted PDF
-- **Artisan command** — run audits from the CLI with `lens:audit`, with support for thresholds and CI integration
-- **Dark-mode dashboard** — clean developer-focused UI with direct links to WCAG and Deque rule documentation
+- **Axe-core scanning** - WCAG 2.x and best-practice checks through the industry-standard axe engine.
+- **JavaScript rendering** - scans the hydrated browser DOM through Browsershot/Chromium.
+- **Blade, React, and Vue source locator** - maps DOM violations back to `resources/views/**/*.blade.php` and frontend files under `resources/js`.
+- **Source type labels** - results include `sourceType` values: `blade`, `react`, or `vue`.
+- **Inertia-aware file discovery** - React/Vue pages under `resources/js/Pages/**` are included automatically.
+- **AI Fix assistant** - generates reviewable fixes and applies them to Blade, React, and Vue files.
+- **Diff preview before apply** - inspect AI changes before writing to disk.
+- **Whole-site crawler** - discovers pages from sitemaps and internal links.
+- **SPA crawler mode** - optionally renders JavaScript while crawling React/Vue/Inertia apps.
+- **Multi-URL scans** - scan selected URLs in a single dashboard or CLI run.
+- **Scan history** - stores scan runs, issue counts, affected URLs, source locations, and trend data.
+- **Scan comparison** - compare two historical scans to see new, fixed, and remaining issues.
+- **Element preview** - screenshot the page with the failing element highlighted.
+- **PDF reports** - export audit results as a PDF.
+- **CLI audits** - run `php artisan lens:audit` with WCAG filters, crawl mode, and CI thresholds.
+- **IDE links** - open source locations in VS Code, Cursor, PhpStorm, or Sublime Text.
+- **Developer dashboard** - zero build step dashboard using Alpine.js and Tailwind CSS via CDN.
 
 ---
 
@@ -31,146 +38,446 @@ Lens for Laravel dynamically scans your local application for WCAG compliance us
 |---|---|
 | PHP | ^8.2 |
 | Laravel | ^10.0 \| ^11.0 \| ^12.0 \| ^13.0 |
-| Node.js | any recent LTS |
-| Puppeteer | ^21 |
+| Node.js | Any recent LTS |
+| Puppeteer | ^21 recommended |
+| Chromium | Provided by Puppeteer or your environment |
 
-Lens for Laravel uses [Spatie Browsershot](https://github.com/spatie/browsershot) to render JavaScript and execute Axe-core, which requires a Chromium instance managed by Puppeteer.
-
-Install Puppeteer as a local dev dependency in your application:
+Lens uses Browsershot to control Chromium. Install Puppeteer in the host application:
 
 ```bash
 npm install puppeteer --save-dev
 ```
 
+If your environment requires a custom Chromium, Node, or npm path, configure Browsershot through your application environment as you normally would.
+
 ---
 
 ## Installation
 
-Install as a development-only Composer dependency:
+Install Lens as a development dependency:
 
 ```bash
 composer require webcrafts-studio/lens-for-laravel --dev
 ```
 
-The package auto-discovers and registers its service provider. No additional configuration is required to get started.
+The service provider is auto-discovered.
 
----
-
-## Usage
-
-### Dashboard
-
-Start your Laravel development server and navigate to:
-
-```
-http://your-app.test/lens-for-laravel/dashboard
-```
-
-Enter a URL from your local application and click **Scan Now**. Results are grouped by WCAG level and display the violation description, impacted element, estimated source file location, and links to relevant documentation.
-
-### Artisan Command
-
-Run accessibility audits directly from the terminal:
+Run migrations if you want scan history:
 
 ```bash
-# Audit the application root URL
-php artisan lens:audit
-
-# Audit specific pages
-php artisan lens:audit http://your-app.test/about http://your-app.test/contact
-
-# Crawl the entire site and audit all discovered pages
-php artisan lens:audit --crawl
-
-# Filter by WCAG level
-php artisan lens:audit --a      # Level A violations only
-php artisan lens:audit --aa     # Level A and AA violations
-php artisan lens:audit --all    # All levels including AAA and best-practice (default)
-
-# Fail the command (exit code 1) if violations exceed a threshold — useful in CI
-php artisan lens:audit --threshold=10
+php artisan migrate
 ```
 
----
-
-## Configuration
-
-Publish the configuration file to customise the package behaviour:
+Publish the config when you want to customize behavior:
 
 ```bash
 php artisan vendor:publish --tag="lens-for-laravel-config"
 ```
 
-This creates `config/lens-for-laravel.php`:
+Optionally publish package views:
 
-```php
-return [
-    // URL prefix for the dashboard routes
-    // Default: 'lens-for-laravel'
-    'route_prefix' => 'lens-for-laravel',
-
-    // Middleware applied to all dashboard routes
-    'middleware' => ['web'],
-
-    // Environments where the dashboard is accessible
-    // Add 'staging' here if you want to use it on a staging server
-    'enabled_environments' => ['local'],
-
-    // Editor opened when clicking a source location link
-    // Supported: 'vscode', 'cursor', 'phpstorm', 'sublime', 'none'
-    'editor' => env('LENS_FOR_LARAVEL_EDITOR', 'vscode'),
-
-    // Maximum number of pages to crawl in whole-site scan mode
-    'crawl_max_pages' => env('LENS_FOR_LARAVEL_CRAWL_MAX_PAGES', 50),
-
-    // Render JavaScript while crawling links (useful for SPA/Inertia)
-    'crawler_render_javascript' => env('LENS_FOR_LARAVEL_CRAWLER_RENDER_JAVASCRIPT', false),
-
-    // Extra delay after network-idle before running axe-core
-    'scan_wait_ms' => env('LENS_FOR_LARAVEL_SCAN_WAIT_MS', 0),
-
-    // AI provider used for generating code fix suggestions
-    // Supported: 'gemini', 'openai', 'anthropic'
-    'ai_provider' => env('LENS_FOR_LARAVEL_AI_PROVIDER', 'gemini'),
-];
+```bash
+php artisan vendor:publish --tag="lens-for-laravel-views"
 ```
 
 ---
 
-## AI Fix Suggestions
+## Quick Start
 
-The dashboard includes an AI-powered fix assistant. When a violation is expanded, you can request a suggested fix for the affected Blade, React, or Vue snippet. The assistant returns a unified diff that can be previewed and applied directly to the file with a single click.
+Start your Laravel app and open:
 
-Configure your preferred provider and API key in `.env`:
+```text
+http://your-app.test/lens-for-laravel/dashboard
+```
+
+Enter a URL from the same host as `APP_URL`, then run a scan. Results include:
+
+- WCAG level and impact
+- failing DOM snippet
+- CSS selector
+- source file, line number, and source type when located
+- Deque/WCAG documentation links
+- element preview screenshot
+- optional AI fix workflow
+
+---
+
+## Supported Frontends
+
+### Blade
+
+Blade support is the most direct path. Lens scans the rendered DOM and searches `resources/views/**/*.blade.php` for matching elements, IDs, names, classes, and selectors.
+
+AI Fix can modify located `.blade.php` files under `resources/views`.
+
+### Livewire
+
+Livewire works through the rendered DOM and Blade source locator. For delayed hydration or UI updates, use:
 
 ```env
-LENS_FOR_LARAVEL_AI_PROVIDER=gemini   # or openai, anthropic
-GEMINI_API_KEY=your-key-here
-# OPENAI_API_KEY=your-key-here
-# ANTHROPIC_API_KEY=your-key-here
+LENS_FOR_LARAVEL_SCAN_WAIT_MS=500
 ```
+
+Automated scans only inspect the current browser state after page load. Interactive states such as open modals, validation errors, dropdowns, and tabs still need targeted URLs or manual review.
+
+### React
+
+Lens locates React source files under:
+
+```text
+resources/js/**/*.js
+resources/js/**/*.jsx
+resources/js/**/*.ts
+resources/js/**/*.tsx
+```
+
+It supports common JSX/TSX patterns such as:
+
+- static attributes: `id="logo"`, `name="email"`
+- JSX expressions: `href={'/pricing'}`
+- `className`
+- selector variants like `primary-button`, `primaryButton`, and `PrimaryButton`
+- Inertia pages under `resources/js/Pages/**`
+
+AI Fix can modify supported React files under `resources/js`.
+
+### Vue
+
+Lens locates Vue single-file components under:
+
+```text
+resources/js/**/*.vue
+```
+
+It supports common Vue template patterns such as:
+
+- static attributes: `class="logo"`, `href="/pricing"`
+- bindings: `:href="'/pricing'"`, `v-bind:href="'/pricing'"`
+- class object keys: `:class="{ active: isActive }"`
+
+AI Fix can modify `.vue` files under `resources/js`.
+
+### Inertia
+
+Inertia React and Vue apps are supported through the React/Vue source locators. For route discovery in SPA-heavy apps, enable JavaScript crawling:
+
+```env
+LENS_FOR_LARAVEL_CRAWLER_RENDER_JAVASCRIPT=true
+```
+
+---
+
+## Dashboard
+
+The dashboard has two primary tabs.
+
+### Scanner
+
+Run scans in three modes:
+
+- single URL
+- multiple URLs
+- whole website crawl
+
+Each issue can be expanded to inspect the failing node, copy the selector, preview the element, open the source file in your editor, or request an AI fix.
+
+### History
+
+History stores scan runs and issue metadata in your database. It supports:
+
+- paginated scan history
+- trend chart for recent scans
+- scan details
+- deleting old scans
+- comparing two scans to identify new, fixed, and remaining issues
+
+---
+
+## Artisan Command
+
+Run audits from the terminal:
+
+```bash
+# Audit the app root URL
+php artisan lens:audit
+
+# Audit specific URLs
+php artisan lens:audit http://your-app.test/about http://your-app.test/contact
+
+# Crawl and audit discovered internal pages
+php artisan lens:audit --crawl
+
+# Level A violations only
+php artisan lens:audit --a
+
+# Level A and AA violations
+php artisan lens:audit --aa
+
+# All levels, including AAA and best-practice
+php artisan lens:audit --all
+
+# Fail with exit code 1 when violations exceed a threshold
+php artisan lens:audit --threshold=10
+```
+
+The CLI uses the same scanner, crawler, source locator, and source type metadata as the dashboard.
+
+---
+
+## Configuration
+
+Published config file:
+
+```php
+return [
+    'route_prefix' => 'lens-for-laravel',
+
+    'middleware' => ['web'],
+
+    'enabled_environments' => [
+        'local',
+    ],
+
+    'editor' => env('LENS_FOR_LARAVEL_EDITOR', 'vscode'),
+
+    'crawl_max_pages' => env('LENS_FOR_LARAVEL_CRAWL_MAX_PAGES', 50),
+
+    'crawler_render_javascript' => env('LENS_FOR_LARAVEL_CRAWLER_RENDER_JAVASCRIPT', false),
+
+    'scan_wait_ms' => env('LENS_FOR_LARAVEL_SCAN_WAIT_MS', 0),
+
+    'ai_provider' => env('LENS_FOR_LARAVEL_AI_PROVIDER', 'gemini'),
+];
+```
+
+### Environment Options
+
+```env
+LENS_FOR_LARAVEL_EDITOR=vscode
+LENS_FOR_LARAVEL_CRAWL_MAX_PAGES=50
+LENS_FOR_LARAVEL_CRAWLER_RENDER_JAVASCRIPT=false
+LENS_FOR_LARAVEL_SCAN_WAIT_MS=0
+LENS_FOR_LARAVEL_AI_PROVIDER=gemini
+```
+
+Supported editors:
+
+- `vscode`
+- `cursor`
+- `phpstorm`
+- `sublime`
+- `none`
+
+Supported AI providers:
+
+- `gemini`
+- `openai`
+- `anthropic`
+
+---
+
+## Crawling
+
+Whole-site scans discover URLs in this order:
+
+1. `sitemap.xml`
+2. `sitemap_index.xml`
+3. `sitemaps/sitemap.xml`
+4. internal `<a href>` links
+
+By default, crawling uses Laravel's HTTP client and parses the initial HTML. This is fast and works well for Blade, Livewire, and server-rendered pages.
+
+For SPA or Inertia apps where links are rendered after JavaScript hydration:
+
+```env
+LENS_FOR_LARAVEL_CRAWLER_RENDER_JAVASCRIPT=true
+```
+
+With that enabled, Lens attempts to render each crawled page in Chromium and collect links from the hydrated DOM. If browser crawling fails or finds no links, it falls back to the HTTP crawler.
+
+Limit the crawl size with:
+
+```env
+LENS_FOR_LARAVEL_CRAWL_MAX_PAGES=100
+```
+
+---
+
+## AI Fix
+
+The AI Fix workflow:
+
+1. Lens locates the source file and line.
+2. It reads a context window around the issue.
+3. It sends the issue, failing DOM snippet, WCAG tags, and source context to the configured AI provider.
+4. It returns an explanation and full replacement code block.
+5. The dashboard shows a diff preview.
+6. You can accept and apply the change.
+
+Configure provider credentials:
+
+```env
+LENS_FOR_LARAVEL_AI_PROVIDER=gemini
+GEMINI_API_KEY=your-key-here
+
+# or
+LENS_FOR_LARAVEL_AI_PROVIDER=openai
+OPENAI_API_KEY=your-key-here
+
+# or
+LENS_FOR_LARAVEL_AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=your-key-here
+```
+
+Supported writable files:
+
+- `resources/views/**/*.blade.php`
+- `resources/js/**/*.js`
+- `resources/js/**/*.jsx`
+- `resources/js/**/*.ts`
+- `resources/js/**/*.tsx`
+- `resources/js/**/*.vue`
+
+AI Fix does not write outside those paths.
+
+---
+
+## IDE Integration
+
+When a source location is found, click it in the dashboard to open your editor at the exact line.
+
+```env
+LENS_FOR_LARAVEL_EDITOR=vscode
+```
+
+Use `none` to disable editor links:
+
+```env
+LENS_FOR_LARAVEL_EDITOR=none
+```
+
+---
+
+## Scan Output
+
+Each issue includes fields like:
+
+```json
+{
+  "id": "image-alt",
+  "impact": "critical",
+  "description": "Images must have alternate text",
+  "helpUrl": "https://dequeuniversity.com/rules/axe/...",
+  "htmlSnippet": "<img class=\"logo\" src=\"/logo.png\">",
+  "selector": ".logo",
+  "tags": ["wcag2a"],
+  "url": "http://your-app.test",
+  "fileName": "js/Components/Logo.vue",
+  "lineNumber": 12,
+  "sourceType": "vue"
+}
+```
+
+`sourceType` can be:
+
+- `blade`
+- `react`
+- `vue`
+- `null` when no source location is found
 
 ---
 
 ## Security
 
-The dashboard enforces the following protections:
+Lens is intended for local and controlled development environments.
 
-- **Environment restriction** — only available in environments listed in `enabled_environments` (default: `local`)
-- **Domain restriction** — the scan endpoint only accepts URLs on the same host as `APP_URL`; scanning external domains is blocked
-- **Path traversal prevention** — the fix-apply endpoint restricts file writes to Blade files in `resources/views` and React/Vue files in `resources/js`
+Built-in protections:
+
+- Dashboard access is restricted by `enabled_environments`.
+- Scan URLs must use HTTP or HTTPS.
+- Scan URLs must match the host configured in `APP_URL`.
+- External domain scanning is blocked.
+- AI Fix apply rejects path traversal.
+- AI Fix writes only to supported Blade/React/Vue source paths.
+- AI Fix blocks generated code containing server-side execution functions such as `shell_exec`, `system`, `exec`, `passthru`, `proc_open`, `popen`, and `eval`.
+- AI Fix blocks newly introduced raw PHP open tags unless they were already present in the original code block.
+- Fix writes use `LOCK_EX`.
+- Scan, crawl, preview, fix, history, and report endpoints use throttling where appropriate.
+
+Recommended production posture:
+
+```php
+'enabled_environments' => ['local'],
+```
+
+If you enable Lens on staging, protect the route with authentication middleware:
+
+```php
+'middleware' => ['web', 'auth'],
+```
 
 ---
 
-## Disclaimer
+## Known Limitations
 
-Automated accessibility testing with Axe-core typically detects **20–30% of total WCAG violations**. Passing a scan in Lens for Laravel does not constitute full accessibility compliance and does not guarantee conformance with the ADA, Section 508, or the European Accessibility Act.
+Automated accessibility testing cannot prove full compliance. Axe-core usually detects only a portion of WCAG issues.
 
-Always complement automated testing with:
+Source location is heuristic. Lens can locate many common Blade, React, Vue, and Inertia patterns, but it may miss or misidentify:
 
-- Manual keyboard navigation testing
-- Screen reader testing (NVDA, JAWS, VoiceOver)
-- Cognitive and usability walkthroughs
+- deeply abstracted components
+- custom components that render HTML internally, such as `<LogoImage />`
+- dynamic class builders with no literal class or recognizable variant
+- CSS module keys that do not resemble the final generated class
+- runtime-generated attributes
+- elements rendered only after user interaction
+
+For interactive states, run targeted scans after exposing the state, add dedicated URLs, or combine Lens with manual QA.
+
+Always complement Lens with:
+
+- keyboard navigation testing
+- screen reader testing with NVDA, JAWS, or VoiceOver
+- manual form validation checks
+- modal, menu, dropdown, accordion, and tab interaction checks
+- cognitive and usability review
+
+---
+
+## Upgrade Notes for v2.0.0
+
+Version 2 adds major frontend support and persistence features:
+
+- React source locating and AI Fix
+- Vue source locating and AI Fix
+- Inertia-friendly source discovery
+- `sourceType` metadata
+- scan history tables
+- scan comparison
+- SPA crawler option
+- scan wait option
+
+After upgrading:
+
+```bash
+php artisan migrate
+php artisan vendor:publish --tag="lens-for-laravel-config"
+```
+
+If you already published the config, manually add:
+
+```php
+'crawler_render_javascript' => env('LENS_FOR_LARAVEL_CRAWLER_RENDER_JAVASCRIPT', false),
+'scan_wait_ms' => env('LENS_FOR_LARAVEL_SCAN_WAIT_MS', 0),
+```
+
+---
+
+## Testing This Package
+
+```bash
+vendor/bin/pint --dirty
+vendor/bin/pest
+```
 
 ---
 
