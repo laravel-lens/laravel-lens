@@ -311,6 +311,9 @@
                 @if(!empty($issue['url']))
                     <div class="page-url-label">{{ $issue['url'] }}</div>
                 @endif
+                @if(!empty($issue['stateLabel']))
+                    <div class="page-url-label">State: {{ $issue['stateLabel'] }}</div>
+                @endif
             </div>
         </div>
 

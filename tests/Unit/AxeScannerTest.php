@@ -9,6 +9,10 @@ class FakeBrowsershotForAxeScannerTest extends Browsershot
 
     public bool $delayWasSet = false;
 
+    public string $evaluateResponse = '[]';
+
+    public ?string $lastScript = null;
+
     public function noSandbox(): static
     {
         return $this;
@@ -35,7 +39,9 @@ class FakeBrowsershotForAxeScannerTest extends Browsershot
 
     public function evaluate(string $pageFunction): string
     {
-        return '[]';
+        $this->lastScript = $pageFunction;
+
+        return $this->evaluateResponse;
     }
 }
 
@@ -75,4 +81,50 @@ test('scanner keeps https errors strict by default', function () {
     $scanner->scan('https://example.com');
 
     expect($fakeBrowsershot->ignoreHttpsErrorsCalled)->toBeFalse();
+});
+
+test('interactive scanner maps state labels onto violations', function () {
+    $fakeBrowsershot = new FakeBrowsershotForAxeScannerTest;
+    $fakeBrowsershot->evaluateResponse = json_encode([
+        'states' => [
+            [
+                'label' => 'Modal open',
+                'violations' => [
+                    [
+                        'id' => 'button-name',
+                        'impact' => 'critical',
+                        'description' => 'Buttons must have discernible text',
+                        'helpUrl' => 'https://example.com/rule',
+                        'tags' => ['wcag2a'],
+                        'nodes' => [
+                            [
+                                'html' => '<button></button>',
+                                'target' => ['button.close'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ]);
+
+    $scanner = new class($fakeBrowsershot) extends AxeScanner
+    {
+        public function __construct(private readonly Browsershot $fakeBrowsershot) {}
+
+        protected function browsershotForUrl(string $url): Browsershot
+        {
+            return $this->fakeBrowsershot;
+        }
+    };
+
+    $issues = $scanner->scanInteractiveStates('https://example.com', [
+        ['label' => 'Modal open', 'actions' => [['type' => 'click', 'selector' => '#open']]],
+    ]);
+
+    expect($issues)->toHaveCount(1)
+        ->and($issues->first()->id)->toBe('button-name')
+        ->and($issues->first()->selector)->toBe('button.close')
+        ->and($issues->first()->stateLabel)->toBe('Modal open')
+        ->and($fakeBrowsershot->lastScript)->toContain('const states =');
 });

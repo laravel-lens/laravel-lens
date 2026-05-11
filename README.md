@@ -22,6 +22,7 @@ Lens for Laravel scans your application with [axe-core](https://github.com/deque
 - **Whole-site crawler** - discovers pages from sitemaps and internal links.
 - **SPA crawler mode** - optionally renders JavaScript while crawling React/Vue/Inertia apps.
 - **Multi-URL scans** - scan selected URLs in a single dashboard or CLI run.
+- **Interactive state scans** - execute clicks, waits, typing, select changes, and checkbox states before scanning.
 - **Local HTTPS support** - optionally ignore self-signed certificate errors in local environments.
 - **Scan history** - stores scan runs, issue counts, affected URLs, source locations, and trend data.
 - **Scan comparison** - compare two historical scans to see new, fixed, and remaining issues.
@@ -175,13 +176,28 @@ The dashboard has two primary tabs.
 
 ### Scanner
 
-Run scans in three modes:
+Run scans in four modes:
 
 - single URL
 - multiple URLs
 - whole website crawl
+- interactive states
 
 Each issue can be expanded to inspect the failing node, copy the selector, preview the element, open the source file in your editor, or request an AI fix.
+
+Interactive state scans use a small line-based script:
+
+```text
+state: Navigation open
+click: [data-menu-button]
+
+state: Form validation
+type: input[name="email"] => invalid@example.test
+click: button[type="submit"]
+wait: 300
+```
+
+Supported actions are `click`, `type`, `select`, `check`, `uncheck`, and `wait`.
 
 ### History
 

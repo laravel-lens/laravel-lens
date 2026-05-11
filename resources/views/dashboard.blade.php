@@ -65,23 +65,23 @@
 </head>
 
 <body
-    class="bg-white text-black dark:bg-black dark:text-neutral-200 font-sans antialiased min-h-screen flex flex-col border-t-[4px] border-t-[#E11D48]"
+    class="bg-white text-black dark:bg-black dark:text-neutral-200 font-sans antialiased min-h-screen flex flex-col border-t-[4px] border-t-[#E11D48] overflow-x-hidden"
     x-data="scanner()">
 
     <div
-        class="flex-1 flex flex-col selection:bg-[#E11D48] selection:text-white dark:selection:bg-[#E11D48] dark:selection:text-white relative">
+        class="flex-1 flex flex-col selection:bg-[#E11D48] selection:text-white dark:selection:bg-[#E11D48] dark:selection:text-white relative min-w-0">
         <!-- Header -->
         <header class="border-b border-black dark:border-neutral-700 bg-white dark:bg-black sticky top-0 z-30">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-3 min-w-0">
                 <div class="flex items-center gap-3">
                     <!-- Lens For Laravel logomark -->
 
-                    <h1 class="font-sans font-bold text-xl tracking-tight whitespace-nowrap">
+                    <h1 class="font-sans font-bold text-base sm:text-xl tracking-tight whitespace-nowrap">
                         <span class="text-black dark:text-white">Lens for</span><span class="text-[#E11D48]">
                             Laravel</span>
                     </h1>
                 </div>
-                <div class="flex items-center gap-6 font-mono text-sm">
+                <div class="flex items-center gap-2 sm:gap-6 font-mono text-xs sm:text-sm shrink-0">
                     <button @click="activeTab = 'scanner'"
                         class="uppercase tracking-widest px-2 py-1 transition-colors"
                         :class="activeTab === 'scanner' ? 'text-[#E11D48] font-bold border-b-2 border-[#E11D48]' : 'text-neutral-500 hover:text-black dark:hover:text-white'">SCANNER</button>
@@ -110,7 +110,7 @@
 
         <!-- Main Content -->
         <main class="flex-1 py-12 px-4 sm:px-6 lg:px-8">
-            <div class="max-w-5xl mx-auto space-y-12">
+            <div class="w-full max-w-5xl mx-auto space-y-12 min-w-0">
 
                 <!-- ═══ SCANNER TAB ═══ -->
                 <div x-show="activeTab === 'scanner'" class="space-y-12">
@@ -118,8 +118,8 @@
                 <!-- Hero Section & Controls -->
                 <div class="relative">
                     <div
-                        class="bg-white dark:bg-black border border-black dark:border-neutral-700 p-8 sm:p-10 relative z-10">
-                        <div class="max-w-2xl relative z-10">
+                        class="w-full min-w-0 bg-white dark:bg-black border border-black dark:border-neutral-700 p-8 sm:p-10 relative z-10">
+                        <div class="max-w-2xl min-w-0 relative z-10">
                             <h2
                                 class="text-2xl font-mono font-bold uppercase tracking-widest border-b border-black dark:border-neutral-700 pb-4 mb-4">
                                 Target Designation</h2>
@@ -140,45 +140,52 @@
 
                         <form @submit.prevent="performScan" class="mt-8 space-y-4 relative z-10">
                             <!-- Mode Toggle -->
-                            <div class="flex items-center gap-4 font-mono text-xs mb-4">
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 font-mono text-xs mb-4">
                                 <button type="button" @click="scanMode = 'single'"
-                                    class="px-3 py-1 border transition-colors"
+                                    class="min-w-0 px-3 py-2 border transition-colors text-center"
                                     :class="scanMode === 'single' ?
                                         'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white' :
                                         'border-neutral-300 dark:border-neutral-600 text-neutral-500 hover:border-neutral-500 dark:hover:border-neutral-400 hover:text-black dark:hover:text-neutral-200'">
                                     SINGLE_URL
                                 </button>
                                 <button type="button" @click="scanMode = 'website'"
-                                    class="px-3 py-1 border transition-colors"
+                                    class="min-w-0 px-3 py-2 border transition-colors text-center"
                                     :class="scanMode === 'website' ?
                                         'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white' :
                                         'border-neutral-300 dark:border-neutral-600 text-neutral-500 hover:border-neutral-500 dark:hover:border-neutral-400 hover:text-black dark:hover:text-neutral-200'">
                                     WHOLE_WEBSITE
                                 </button>
                                 <button type="button" @click="scanMode = 'multiple'"
-                                    class="px-3 py-1 border transition-colors"
+                                    class="min-w-0 px-3 py-2 border transition-colors text-center"
                                     :class="scanMode === 'multiple' ?
                                         'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white' :
                                         'border-neutral-300 dark:border-neutral-600 text-neutral-500 hover:border-neutral-500 dark:hover:border-neutral-400 hover:text-black dark:hover:text-neutral-200'">
                                     MULTIPLE_URLS
                                 </button>
+                                <button type="button" @click="scanMode = 'states'"
+                                    class="min-w-0 px-3 py-2 border transition-colors text-center"
+                                    :class="scanMode === 'states' ?
+                                        'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white' :
+                                        'border-neutral-300 dark:border-neutral-600 text-neutral-500 hover:border-neutral-500 dark:hover:border-neutral-400 hover:text-black dark:hover:text-neutral-200'">
+                                    STATES
+                                </button>
                             </div>
 
                             <div
-                                class="flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900">
+                                class="flex flex-col sm:flex-row gap-0 border border-black dark:border-neutral-700 p-1 bg-neutral-50 dark:bg-neutral-900 min-w-0">
                                 <label for="target-url" class="sr-only">Target URL to scan</label>
-                                <div class="relative flex-grow">
+                                <div class="relative flex-grow min-w-0">
                                     <div class="pointer-events-none absolute inset-y-0 left-0 flex"
                                         :class="scanMode === 'multiple' ? 'items-start pt-3 pl-3' : 'items-center pl-3'">
                                         <span class="font-mono text-[#E11D48] font-bold" aria-hidden="true">></span>
                                     </div>
                                     <input type="url" id="target-url" x-model="url"
                                         x-show="scanMode !== 'multiple'" :required="scanMode !== 'multiple'"
-                                        class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] dark:focus:ring-[#E11D48] sm:text-sm sm:leading-6 font-mono bg-white outline-none"
+                                        class="block w-full min-w-0 rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] dark:focus:ring-[#E11D48] sm:text-sm sm:leading-6 font-mono bg-white outline-none"
                                         placeholder="http://localhost">
                                     <textarea id="target-urls" x-model="urlsText" x-show="scanMode === 'multiple'" :required="scanMode === 'multiple'"
                                         rows="4"
-                                        class="block w-full rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] sm:text-sm font-mono bg-white outline-none resize-none"
+                                        class="block w-full min-w-0 rounded-none border-0 py-3 pl-8 pr-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-600 dark:placeholder:text-neutral-400 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] sm:text-sm font-mono bg-white outline-none resize-none"
                                         placeholder="https://example.com/page-1&#10;https://example.com/page-2&#10;https://example.com/about" x-cloak></textarea>
                                 </div>
                                 <button type="submit" :disabled="isLoading"
@@ -189,10 +196,21 @@
                                     </span>
                                 </button>
                             </div>
+                            <div x-show="scanMode === 'states'" x-cloak
+                                class="border border-black dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 p-1 min-w-0">
+                                <label for="interaction-script"
+                                    class="block px-3 pt-3 pb-2 text-[10px] font-mono font-bold uppercase tracking-widest text-neutral-600 dark:text-neutral-300">
+                                    INTERACTION_SCRIPT
+                                </label>
+                                <textarea id="interaction-script" x-model="statesScript" :required="scanMode === 'states'"
+                                    rows="8"
+                                    class="block w-full min-w-0 rounded-none border-0 py-3 px-4 text-black dark:text-white dark:bg-black ring-1 ring-inset ring-black dark:ring-neutral-700 placeholder:text-neutral-500 dark:placeholder:text-neutral-500 focus:ring-2 focus:ring-inset focus:ring-[#E11D48] sm:text-sm font-mono bg-white outline-none resize-y min-h-52"
+                                    placeholder="state: Navigation open&#10;click: [data-menu-button]&#10;&#10;state: Form validation&#10;click: button[type=submit]&#10;wait: 300"></textarea>
+                            </div>
                         </form>
 
                         <!-- Progress Bar -->
-                        <div x-show="isLoading && (scanMode === 'website' || scanMode === 'multiple')" x-cloak
+                        <div x-show="isLoading && (scanMode === 'website' || scanMode === 'multiple' || scanMode === 'states')" x-cloak
                             class="mt-6 space-y-2">
                             <div
                                 class="flex justify-between text-[10px] font-mono uppercase tracking-widest text-neutral-500">
@@ -378,6 +396,11 @@
                                                     <span
                                                         class="text-[10px] font-mono border border-black/10 dark:border-white/10 px-1.5 py-0.5 bg-neutral-50 dark:bg-neutral-900 text-neutral-500"
                                                         x-text="new URL(issue.url).pathname"></span>
+                                                </template>
+                                                <template x-if="issue.stateLabel">
+                                                    <span
+                                                        class="text-[10px] font-mono border border-[#E11D48]/40 px-1.5 py-0.5 bg-[#E11D48]/10 text-[#E11D48] uppercase tracking-widest"
+                                                        x-text="issue.stateLabel"></span>
                                                 </template>
                                                 <!-- Preview Button -->
                                                 <button @click="loadPreview(issue)"
@@ -568,6 +591,11 @@
                                             :class="getBadgeColor(issue.impact, issue.tags)"
                                             x-text="issue.tags && issue.tags.includes('wcag2a') ? '[WCAG A]' : (issue.tags && issue.tags.includes('wcag2aa') ? '[WCAG AA]' : (issue.tags && issue.tags.includes('wcag2aaa') ? '[WCAG AAA]' : '[OTHER]'))"></span>
                                         <span class="text-sm font-mono font-bold tracking-widest text-neutral-700 dark:text-neutral-300" x-text="issue.rule_id"></span>
+                                        <template x-if="issue.state_label">
+                                            <span
+                                                class="text-[10px] font-mono border border-[#E11D48]/40 px-1.5 py-0.5 bg-[#E11D48]/10 text-[#E11D48] uppercase tracking-widest"
+                                                x-text="issue.state_label"></span>
+                                        </template>
                                     </div>
                                     <p class="text-sm text-black dark:text-white" x-text="issue.description"></p>
                                     <div x-show="issue.html_snippet" class="mt-2 bg-neutral-100 dark:bg-neutral-900 border-l-4 border-black dark:border-neutral-500 p-3 overflow-x-auto">
@@ -611,6 +639,7 @@
                                 <div class="px-6 py-3 flex items-center gap-3 bg-green-50 dark:bg-green-900/10">
                                     <span class="text-xs font-mono font-bold text-green-600 dark:text-green-400 shrink-0">FIXED</span>
                                     <span class="text-sm font-mono text-black dark:text-white" x-text="issue.rule_id"></span>
+                                    <span x-show="issue.state_label" x-cloak class="text-[10px] font-mono text-[#E11D48] uppercase tracking-widest" x-text="issue.state_label"></span>
                                     <span class="text-xs font-mono text-neutral-500 truncate" x-text="issue.selector"></span>
                                 </div>
                             </template>
@@ -619,6 +648,7 @@
                                 <div class="px-6 py-3 flex items-center gap-3 bg-red-50 dark:bg-red-900/10">
                                     <span class="text-xs font-mono font-bold text-[#E11D48] shrink-0">NEW</span>
                                     <span class="text-sm font-mono text-black dark:text-white" x-text="issue.rule_id"></span>
+                                    <span x-show="issue.state_label" x-cloak class="text-[10px] font-mono text-[#E11D48] uppercase tracking-widest" x-text="issue.state_label"></span>
                                     <span class="text-xs font-mono text-neutral-500 truncate" x-text="issue.selector"></span>
                                 </div>
                             </template>
@@ -627,6 +657,7 @@
                                 <div class="px-6 py-3 flex items-center gap-3">
                                     <span class="text-xs font-mono font-bold text-neutral-400 shrink-0">SAME</span>
                                     <span class="text-sm font-mono text-black dark:text-white" x-text="issue.rule_id"></span>
+                                    <span x-show="issue.state_label" x-cloak class="text-[10px] font-mono text-[#E11D48] uppercase tracking-widest" x-text="issue.state_label"></span>
                                     <span class="text-xs font-mono text-neutral-500 truncate" x-text="issue.selector"></span>
                                 </div>
                             </template>
@@ -862,8 +893,9 @@
                 activeFilter: null,
 
                 // Scan Mode & Progress
-                scanMode: 'single', // 'single' | 'website' | 'multiple'
+                scanMode: 'single', // 'single' | 'website' | 'multiple' | 'states'
                 urlsText: '', // textarea content for multiple mode, one URL per line
+                statesScript: '',
                 progressStatus: 'Initializing...',
                 progressPercent: 0,
 
@@ -1176,6 +1208,14 @@
                             }
                             this.progressPercent = 100;
                             this.progressStatus = 'Scan complete.';
+                        } else if (this.scanMode === 'states') {
+                            if (!this.statesScript.trim()) throw new Error('No interaction states provided.');
+
+                            this.progressStatus = 'Executing states...';
+                            this.progressPercent = 25;
+                            await this.scanInteractiveStates(this.url, token);
+                            this.progressPercent = 100;
+                            this.progressStatus = 'State scan complete.';
                         }
 
                         this.hasResults = true;
@@ -1185,6 +1225,29 @@
                     } finally {
                         this.isLoading = false;
                     }
+                },
+
+                async scanInteractiveStates(targetUrl, token) {
+                    const response = await fetch('{{ route('lens-for-laravel.scan.states') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token
+                        },
+                        body: JSON.stringify({
+                            url: targetUrl,
+                            script: this.statesScript
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || 'An error occurred during state scanning.');
+                    }
+
+                    this.issues = data.issues || [];
                 },
 
                 async scanSingleUrl(targetUrl, token, append = false) {
@@ -1359,6 +1422,7 @@
                                     selector: i.selector,
                                     tags: i.tags,
                                     url: i.url,
+                                    stateLabel: i.stateLabel,
                                     fileName: i.fileName,
                                     lineNumber: i.lineNumber,
                                     sourceType: i.sourceType,

@@ -21,6 +21,8 @@ class TestCase extends OrchestraTestCase
         $app['config']->set('lens-for-laravel.middleware', ['web']);
         $app['config']->set('lens-for-laravel.crawl_max_pages', 5);
         $app['config']->set('lens-for-laravel.editor', 'vscode');
+        $app['config']->set('cache.default', 'array');
+        $app['config']->set('session.driver', 'array');
 
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [

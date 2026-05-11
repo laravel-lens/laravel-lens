@@ -70,9 +70,163 @@ JS;
         }
     }
 
+    /**
+     * Scan named interactive states after executing browser actions.
+     *
+     * @param  array<int, array{label: string, actions: array<int, array<string, mixed>>}>  $states
+     * @return Collection<Issue>
+     *
+     * @throws ScannerException
+     */
+    public function scanInteractiveStates(string $url, array $states): Collection
+    {
+        try {
+            $browsershot = $this->browsershotForUrl($url)
+                ->noSandbox()
+                ->waitUntilNetworkIdle();
+
+            $scanWaitMs = (int) config('lens-for-laravel.scan_wait_ms', 0);
+            if ($scanWaitMs > 0) {
+                $browsershot->setDelay($scanWaitMs);
+            }
+
+            $ignoreHttpsErrors = config('lens-for-laravel.ignore_https_errors', false);
+            if ($ignoreHttpsErrors) {
+                $browsershot->ignoreHttpsErrors();
+            }
+
+            $statesJson = json_encode($states, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+            $script = $this->interactiveScanScript($statesJson);
+            $payload = json_decode($browsershot->evaluate($script), true);
+
+            $issues = collect();
+            foreach (($payload['states'] ?? []) as $stateResult) {
+                $stateIssues = $this->mapViolationsToIssues(
+                    is_array($stateResult['violations'] ?? null) ? $stateResult['violations'] : [],
+                    $url
+                );
+
+                $stateIssues->each(function (Issue $issue) use ($stateResult) {
+                    $issue->stateLabel = $stateResult['label'] ?? null;
+                });
+
+                $issues = $issues->merge($stateIssues);
+            }
+
+            return $issues;
+        } catch (Throwable $e) {
+            throw new ScannerException('Failed to run interactive Axe-core scan: '.$e->getMessage(), 0, $e);
+        }
+    }
+
     protected function browsershotForUrl(string $url): Browsershot
     {
         return Browsershot::url($url);
+    }
+
+    protected function interactiveScanScript(string $statesJson): string
+    {
+        return <<<JS
+            (async () => {
+                const states = {$statesJson};
+                const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+                async function ensureAxe() {
+                    if (typeof window.axe !== 'undefined') return;
+
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.8.2/axe.min.js';
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+
+                async function runAxe() {
+                    await ensureAxe();
+                    const results = await window.axe.run({
+                        runOnly: {
+                            type: 'tag',
+                            values: ['wcag2a', 'wcag2aa', 'wcag2aaa', 'best-practice']
+                        }
+                    });
+
+                    return results.violations;
+                }
+
+                function dispatch(el, eventName) {
+                    el.dispatchEvent(new Event(eventName, { bubbles: true }));
+                }
+
+                async function runAction(action) {
+                    if (action.type === 'wait') {
+                        await wait(action.ms);
+                        return;
+                    }
+
+                    const el = document.querySelector(action.selector);
+                    if (!el) {
+                        throw new Error(`Selector not found: \${action.selector}`);
+                    }
+
+                    el.scrollIntoView({ block: 'center', inline: 'nearest' });
+                    await wait(50);
+
+                    if (action.type === 'click') {
+                        el.click();
+                        await wait(150);
+                        return;
+                    }
+
+                    if (action.type === 'type') {
+                        el.focus();
+                        el.value = action.value;
+                        dispatch(el, 'input');
+                        dispatch(el, 'change');
+                        await wait(100);
+                        return;
+                    }
+
+                    if (action.type === 'select') {
+                        el.value = action.value;
+                        dispatch(el, 'input');
+                        dispatch(el, 'change');
+                        await wait(100);
+                        return;
+                    }
+
+                    if (action.type === 'check' || action.type === 'uncheck') {
+                        el.checked = action.type === 'check';
+                        dispatch(el, 'input');
+                        dispatch(el, 'change');
+                        await wait(100);
+                        return;
+                    }
+
+                    throw new Error(`Unsupported action: \${action.type}`);
+                }
+
+                const results = [];
+
+                for (const state of states) {
+                    for (const action of state.actions || []) {
+                        try {
+                            await runAction(action);
+                        } catch (error) {
+                            throw new Error(`[\${state.label}] \${error.message || String(error)}`);
+                        }
+                    }
+
+                    results.push({
+                        label: state.label,
+                        violations: await runAxe()
+                    });
+                }
+
+                return JSON.stringify({ states: results });
+            })();
+JS;
     }
 
     /**

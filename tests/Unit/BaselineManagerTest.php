@@ -63,3 +63,12 @@ test('default baseline path resolves relative config paths from the application 
     expect((new BaselineManager)->defaultPath())
         ->toBe(base_path('storage/app/custom-lens-baseline.json'));
 });
+
+test('baseline fingerprints include interactive state labels', function () {
+    $manager = new BaselineManager;
+
+    $menu = new Issue('button-name', 'critical', 'desc', 'url', '<button></button>', 'button', ['wcag2a'], 'https://example.com', stateLabel: 'Menu open');
+    $modal = new Issue('button-name', 'critical', 'desc', 'url', '<button></button>', 'button', ['wcag2a'], 'https://example.com', stateLabel: 'Modal open');
+
+    expect($manager->fingerprint($menu))->not->toBe($manager->fingerprint($modal));
+});

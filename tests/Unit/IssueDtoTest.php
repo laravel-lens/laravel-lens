@@ -24,7 +24,8 @@ test('stores all constructor properties', function () {
         ->and($issue->url)->toBe('https://example.com')
         ->and($issue->fileName)->toBeNull()
         ->and($issue->lineNumber)->toBeNull()
-        ->and($issue->sourceType)->toBeNull();
+        ->and($issue->sourceType)->toBeNull()
+        ->and($issue->stateLabel)->toBeNull();
 });
 
 test('optional parameters default to correct values', function () {
@@ -41,7 +42,8 @@ test('optional parameters default to correct values', function () {
         ->and($issue->url)->toBeNull()
         ->and($issue->fileName)->toBeNull()
         ->and($issue->lineNumber)->toBeNull()
-        ->and($issue->sourceType)->toBeNull();
+        ->and($issue->sourceType)->toBeNull()
+        ->and($issue->stateLabel)->toBeNull();
 });
 
 test('file location can be assigned after construction', function () {

@@ -15,6 +15,7 @@ class Issue
         public ?string $url = null,
         public ?string $fileName = null,
         public ?int $lineNumber = null,
-        public ?string $sourceType = null
+        public ?string $sourceType = null,
+        public ?string $stateLabel = null
     ) {}
 }

@@ -19,6 +19,7 @@ function createScanPayload(array $overrides = []): array
                 'selector' => 'p',
                 'tags' => ['wcag2aa'],
                 'url' => 'http://localhost',
+                'stateLabel' => 'Initial page',
                 'fileName' => 'welcome.blade.php',
                 'lineNumber' => 10,
                 'sourceType' => 'blade',
@@ -52,6 +53,7 @@ test('store creates scan with issues', function () {
     expect(Scan::count())->toBe(1);
     expect(ScanIssue::count())->toBe(2);
     expect(ScanIssue::first()->source_type)->toBe('blade');
+    expect(ScanIssue::first()->state_label)->toBe('Initial page');
 });
 
 test('store validates required fields', function () {
@@ -67,6 +69,15 @@ test('store validates scanMode enum', function () {
     $this->postJson(route('lens-for-laravel.history.store'), $payload)
         ->assertStatus(422)
         ->assertJsonValidationErrors(['scanMode']);
+});
+
+test('store accepts interactive states scan mode', function () {
+    $response = $this->postJson(route('lens-for-laravel.history.store'), createScanPayload([
+        'scanMode' => 'states',
+    ]));
+
+    $response->assertStatus(201)
+        ->assertJsonPath('scan.scan_mode', 'states');
 });
 
 test('store validates issues max count', function () {
@@ -234,6 +245,46 @@ test('compare returns new, fixed, and remaining issues', function () {
     // image-alt is remaining (in both)
     expect($data['remaining'])->toHaveCount(1);
     expect($data['remaining'][0]['rule_id'])->toBe('image-alt');
+});
+
+test('compare treats the same selector in different interactive states as separate issues', function () {
+    $this->postJson(route('lens-for-laravel.history.store'), createScanPayload([
+        'scanMode' => 'states',
+        'issues' => [
+            [
+                'id' => 'button-name',
+                'impact' => 'critical',
+                'description' => 'Buttons must have discernible text',
+                'selector' => 'button',
+                'tags' => ['wcag2a'],
+                'stateLabel' => 'Menu open',
+            ],
+        ],
+    ]));
+    $baseScan = Scan::first();
+
+    $this->postJson(route('lens-for-laravel.history.store'), createScanPayload([
+        'scanMode' => 'states',
+        'issues' => [
+            [
+                'id' => 'button-name',
+                'impact' => 'critical',
+                'description' => 'Buttons must have discernible text',
+                'selector' => 'button',
+                'tags' => ['wcag2a'],
+                'stateLabel' => 'Modal open',
+            ],
+        ],
+    ]));
+    $compareScan = Scan::orderBy('id', 'desc')->first();
+
+    $data = $this->getJson(route('lens-for-laravel.history.compare', [$baseScan->id, $compareScan->id]))
+        ->assertOk()
+        ->json();
+
+    expect($data['new'])->toHaveCount(1)
+        ->and($data['fixed'])->toHaveCount(1)
+        ->and($data['remaining'])->toHaveCount(0);
 });
 
 test('compare returns 404 for missing scan', function () {

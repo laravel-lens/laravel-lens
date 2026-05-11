@@ -21,6 +21,7 @@ class ScanIssue extends Model
         'selector',
         'tags',
         'url',
+        'state_label',
         'file_name',
         'line_number',
         'source_type',

@@ -19,3 +19,13 @@ test('dashboard renders the main blade view', function () {
     $response->assertStatus(200)
         ->assertSee('Lens For Laravel');
 });
+
+test('dashboard renders interactive state scan controls', function () {
+    $response = $this->get(route('lens-for-laravel.dashboard'));
+
+    $response->assertStatus(200)
+        ->assertSee('STATES')
+        ->assertSee('INTERACTION_SCRIPT')
+        ->assertSee('scanInteractiveStates', false)
+        ->assertSee(route('lens-for-laravel.scan.states'), false);
+});

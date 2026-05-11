@@ -133,6 +133,7 @@ class BaselineManager
             'rule_id' => $issue->id,
             'impact' => $issue->impact,
             'url' => $this->normalizeUrl($issue->url),
+            'state_label' => $issue->stateLabel,
             'selector' => trim($issue->selector),
             'file_name' => $issue->fileName,
             'line_number' => $issue->lineNumber,
@@ -145,6 +146,7 @@ class BaselineManager
         return [
             'rule_id' => $issue->id,
             'url' => $this->normalizeUrl($issue->url),
+            'state_label' => $issue->stateLabel,
             'selector' => trim($issue->selector),
             'file_name' => $issue->fileName,
             'source_type' => $issue->sourceType,

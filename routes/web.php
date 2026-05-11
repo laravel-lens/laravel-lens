@@ -8,6 +8,7 @@ use LensForLaravel\LensForLaravel\Models\Scan;
 use LensForLaravel\LensForLaravel\Services\AiFixer;
 use LensForLaravel\LensForLaravel\Services\AxeScanner;
 use LensForLaravel\LensForLaravel\Services\FileLocator;
+use LensForLaravel\LensForLaravel\Services\InteractionScriptParser;
 use LensForLaravel\LensForLaravel\Services\SiteCrawler;
 use Spatie\Browsershot\Browsershot;
 
@@ -138,6 +139,54 @@ Route::post('/scan', function (Request $request) use ($domainRule) {
         ], 500);
     }
 })->name('lens-for-laravel.scan')->middleware('throttle:10,1');
+
+Route::post('/scan/states', function (Request $request) use ($domainRule) {
+    if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
+        abort(403, 'Lens For Laravel is not allowed in this environment.');
+    }
+
+    $validated = $request->validate([
+        'url' => ['required', 'url', $domainRule],
+        'script' => ['required', 'string', 'max:10000'],
+    ]);
+
+    try {
+        $states = app(InteractionScriptParser::class)->parse($validated['script']);
+
+        $scanner = app(AxeScanner::class);
+        $issues = $scanner->scanInteractiveStates($validated['url'], $states);
+
+        $fileLocator = app(FileLocator::class);
+
+        foreach ($issues as $issue) {
+            $location = $fileLocator->locate($issue->htmlSnippet, $issue->selector);
+            if ($location) {
+                $issue->fileName = $location['file'];
+                $issue->lineNumber = $location['line'];
+                $issue->sourceType = $location['type'] ?? null;
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'states' => array_map(fn (array $state) => [
+                'label' => $state['label'],
+                'actionCount' => count($state['actions']),
+            ], $states),
+            'issues' => $issues,
+        ]);
+    } catch (InvalidArgumentException $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 422);
+    } catch (Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+})->name('lens-for-laravel.scan.states')->middleware('throttle:10,1');
 
 Route::post('/preview', function (Request $request) use ($domainRule) {
     if (! in_array(app()->environment(), config('lens-for-laravel.enabled_environments', ['local']))) {
@@ -321,6 +370,7 @@ Route::post('/report/pdf', function (Request $request) {
         'issues.*.selector' => ['nullable', 'string', 'max:500'],
         'issues.*.tags' => ['nullable', 'array'],
         'issues.*.tags.*' => ['string', 'max:50'],
+        'issues.*.stateLabel' => ['nullable', 'string', 'max:100'],
         'url' => ['required', 'url', 'max:2048'],
     ]);
 
@@ -385,15 +435,17 @@ Route::get('/history/{id}/compare/{compareId}', function (int $id, int $compareI
             return response()->json(['status' => 'error', 'message' => 'Scan not found.'], 404);
         }
 
-        $baseKeys = $base->issues->map(fn ($i) => $i->rule_id.'|'.$i->selector)->toArray();
-        $compareKeys = $compare->issues->map(fn ($i) => $i->rule_id.'|'.$i->selector)->toArray();
+        $issueKey = fn ($i) => $i->rule_id.'|'.$i->selector.'|'.($i->state_label ?? '');
+
+        $baseKeys = $base->issues->map($issueKey)->toArray();
+        $compareKeys = $compare->issues->map($issueKey)->toArray();
 
         $baseKeySet = array_flip($baseKeys);
         $compareKeySet = array_flip($compareKeys);
 
-        $new = $compare->issues->filter(fn ($i) => ! isset($baseKeySet[$i->rule_id.'|'.$i->selector]))->values();
-        $fixed = $base->issues->filter(fn ($i) => ! isset($compareKeySet[$i->rule_id.'|'.$i->selector]))->values();
-        $remaining = $base->issues->filter(fn ($i) => isset($compareKeySet[$i->rule_id.'|'.$i->selector]))->values();
+        $new = $compare->issues->filter(fn ($i) => ! isset($baseKeySet[$issueKey($i)]))->values();
+        $fixed = $base->issues->filter(fn ($i) => ! isset($compareKeySet[$issueKey($i)]))->values();
+        $remaining = $base->issues->filter(fn ($i) => isset($compareKeySet[$issueKey($i)]))->values();
 
         return response()->json([
             'status' => 'success',
@@ -416,7 +468,7 @@ Route::post('/history', function (Request $request) {
     try {
         $validated = $request->validate([
             'url' => ['required', 'string', 'max:2048'],
-            'scanMode' => ['required', 'string', 'in:single,website,multiple'],
+            'scanMode' => ['required', 'string', 'in:single,website,multiple,states'],
             'urlsScanned' => ['nullable', 'array'],
             'urlsScanned.*' => ['string', 'max:2048'],
             'issues' => ['required', 'array', 'max:1000'],
@@ -429,6 +481,7 @@ Route::post('/history', function (Request $request) {
             'issues.*.tags' => ['nullable', 'array'],
             'issues.*.tags.*' => ['string', 'max:50'],
             'issues.*.url' => ['nullable', 'string', 'max:2048'],
+            'issues.*.stateLabel' => ['nullable', 'string', 'max:100'],
             'issues.*.fileName' => ['nullable', 'string', 'max:500'],
             'issues.*.lineNumber' => ['nullable', 'integer', 'min:1'],
             'issues.*.sourceType' => ['nullable', 'string', 'in:blade,react,vue'],
@@ -460,6 +513,7 @@ Route::post('/history', function (Request $request) {
                     'selector' => $issue['selector'] ?? null,
                     'tags' => $issue['tags'] ?? null,
                     'url' => $issue['url'] ?? null,
+                    'state_label' => $issue['stateLabel'] ?? null,
                     'file_name' => $issue['fileName'] ?? null,
                     'line_number' => $issue['lineNumber'] ?? null,
                     'source_type' => $issue['sourceType'] ?? null,

@@ -21,6 +21,22 @@ test('POST /report/pdf returns 403 when environment not allowed', function () {
     ])->assertStatus(403);
 });
 
+test('POST /report/pdf validates interactive state labels', function () {
+    $this->postJson(route('lens-for-laravel.report.pdf'), [
+        'issues' => [
+            [
+                'id' => 'button-name',
+                'impact' => 'critical',
+                'description' => 'Buttons must have text',
+                'stateLabel' => str_repeat('x', 101),
+            ],
+        ],
+        'url' => 'https://example.com',
+    ])
+        ->assertStatus(422)
+        ->assertJsonValidationErrors(['issues.0.stateLabel']);
+});
+
 test('POST /report/pdf returns error json when browsershot fails', function () {
     // Without headless Chrome, Browsershot throws — the route catches Throwable
     $this->postJson(route('lens-for-laravel.report.pdf'), [
